@@ -1,0 +1,139 @@
+# Sincronização de Clientes com Shopify
+
+## Visão Geral
+
+A Terravik utiliza uma arquitetura híbrida onde os dados de clientes são gerenciados pelo Supabase, mas sincronizados com o Shopify para pedidos e checkout.
+
+## Campos da Tabela `profiles`
+
+### Dados Básicos
+- `id` (UUID) - Primary key, sincronizado com Supabase Auth
+- `email` - E-mail do usuário (não editável)
+- `full_name` - Nome completo do cliente
+- `phone` - Telefone/WhatsApp com máscara (XX) XXXXX-XXXX
+- `avatar_url` - URL pública da foto de perfil (Supabase Storage)
+
+### Endereço
+- `address` (JSONB) - Objeto com estrutura:
+  ```json
+  {
+    "cep": "00000-000",
+    "street": "Nome da rua",
+    "number": "123",
+    "complement": "Apto 45",
+    "neighborhood": "Bairro",
+    "city": "Cidade",
+    "state": "UF"
+  }
+  ```
+
+### Sincronização Shopify
+- `shopify_customer_id` - ID do cliente no Shopify (preenchido via webhook)
+- `shopify_email` - E-mail usado no Shopify (pode diferir do auth)
+
+### Gamificação
+- `xp_total` - Total de XP acumulado
+- `level` - Nível atual do usuário
+- `streak_days` - Dias consecutivos de atividade
+
+### Sistema
+- `role` - Papel do usuário (customer | admin | super_admin)
+- `created_at` - Data de criação
+- `updated_at` - Data da última atualização
+- `last_activity_date` - Última atividade registrada
+
+## Fluxo de Sincronização
+
+### 1. Cadastro no Site (Supabase)
+```
+Usuário cadastra → Supabase Auth cria usuário → Trigger cria profile → shopify_customer_id = null
+```
+
+### 2. Primeiro Pedido (Shopify Webhook)
+```
+Usuário faz pedido → Shopify cria customer → Webhook customers/create → Atualiza profile com shopify_customer_id
+```
+
+### 3. Atualização de Dados
+```
+Usuário edita perfil → Atualiza Supabase → [Futura] Sincroniza com Shopify via API
+```
+
+## Regras de Negócio
+
+### Upload de Avatar
+- **Formato:** Apenas imagens (jpg, png, gif, webp)
+- **Tamanho máximo:** 2MB
+- **Bucket:** `banners` (path: `avatars/`)
+- **Nomenclatura:** `{user_id}-{timestamp}.{ext}`
+
+### Busca de CEP
+- **API:** ViaCEP (https://viacep.com.br/ws/{cep}/json/)
+- **Auto-fill:** Rua, Bairro, Cidade, Estado
+- **Validação:** 8 dígitos numéricos
+- **Formato:** 00000-000
+
+### Validações
+- **Nome completo:** Obrigatório, mínimo 3 caracteres
+- **Telefone:** Opcional, máscara (XX) XXXXX-XXXX
+- **CEP:** Opcional, formato 00000-000
+- **Estado:** Máximo 2 caracteres, uppercase
+
+## Interface da Página "Meus Dados" (Arquitetura Híbrida Inteligente)
+
+### ✅ IMPLEMENTADO - Estratégia Híbrida
+
+A página é dividida em 3 seções estratégicas:
+
+#### **SEÇÃO 1: Dados Comerciais (Shopify)** 🔒 READONLY
+- **Fonte:** Shopify Customer API via GraphQL
+- **Campos:** Nome, telefone, endereço
+- **Editável:** ❌ Não (exibe + link "Editar no Shopify")
+- **Sincronização:** Automática via webhook `customers/update`
+- **Motivo:** Dados de checkout/pagamento devem ser gerenciados pelo Shopify
+
+#### **SEÇÃO 2: Personalização (Supabase)** ✏️ EDITÁVEL
+- **Fonte:** Tabela `profiles` do Supabase
+- **Campos:** Avatar, preferências de notificação, configurações da academia
+- **Editável:** ✅ Sim (salva direto no Supabase)
+- **Sincronização:** Não sincroniza com Shopify (dados exclusivos da plataforma)
+- **Motivo:** Funcionalidades customizadas que o Shopify não oferece
+
+#### **SEÇÃO 3: Gamificação (Supabase)** 👀 READONLY
+- **Fonte:** Tabela `profiles` do Supabase
+- **Campos:** XP total, nível, sequência de dias
+- **Editável:** ❌ Não (atualização automática)
+- **Sincronização:** Não sincroniza com Shopify
+- **Motivo:** Sistema de recompensas interno da Terravik
+
+### Funcionalidades Implementadas
+- ✅ Busca de dados do Shopify via Admin API (GraphQL)
+- ✅ Upload de avatar no Supabase Storage
+- ✅ Preferências de comunicação (email, WhatsApp, newsletter)
+- ✅ Feedback visual e loading states
+- ✅ Link para editar dados comerciais no Shopify Account
+- ✅ Indicador de sincronização com Shopify
+- ✅ Tratamento de erros e estados vazios
+
+## Próximos Passos
+
+### Curto Prazo
+- [ ] Criar bucket dedicado `avatars` no Supabase Storage
+- [ ] Adicionar validação de CPF/CNPJ (campo futuro)
+- [ ] Implementar sincronização bidirecional com Shopify
+
+### Médio Prazo
+- [ ] Adicionar histórico de alterações
+- [ ] Implementar verificação de e-mail/telefone
+- [ ] Criar integração com Shopify Customer API para sincronizar dados editados
+
+### Longo Prazo
+- [ ] Implementar Shopify Multipass para SSO
+- [ ] Adicionar opção de exportar dados (LGPD)
+- [ ] Criar painel de privacidade (gerenciamento de consentimentos)
+
+## Referências
+
+- [Shopify Customer API](https://shopify.dev/docs/api/admin-rest/2024-01/resources/customer)
+- [Supabase Storage](https://supabase.com/docs/guides/storage)
+- [ViaCEP API](https://viacep.com.br/)

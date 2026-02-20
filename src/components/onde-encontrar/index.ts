@@ -1,0 +1,1 @@
+export { OndeEncontrarContent } from './OndeEncontrarContent'

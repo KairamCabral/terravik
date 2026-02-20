@@ -1,0 +1,42 @@
+---
+description: Arquitetura híbrida Terravik — regras de propriedade de dados entre Supabase e Shopify
+alwaysApply: true
+---
+
+# Terravik — Arquitetura Híbrida (Headless Commerce)
+
+## Princípio
+Cada dado tem UM dono. Nunca misturar responsabilidades.
+
+## SUPABASE é dono de:
+- `profiles` (auth, perfil, preferências, XP, gamificação)
+- `courses`, `lessons`, `user_progress` (Academia)
+- `achievements`, `user_achievements` (Conquistas)
+- `stores` (Lojas conveniadas)
+- `banners`, `calculator_logs`, `admin_metrics`, `notifications`
+- Autenticação (Supabase Auth)
+
+## SHOPIFY é dono de:
+- Produtos e variantes (Storefront API)
+- Carrinho e checkout (redirect para Shopify)
+- Pedidos e fulfillment
+- Pagamentos e cartões
+- Assinaturas (Shopify Subscriptions)
+- Estoque
+
+## PONTE (Sincronização):
+- `orders_sync` → cache de pedidos Shopify (webhook + Admin API fallback)
+- `profiles.shopify_customer_id` → vínculo entre perfis
+- Webhooks: Shopify → Terravik (nunca o contrário)
+
+## Regras ao implementar:
+1. NUNCA criar lógica de pagamento no Terravik
+2. NUNCA salvar dados de cartão no Supabase
+3. Pedidos SEMPRE vêm do Shopify (cache no Supabase = conveniência)
+4. Se Shopify tem feature nativa (cashback, loyalty, reviews), USAR ao invés de recriar
+5. Dados de academia/gamificação são 100% Supabase
+
+## Rotas:
+- `/conta/*` → Área do cliente (qualquer role autenticada)
+- `/admin/*` → Dashboard admin (role: admin | super_admin)
+- `/login`, `/cadastro` → Auth (redirecionam se logado)

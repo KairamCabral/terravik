@@ -1,0 +1,26 @@
+---
+description: Regra de decisão para novas features — quem é dono do dado
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Regra de Decisão para Novas Features
+
+Antes de implementar qualquer feature, pergunte:
+
+1. **O dado nasce no Shopify?** (pedido, pagamento, frete, estoque)
+   → Shopify é dono. Cachear no Supabase para exibição. NÃO criar lógica de negócio.
+
+2. **O dado é exclusivo do Terravik?** (academia, XP, favoritos, calculadora)
+   → 100% Supabase. Desenvolver e manter no Terravik.
+
+3. **O dado existe nos dois mundos?** (perfil, endereço)
+   → Definir UM source of truth. O outro é cache/espelho.
+
+4. **Shopify já tem app/feature nativa?** (cashback, loyalty, reviews)
+   → Usar Shopify. Linkar se preciso. NÃO reinventar.
+
+## Camadas de Serviço:
+- `src/lib/services/` → Lógica Supabase (profile, courses, achievements)
+- `src/lib/shopify/queries/` → Lógica Shopify (products, cart, orders)
+- `src/app/api/webhooks/` → Ponte de sincronização
