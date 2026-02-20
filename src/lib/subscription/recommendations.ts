@@ -183,7 +183,6 @@ export function generateRecommendation(lawnData: LawnData): SmartRecommendation 
   const annualCost = subscriptionPrice * deliveriesPerYear;
   const annualSavings = calculateAnnualSavings(
     totalBasePrice,
-    subscriptionPrice,
     recommendedFrequency,
     1
   );
@@ -278,7 +277,7 @@ export function adjustRecommendationByPreference(
     
     adjusted.annualPlan = {
       totalCost: subPrice * deliveries,
-      savings: calculateAnnualSavings(totalPrice, subPrice, adjusted.recommendedFrequency, 1),
+      savings: calculateAnnualSavings(totalPrice, adjusted.recommendedFrequency, 1),
       deliveries
     };
   }
@@ -297,7 +296,7 @@ export function adjustRecommendationByPreference(
     
     adjusted.annualPlan = {
       totalCost: subPrice * deliveries,
-      savings: calculateAnnualSavings(totalPrice, subPrice, 90, 1),
+      savings: calculateAnnualSavings(totalPrice, 90, 1),
       deliveries
     };
   }

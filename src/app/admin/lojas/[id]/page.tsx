@@ -251,7 +251,7 @@ export default function EditarLojaPage() {
           cep: form.cep || null,
           latitude: form.latitude ? parseFloat(form.latitude) : null,
           longitude: form.longitude ? parseFloat(form.longitude) : null,
-          type: form.type,
+          type: form.type as Database['public']['Enums']['store_type'],
           tags: form.tags,
           logo_url: form.logo_url || null,
           is_active: form.is_active,

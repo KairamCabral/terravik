@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { OBJECTIVE_LABELS, CLIMATE_LABELS } from '@/lib/calculator/constants';
 import { getMockProductByCalculatorId } from '@/lib/shopify/mock-data';
+import type { LawnData } from '@/lib/subscription/types';
 
 interface CalculatorResultSubscriptionProps {
   calculator: ReturnType<typeof useCalculator>;
@@ -39,11 +40,37 @@ interface CalculatorResultSubscriptionProps {
   }) => void;
 }
 
+// Mapear answers/result da calculadora para LawnData (SmartRecommendation)
+function toLawnData(calculator: ReturnType<typeof useCalculator>): LawnData | null {
+  const { result, answers } = calculator;
+  if (!result) return null;
+  const sol = answers.sol;
+  const pisoteio = answers.pisoteio;
+  const nivel = answers.nivel;
+  const currentCondition: LawnData['currentCondition'] = answers.implantando
+    ? 'new'
+    : nivel === 'fraco_amarelado' || nivel === 'ralo_falhas'
+      ? 'recovering'
+      : 'established';
+  const sunlight: LawnData['sunlight'] =
+    sol === 'sol_pleno' ? 'full-sun' : sol === 'meia_sombra' ? 'partial-shade' : 'full-shade';
+  const traffic: LawnData['traffic'] =
+    pisoteio === 'baixo' ? 'low' : pisoteio === 'medio' ? 'medium' : 'high';
+  return {
+    area: result.area_m2,
+    grassType: 'são-carlos',
+    currentCondition,
+    sunlight,
+    traffic,
+  };
+}
+
 export function CalculatorResultSubscription({
   calculator,
   onAddToCart,
 }: CalculatorResultSubscriptionProps) {
-  const { result, reset, lawnData } = calculator;
+  const { result, reset } = calculator;
+  const lawnData = toLawnData(calculator);
   
   if (!result) {
     return (
@@ -132,8 +159,9 @@ export function CalculatorResultSubscription({
         
         // Determinar condição do gramado baseado no objetivo
         let lawnCondition: 'poor' | 'fair' | 'good' | 'excellent' = 'fair';
-        if (result.context.objetivo === 'maint') lawnCondition = 'good';
-        if (result.context.objetivo === 'recov') lawnCondition = 'poor';
+        if (result.context.objetivo === 'plano_completo') lawnCondition = 'excellent';
+        if (result.context.objetivo === 'verde_vigor' || result.context.objetivo === 'resistencia') lawnCondition = 'good';
+        if (result.context.objetivo === 'implantacao') lawnCondition = 'poor';
         
         return (
           <CalculatorSubscriptionOffer
@@ -146,7 +174,7 @@ export function CalculatorResultSubscription({
               variantId: variant.id,
               image: mockProduct.featuredImage?.url,
             }}
-            recommendedQuantity={mainProduct.quantidade_embalagens || 1}
+            recommendedQuantity={mainProduct.packs.reduce((sum, p) => sum + p.qty, 0) || 1}
             lawnCondition={lawnCondition}
             onAddToCart={() => {
               console.log('Produto adicionado ao carrinho via calculadora');
@@ -164,6 +192,7 @@ export function CalculatorResultSubscription({
           onAccept={(recommendation) => {
             console.log('Recomendação aceita:', recommendation);
           }}
+          onCustomize={() => {}}
         />
       )}
       

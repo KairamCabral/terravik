@@ -43,7 +43,7 @@ function StoreLogo({ store }: { store: Store }) {
           width={180}
           height={72}
           className="h-12 lg:h-14 w-auto object-contain grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-          unoptimized={store.logo_url.startsWith('/lojas/')}
+          unoptimized={store.logo_url?.startsWith('/lojas/') ?? false}
           onError={() => setLogoError(true)}
         />
       ) : (

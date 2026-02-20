@@ -64,7 +64,7 @@ export function CartLine({ item }: CartLineProps) {
         {item.image ? (
           <Image
             src={item.image.url}
-            alt={item.image.altText || item.productTitle}
+            alt={item.image.alt || item.productTitle}
             fill
             className="object-cover"
             sizes="80px"

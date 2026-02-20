@@ -144,7 +144,7 @@ export function InfluencersSection() {
     const fetchData = async () => {
       try {
         const supabase = createClient()
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from('video_testimonials')
           .select('*')
           .eq('is_active', true)
@@ -152,7 +152,7 @@ export function InfluencersSection() {
 
         if (data && data.length > 0) {
           setTestimonials(
-            data.map((d) => ({
+            (data as { id: string; handle: string; thumbnail_url: string; video_url: string | null; product_name: string }[]).map((d) => ({
               id: d.id,
               handle: d.handle,
               thumbnail: d.thumbnail_url,

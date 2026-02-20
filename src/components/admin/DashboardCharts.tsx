@@ -46,7 +46,7 @@ export default function DashboardCharts({ revenueChart, courseStats }: Dashboard
                   border: '1px solid #E5E7EB',
                   borderRadius: '8px',
                 }}
-                formatter={(value: number) => [formatPrice(value), 'Receita']}
+                formatter={(value: number | undefined) => [formatPrice(value ?? 0), 'Receita']}
               />
               <Line
                 type="monotone"

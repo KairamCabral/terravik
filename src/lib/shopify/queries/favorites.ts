@@ -50,6 +50,10 @@ interface FavoritesMetafield {
   updatedAt: string
 }
 
+interface CustomerFavoritesResponse {
+  customer?: { metafield?: { value?: string } }
+}
+
 /**
  * Busca favoritos do cliente no Shopify
  */
@@ -57,12 +61,12 @@ export async function getShopifyFavorites(
   customerAccessToken: string
 ): Promise<string[]> {
   try {
-    const response = await shopifyFetch({
+    const response = await shopifyFetch<CustomerFavoritesResponse>({
       query: CUSTOMER_FAVORITES_QUERY,
       variables: { customerAccessToken },
     })
 
-    const metafieldValue = response.body?.data?.customer?.metafield?.value
+    const metafieldValue = response?.customer?.metafield?.value
     
     if (!metafieldValue) {
       return []

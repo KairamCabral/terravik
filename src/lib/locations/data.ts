@@ -3,7 +3,7 @@
  * Busca do Supabase (stores table) com fallback local
  */
 
-import type { Location } from '@/types/location'
+import type { Location, LocationType } from '@/types/location'
 
 const TYPE_LABELS: Record<string, string> = {
   garden_center: 'Garden Center',
@@ -80,7 +80,7 @@ export async function getStoresFromDB(): Promise<Location[]> {
     return stores.map((s: Record<string, unknown>) => ({
       id: s.id as string,
       name: s.name as string,
-      type: (s.type as string) === 'online' ? 'loja_online' : (s.type as string) || 'other',
+      type: ((s.type as string) === 'online' ? 'loja_online' : (s.type as string) || 'other') as LocationType,
       typeLabel: TYPE_LABELS[(s.type as string) || 'other'] || 'Outro',
       address: s.address as string,
       city: s.city as string,

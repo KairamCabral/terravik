@@ -55,15 +55,16 @@ export function TestimonialsSection() {
     const fetchData = async () => {
       try {
         const supabase = createClient()
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from('photo_testimonials')
           .select('*')
           .eq('is_active', true)
           .order('"order"', { ascending: true })
 
         if (data && data.length > 0) {
+          type Row = { name: string; location: string; rating: number; text: string; months: number; image_url: string }
           setTestimonials(
-            data.map((d) => ({
+            (data as Row[]).map((d) => ({
               name: d.name,
               location: d.location,
               rating: d.rating,

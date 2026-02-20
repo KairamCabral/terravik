@@ -34,10 +34,11 @@ export function CourseCard({
     ? DIFFICULTY_CONFIG[course.difficulty as keyof typeof DIFFICULTY_CONFIG]
     : null;
 
-  // Selecionar thumbnail baseado no variant
-  const thumbnailUrl = 'thumbnail_landscape' in course
+  // Selecionar thumbnail baseado no variant (garantir string para next/image)
+  const rawThumb = 'thumbnail_landscape' in course
     ? (variant === 'landscape' ? course.thumbnail_landscape : course.thumbnail_portrait)
     : ('thumbnail_url' in course ? course.thumbnail_url : null);
+  const thumbnailUrl = typeof rawThumb === 'string' && rawThumb ? rawThumb : null;
 
   return (
     <Link href={linkHref} className="block group">

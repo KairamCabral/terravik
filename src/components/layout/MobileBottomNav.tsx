@@ -36,13 +36,13 @@ export function MobileBottomNav() {
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon
         const isActive =
-          item.href === '/'
+          'href' in item && item.href === '/'
             ? pathname === '/'
-            : item.href
+            : 'href' in item && item.href
               ? pathname?.startsWith(item.href)
               : false
 
-        if (item.cta) {
+        if ('cta' in item && item.cta) {
           return (
             <button
               key={item.label}
@@ -60,7 +60,7 @@ export function MobileBottomNav() {
           )
         }
 
-        if (item.action === 'cart') {
+        if ('action' in item && item.action === 'cart') {
           return (
             <button
               key={item.label}
@@ -93,10 +93,11 @@ export function MobileBottomNav() {
           )
         }
 
+        const href = 'href' in item ? item.href : '/'
         return (
           <Link
             key={item.label}
-            href={item.href!}
+            href={href}
             className="flex flex-col items-center gap-0.5 py-1 min-w-[56px] transition-colors"
             aria-current={isActive ? 'page' : undefined}
           >

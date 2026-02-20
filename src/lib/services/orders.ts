@@ -90,9 +90,9 @@ function mapOrderToDisplay(order: OrderSync): OrderDisplay {
       quantity: Number(item.quantity || 0),
       price: String(item.price || '0'),
     })),
-    trackingNumber: (order.tracking_number as string) || null,
-    trackingUrl: (order.tracking_url as string) || null,
-    trackingCompany: (order.tracking_company as string) || null,
+    trackingNumber: (order as OrderSync & { tracking_number?: string }).tracking_number ?? null,
+    trackingUrl: (order as OrderSync & { tracking_url?: string }).tracking_url ?? null,
+    trackingCompany: (order as OrderSync & { tracking_company?: string }).tracking_company ?? null,
     shopifyUrl: shopifyOrderId && shopifyDomain 
       ? `https://${shopifyDomain}/account/orders/${shopifyOrderId}`
       : undefined,

@@ -239,6 +239,7 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
         )}
 
       {videoOpen &&
+        videoUrl &&
         createPortal(
           <VideoModal
             url={getEmbedUrl(videoUrl)}

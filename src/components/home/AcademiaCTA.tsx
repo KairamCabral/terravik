@@ -88,7 +88,7 @@ export function AcademiaCTA() {
 
                 {/* CTAs */}
                 <div className="space-y-3">
-                  <Button variant="primary" size="default" className="w-full group" asChild>
+                  <Button variant="primary" size="md" className="w-full group" asChild>
                     <Link href="/academia" className="flex items-center justify-center gap-2">
                       <BookOpen className="h-4 w-4" />
                       Começar agora
@@ -96,7 +96,7 @@ export function AcademiaCTA() {
                     </Link>
                   </Button>
                   
-                  <Button variant="outline" size="default" className="w-full" asChild>
+                  <Button variant="outline" size="md" className="w-full" asChild>
                     <Link href="/academia/cursos">
                       Ver cursos
                     </Link>

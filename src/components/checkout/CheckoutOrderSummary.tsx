@@ -55,7 +55,7 @@ export function CheckoutOrderSummary({
               {item.image?.url ? (
                 <Image
                   src={item.image.url}
-                  alt={item.image.altText || item.productTitle}
+                  alt={item.image.alt || item.productTitle}
                   fill
                   className="object-contain p-1"
                   sizes="56px"
@@ -202,7 +202,7 @@ export function CheckoutMobileSummary({
                     {item.image?.url ? (
                       <Image
                         src={item.image.url}
-                        alt={item.image.altText || item.productTitle}
+                        alt={item.image.alt || item.productTitle}
                         fill
                         className="object-contain p-0.5"
                         sizes="40px"

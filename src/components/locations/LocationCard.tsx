@@ -31,7 +31,7 @@ export function LocationCard({ location }: LocationCardProps) {
     <div className="rounded-2xl border-2 border-terravik-brown/10 bg-white p-6">
       <div className="mb-4 flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          {showLogo ? (
+          {showLogo && location.logoUrl ? (
             <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white border border-terravik-brown/5">
               <Image
                 src={location.logoUrl}
