@@ -56,9 +56,9 @@ const products: Product[] = [
       '10kg': { original: 749.90, final: 699.90 },
     },
     variantIds: {
-      '1kg': 'gid://shopify/ProductVariant/gramado-novo-1kg',
-      '5kg': 'gid://shopify/ProductVariant/gramado-novo-5kg',
-      '10kg': 'gid://shopify/ProductVariant/gramado-novo-10kg',
+      '1kg': 'mock-p1-1kg',
+      '5kg': 'mock-p1-5kg',
+      '10kg': 'mock-p1-10kg',
     },
   },
   {
@@ -75,9 +75,9 @@ const products: Product[] = [
       '10kg': { original: 849.90, final: 552.40 },
     },
     variantIds: {
-      '1kg': 'gid://shopify/ProductVariant/verde-rapido-1kg',
-      '5kg': 'gid://shopify/ProductVariant/verde-rapido-5kg',
-      '10kg': 'gid://shopify/ProductVariant/verde-rapido-10kg',
+      '1kg': 'mock-p2-1kg',
+      '5kg': 'mock-p2-5kg',
+      '10kg': 'mock-p2-10kg',
     },
   },
   {
@@ -94,9 +94,9 @@ const products: Product[] = [
       '10kg': { original: 799.90, final: 599.90 },
     },
     variantIds: {
-      '1kg': 'gid://shopify/ProductVariant/resistencia-total-1kg',
-      '5kg': 'gid://shopify/ProductVariant/resistencia-total-5kg',
-      '10kg': 'gid://shopify/ProductVariant/resistencia-total-10kg',
+      '1kg': 'mock-p3-1kg',
+      '5kg': 'mock-p3-5kg',
+      '10kg': 'mock-p3-10kg',
     },
   },
 ]

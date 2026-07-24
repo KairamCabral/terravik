@@ -2,25 +2,33 @@
 // Cliente Supabase Admin para uso server-side (API Routes, Server Actions)
 // ATENÇÃO: Nunca expor este client no browser
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database'
 
-if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-  throw new Error('NEXT_PUBLIC_SUPABASE_URL não configurada')
-}
+let _supabaseAdmin: SupabaseClient<Database> | null = null
 
-if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  // Em desenvolvimento, usar anon key como fallback
-  console.warn('SUPABASE_SERVICE_ROLE_KEY não configurada, usando anon key como fallback')
-}
+export function getSupabaseAdmin(): SupabaseClient<Database> {
+  if (_supabaseAdmin) return _supabaseAdmin
 
-export const supabaseAdmin = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url) throw new Error('NEXT_PUBLIC_SUPABASE_URL não configurada')
+  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY ou NEXT_PUBLIC_SUPABASE_ANON_KEY não configurada')
+
+  _supabaseAdmin = createClient<Database>(url, key, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
     },
-  }
-)
+  })
+
+  return _supabaseAdmin
+}
+
+// Retrocompatibilidade: exporta como supabaseAdmin para não quebrar imports existentes
+export const supabaseAdmin = new Proxy({} as SupabaseClient<Database>, {
+  get(_target, prop) {
+    return (getSupabaseAdmin() as any)[prop]
+  },
+})
