@@ -52,7 +52,7 @@ const FIELD_VALIDATORS: Record<string, (v: string) => string | null> = {
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { cart, isLoading: cartLoading } = useCart()
+  const { cart, isLoading: cartLoading, removeItem } = useCart()
   const { user, profile } = useAuth()
 
   // Document type
@@ -386,7 +386,7 @@ export default function CheckoutPage() {
 
       {/* Mobile summary */}
       {cart && (
-        <CheckoutMobileSummary cart={cart} shipping={shipping} coupon={coupon} />
+        <CheckoutMobileSummary cart={cart} shipping={shipping} coupon={coupon} onRemoveItem={removeItem} />
       )}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 lg:py-10">
@@ -510,6 +510,7 @@ export default function CheckoutPage() {
                   cart={cart}
                   shipping={shipping}
                   coupon={coupon}
+                  onRemoveItem={removeItem}
                 />
               </div>
             </div>

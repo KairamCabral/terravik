@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Tag, RefreshCw } from 'lucide-react'
+import { ChevronDown, Tag, RefreshCw, X } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { formatPrice } from '@/lib/subscription/pricing'
 import type { Cart } from '@/types/cart'
@@ -16,6 +16,7 @@ interface CheckoutOrderSummaryProps {
   cart: Cart
   shipping: ShippingOption | null
   coupon: AppliedCoupon | null
+  onRemoveItem?: (lineId: string) => Promise<void>
   className?: string
 }
 
@@ -23,8 +24,12 @@ export function CheckoutOrderSummary({
   cart,
   shipping,
   coupon,
+  onRemoveItem,
   className,
 }: CheckoutOrderSummaryProps) {
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [removingId, setRemovingId] = useState<string | null>(null)
+
   const couponDiscount = coupon?.discountAmount ?? 0
   const shippingCost = shipping?.price ?? 0
   const total = Math.max(0, cart.subtotal - couponDiscount) + shippingCost
@@ -39,6 +44,17 @@ export function CheckoutOrderSummary({
     (shipping?.isFree && shipping.originalPrice ? shipping.originalPrice : 0) +
     couponDiscount
 
+  async function handleConfirmRemove(lineId: string) {
+    if (!onRemoveItem) return
+    setRemovingId(lineId)
+    setConfirmingId(null)
+    try {
+      await onRemoveItem(lineId)
+    } finally {
+      setRemovingId(null)
+    }
+  }
+
   return (
     <div className={cn('rounded-xl border border-border-subtle bg-bg-surface', className)}>
       {/* Header */}
@@ -50,7 +66,7 @@ export function CheckoutOrderSummary({
       {/* Items */}
       <div className="px-5 py-4 space-y-3 max-h-64 overflow-y-auto">
         {cart.items.map((item) => (
-          <div key={item.id} className="flex items-start gap-3">
+          <div key={item.id} className="flex items-start gap-3 group">
             <div className="relative w-14 h-14 rounded-lg bg-bg-surface-2 overflow-hidden flex-shrink-0 border border-border-subtle">
               {item.image?.url ? (
                 <Image
@@ -84,11 +100,54 @@ export function CheckoutOrderSummary({
                   Assinatura · {item.subscription.discountPercent}% off
                 </span>
               )}
+
+              {/* Confirmação inline de remoção */}
+              <AnimatePresence>
+                {confirmingId === item.id && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center gap-2 mt-1"
+                  >
+                    <span className="text-[11px] text-txt-muted">Remover item?</span>
+                    <button
+                      onClick={() => handleConfirmRemove(item.id)}
+                      className="text-[11px] text-functional-error font-semibold hover:underline"
+                    >
+                      Sim
+                    </button>
+                    <button
+                      onClick={() => setConfirmingId(null)}
+                      className="text-[11px] text-txt-muted hover:underline"
+                    >
+                      Não
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
-            <p className="text-sm font-medium text-txt-primary whitespace-nowrap">
-              {formatPrice(item.totalPrice * item.quantity)}
-            </p>
+            <div className="flex flex-col items-end gap-1">
+              <p className={cn(
+                'text-sm font-medium whitespace-nowrap transition-opacity',
+                removingId === item.id ? 'text-txt-muted opacity-40' : 'text-txt-primary'
+              )}>
+                {formatPrice(item.totalPrice * item.quantity)}
+              </p>
+              {onRemoveItem && confirmingId !== item.id && (
+                <button
+                  onClick={() => setConfirmingId(item.id)}
+                  disabled={removingId === item.id}
+                  className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-0.5 rounded text-txt-muted hover:text-functional-error disabled:cursor-not-allowed"
+                  aria-label={`Remover ${item.productTitle}`}
+                  title="Remover item"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -161,11 +220,26 @@ export function CheckoutMobileSummary({
   cart,
   shipping,
   coupon,
+  onRemoveItem,
 }: Omit<CheckoutOrderSummaryProps, 'className'>) {
   const [isOpen, setIsOpen] = useState(false)
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [removingId, setRemovingId] = useState<string | null>(null)
+
   const couponDiscount = coupon?.discountAmount ?? 0
   const shippingCost = shipping?.price ?? 0
   const total = Math.max(0, cart.subtotal - couponDiscount) + shippingCost
+
+  async function handleConfirmRemove(lineId: string) {
+    if (!onRemoveItem) return
+    setRemovingId(lineId)
+    setConfirmingId(null)
+    try {
+      await onRemoveItem(lineId)
+    } finally {
+      setRemovingId(null)
+    }
+  }
 
   return (
     <div className="lg:hidden border-b border-border-subtle bg-bg-surface">
@@ -197,7 +271,7 @@ export function CheckoutMobileSummary({
           >
             <div className="px-5 pb-4 space-y-2.5">
               {cart.items.map((item) => (
-                <div key={item.id} className="flex items-center gap-3">
+                <div key={item.id} className="flex items-center gap-3 group">
                   <div className="relative w-10 h-10 rounded bg-bg-surface-2 overflow-hidden flex-shrink-0 border border-border-subtle">
                     {item.image?.url ? (
                       <Image
@@ -214,8 +288,55 @@ export function CheckoutMobileSummary({
                       {item.quantity}
                     </span>
                   </div>
-                  <p className="flex-1 text-sm text-txt-primary truncate">{item.productTitle}</p>
-                  <p className="text-sm font-medium text-txt-primary">{formatPrice(item.totalPrice * item.quantity)}</p>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-txt-primary truncate">{item.productTitle}</p>
+                    <AnimatePresence>
+                      {confirmingId === item.id && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.15 }}
+                          className="flex items-center gap-2 mt-0.5"
+                        >
+                          <span className="text-[11px] text-txt-muted">Remover?</span>
+                          <button
+                            onClick={() => handleConfirmRemove(item.id)}
+                            className="text-[11px] text-functional-error font-semibold hover:underline"
+                          >
+                            Sim
+                          </button>
+                          <button
+                            onClick={() => setConfirmingId(null)}
+                            className="text-[11px] text-txt-muted hover:underline"
+                          >
+                            Não
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <p className={cn(
+                      'text-sm font-medium transition-opacity',
+                      removingId === item.id ? 'text-txt-muted opacity-40' : 'text-txt-primary'
+                    )}>
+                      {formatPrice(item.totalPrice * item.quantity)}
+                    </p>
+                    {onRemoveItem && confirmingId !== item.id && (
+                      <button
+                        onClick={() => setConfirmingId(item.id)}
+                        disabled={removingId === item.id}
+                        className="p-0.5 rounded text-txt-muted hover:text-functional-error transition-colors disabled:cursor-not-allowed"
+                        aria-label={`Remover ${item.productTitle}`}
+                        title="Remover item"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
 
