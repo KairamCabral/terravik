@@ -71,13 +71,17 @@ export function CheckoutOrderBump({ cartProductIds }: CheckoutOrderBumpProps) {
           </p>
           <p className="text-xs text-txt-muted mt-0.5 line-clamp-1">{product.pitch}</p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-txt-muted line-through">
-              {formatPrice(product.compareAtPrice)}
-            </span>
+            {product.compareAtPrice && (
+              <span className="text-xs text-txt-muted line-through">
+                {formatPrice(product.compareAtPrice)}
+              </span>
+            )}
             <span className="text-sm font-bold text-forest">{formatPrice(product.price)}</span>
-            <span className="text-[10px] font-bold text-white bg-forest px-1.5 py-0.5 rounded">
-              -{product.discountPercent}%
-            </span>
+            {product.discountPercent > 0 && (
+              <span className="text-[10px] font-bold text-white bg-forest px-1.5 py-0.5 rounded">
+                -{product.discountPercent}%
+              </span>
+            )}
           </div>
         </div>
 

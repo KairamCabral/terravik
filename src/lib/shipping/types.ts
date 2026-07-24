@@ -40,14 +40,14 @@ export interface FreeShippingConfig {
 // Order Bump
 export interface OrderBumpProduct {
   id: string                   // productId do catálogo (ex: 'mock-p2')
-  variantId: string            // variantId para addToCart (ex: 'mock-p2-2700g')
+  variantId: string            // variantId para addToCart (ex: 'mock-p2-1kg')
   handle: string               // handle do produto (ex: 'verde-rapido')
   title: string                // Nome do produto
-  variantTitle: string         // Nome da variante (ex: '2,7kg')
+  variantTitle: string         // Nome da variante (ex: '1kg')
   pitch: string                // Frase persuasiva de cross-sell
-  price: number                // Preço especial do bump
-  compareAtPrice: number       // Preço original (âncora)
-  discountPercent: number
+  price: number                // Preço real da variante (deve coincidir com o catálogo)
+  compareAtPrice: number | null // Preço original de âncora; null = sem desconto
+  discountPercent: number      // 0 = sem desconto
   image: string
   triggeredBy: string[]        // IDs de produtos que ativam este bump
   priority: number             // Prioridade (menor = mostra primeiro)
