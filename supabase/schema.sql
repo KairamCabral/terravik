@@ -431,18 +431,30 @@ ALTER TABLE admin_metrics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE calculator_logs ENABLE ROW LEVEL SECURITY;
 
+-- ============================================================
+-- HELPER: lê role sem acionar RLS (evita recursão infinita)
+-- SECURITY DEFINER garante que a função bypassa RLS ao ler profiles
+-- ============================================================
+CREATE OR REPLACE FUNCTION get_auth_user_role()
+RETURNS TEXT
+LANGUAGE SQL
+SECURITY DEFINER
+STABLE
+SET search_path = public
+AS $$
+  SELECT role::text FROM profiles WHERE id = auth.uid()
+$$;
+
 -- profiles: usuário vê/edita apenas o próprio; admin vê todos
 CREATE POLICY "profiles_select_own" ON profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "profiles_update_own" ON profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "profiles_admin_all" ON profiles FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "profiles_admin_all" ON profiles FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- achievements: leitura pública
 CREATE POLICY "achievements_public_read" ON achievements FOR SELECT USING (is_active = true);
-CREATE POLICY "achievements_admin_all" ON achievements FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "achievements_admin_all" ON achievements FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- user_achievements: usuário vê os próprios
 CREATE POLICY "user_achievements_select_own" ON user_achievements FOR SELECT USING (auth.uid() = user_id);
@@ -450,27 +462,23 @@ CREATE POLICY "user_achievements_insert_own" ON user_achievements FOR INSERT WIT
 
 -- banners: leitura pública; escrita apenas admin
 CREATE POLICY "banners_public_read" ON banners FOR SELECT USING (is_active = true);
-CREATE POLICY "banners_admin_all" ON banners FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "banners_admin_all" ON banners FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- courses: leitura pública para publicados
 CREATE POLICY "courses_public_read" ON courses FOR SELECT USING (is_published = true);
-CREATE POLICY "courses_admin_all" ON courses FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "courses_admin_all" ON courses FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- lessons: leitura pública para publicadas
 CREATE POLICY "lessons_public_read" ON lessons FOR SELECT USING (is_published = true);
-CREATE POLICY "lessons_admin_all" ON lessons FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "lessons_admin_all" ON lessons FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- lesson_materials: leitura pública
 CREATE POLICY "lesson_materials_public_read" ON lesson_materials FOR SELECT USING (true);
-CREATE POLICY "lesson_materials_admin_all" ON lesson_materials FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "lesson_materials_admin_all" ON lesson_materials FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- user_progress: usuário vê/edita o próprio
 CREATE POLICY "user_progress_select_own" ON user_progress FOR SELECT USING (auth.uid() = user_id);
@@ -479,39 +487,33 @@ CREATE POLICY "user_progress_update_own" ON user_progress FOR UPDATE USING (auth
 
 -- stores: leitura pública para ativas
 CREATE POLICY "stores_public_read" ON stores FOR SELECT USING (is_active = true);
-CREATE POLICY "stores_admin_all" ON stores FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "stores_admin_all" ON stores FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- subscriptions: usuário vê/edita as próprias
 CREATE POLICY "subscriptions_select_own" ON subscriptions FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "subscriptions_insert_own" ON subscriptions FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "subscriptions_update_own" ON subscriptions FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "subscriptions_admin_all" ON subscriptions FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "subscriptions_admin_all" ON subscriptions FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- orders_sync: usuário vê os próprios
 CREATE POLICY "orders_sync_select_own" ON orders_sync FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "orders_sync_admin_all" ON orders_sync FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "orders_sync_admin_all" ON orders_sync FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- admin_metrics: apenas admin
-CREATE POLICY "admin_metrics_admin_all" ON admin_metrics FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "admin_metrics_admin_all" ON admin_metrics FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- notifications: usuário vê as próprias
 CREATE POLICY "notifications_select_own" ON notifications FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "notifications_update_own" ON notifications FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "notifications_admin_all" ON notifications FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "notifications_admin_all" ON notifications FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));
 
 -- calculator_logs: usuário vê os próprios; anônimo pode inserir
 CREATE POLICY "calculator_logs_select_own" ON calculator_logs FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "calculator_logs_insert_anon" ON calculator_logs FOR INSERT WITH CHECK (true);
-CREATE POLICY "calculator_logs_admin_all" ON calculator_logs FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'super_admin'))
-);
+CREATE POLICY "calculator_logs_admin_all" ON calculator_logs FOR ALL
+  USING (get_auth_user_role() IN ('admin', 'super_admin'));

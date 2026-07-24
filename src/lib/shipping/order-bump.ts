@@ -21,102 +21,96 @@ import type { OrderBumpProduct } from './types'
 
 const ORDER_BUMP_CATALOG: OrderBumpProduct[] = [
   // ── Se comprou Gramado Novo → oferece Verde Rápido ──
-  // Lógica: "Você plantou, agora faça crescer verde e forte"
   {
     id: 'mock-p2',
-    variantId: 'mock-p2-2700g',
+    variantId: 'mock-p2-1kg',
     handle: 'verde-rapido',
     title: 'Verde Rápido',
-    variantTitle: '2,7kg',
+    variantTitle: '1kg',
     pitch: 'Próximo passo: acelere o verde do seu gramado novo',
-    price: 74.90,
-    compareAtPrice: 89.90,
-    discountPercent: 17,
+    price: 54.90,
+    compareAtPrice: 64.90,
+    discountPercent: 15,
     image: '/images/Verde-Rápido.png',
     triggeredBy: ['mock-p1'],
     priority: 1,
   },
 
-  // ── Se comprou Gramado Novo → oferece Resistência Total (400g) ──
-  // Lógica: "Proteja o gramado que você acabou de plantar"
+  // ── Se comprou Gramado Novo → oferece Resistência Total ──
   {
     id: 'mock-p3',
-    variantId: 'mock-p3-400g',
+    variantId: 'mock-p3-1kg',
     handle: 'resistencia-total',
     title: 'Resistência Total',
-    variantTitle: '400g',
+    variantTitle: '1kg',
     pitch: 'Proteja seu gramado novo contra sol e pisoteio',
-    price: 29.90,
-    compareAtPrice: 34.90,
+    price: 60.90,
+    compareAtPrice: 71.20,
     discountPercent: 14,
     image: '/images/Resistencia-total.png',
     triggeredBy: ['mock-p1'],
     priority: 2,
   },
 
-  // ── Se comprou Verde Rápido → oferece Resistência Total (900g) ──
-  // Lógica: "Recuperou o verde? Agora proteja contra calor e desgaste"
+  // ── Se comprou Verde Rápido → oferece Resistência Total ──
   {
     id: 'mock-p3',
-    variantId: 'mock-p3-900g',
+    variantId: 'mock-p3-1kg',
     handle: 'resistencia-total',
     title: 'Resistência Total',
-    variantTitle: '900g',
+    variantTitle: '1kg',
     pitch: 'Mantenha o verde: proteja contra calor e pisoteio',
-    price: 59.90,
-    compareAtPrice: 69.90,
+    price: 60.90,
+    compareAtPrice: 71.20,
     discountPercent: 14,
     image: '/images/Resistencia-total.png',
     triggeredBy: ['mock-p2'],
     priority: 1,
   },
 
-  // ── Se comprou Verde Rápido → oferece Gramado Novo (400g) ──
-  // Lógica: "Tem falhas no gramado? Recomece as áreas danificadas"
+  // ── Se comprou Verde Rápido → oferece Gramado Novo ──
   {
     id: 'mock-p1',
-    variantId: 'mock-p1-400g',
+    variantId: 'mock-p1-1kg',
     handle: 'gramado-novo',
     title: 'Gramado Novo',
-    variantTitle: '400g',
+    variantTitle: '1kg',
     pitch: 'Ideal para preencher falhas enquanto recupera o verde',
-    price: 24.90,
-    compareAtPrice: 29.90,
-    discountPercent: 17,
+    price: 75.90,
+    compareAtPrice: 89.90,
+    discountPercent: 16,
     image: '/images/Gramado-novo.png',
     triggeredBy: ['mock-p2'],
     priority: 2,
   },
 
   // ── Se comprou Resistência Total → oferece Verde Rápido ──
-  // Lógica: "Protegeu? Agora dê aquele boost de cor no gramado"
   {
     id: 'mock-p2',
-    variantId: 'mock-p2-2700g',
+    variantId: 'mock-p2-1kg',
     handle: 'verde-rapido',
     title: 'Verde Rápido',
-    variantTitle: '2,7kg',
+    variantTitle: '1kg',
     pitch: 'Complete o cuidado: recupere a cor verde intensa',
-    price: 74.90,
-    compareAtPrice: 89.90,
-    discountPercent: 17,
+    price: 54.90,
+    compareAtPrice: 64.90,
+    discountPercent: 15,
     image: '/images/Verde-Rápido.png',
     triggeredBy: ['mock-p3'],
     priority: 1,
   },
 
-  // ── Se comprou Resistência Total → oferece Gramado Novo (400g) ──
-  // Lógica: "Replante as áreas mais desgastadas"
+  // ── Se comprou Resistência Total → oferece Gramado Novo ──
   {
     id: 'mock-p1',
-    variantId: 'mock-p1-400g',
+    variantId: 'mock-p1-1kg',
     handle: 'gramado-novo',
     title: 'Gramado Novo',
-    variantTitle: '400g',
+    variantTitle: '1kg',
     pitch: 'Replante as áreas desgastadas com facilidade',
-    price: 24.90,
-    compareAtPrice: 29.90,
-    discountPercent: 17,
+    price: 75.90,
+    compareAtPrice: 89.90,
+    discountPercent: 16,
     image: '/images/Gramado-novo.png',
     triggeredBy: ['mock-p3'],
     priority: 2,
