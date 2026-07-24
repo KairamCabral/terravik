@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronDown, Tag, RefreshCw, X } from 'lucide-react'
+import { ChevronDown, Tag, RefreshCw, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { formatPrice } from '@/lib/subscription/pricing'
 import type { Cart } from '@/types/cart'
@@ -144,7 +144,7 @@ export function CheckoutOrderSummary({
                   aria-label={`Remover ${item.productTitle}`}
                   title="Remover item"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
@@ -333,7 +333,7 @@ export function CheckoutMobileSummary({
                         aria-label={`Remover ${item.productTitle}`}
                         title="Remover item"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>

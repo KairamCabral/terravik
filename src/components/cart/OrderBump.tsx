@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ShoppingCart, Check } from 'lucide-react'
+import { ShoppingCart, Check, Trash2 } from 'lucide-react'
 import { getSmartBumpProduct } from '@/lib/shipping/order-bump'
 import { useCart } from './CartProvider'
 import { formatPrice } from '@/lib/subscription/pricing'
@@ -45,20 +45,22 @@ export function OrderBump({ cartProductIds }: OrderBumpProps) {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-lg overflow-hidden bg-terravik-gold-50 border border-terravik-gold-200"
     >
-      {/* Header - desconto exclusivo */}
+      {/* Header */}
       <div className="bg-gradient-gold px-3 py-1.5 flex items-center justify-center gap-2">
-        <span className="text-white text-xs font-semibold">
-          Leve junto com
-        </span>
-        <span className="bg-white/90 text-terravik-gold-600 text-xs font-bold px-1.5 py-0.5 rounded">
-          {product.discountPercent}% OFF
-        </span>
-        <span className="text-white text-xs font-semibold">!</span>
+        <span className="text-white text-xs font-semibold">Leve junto</span>
+        {product.discountPercent > 0 && (
+          <>
+            <span className="text-white text-xs font-semibold">com</span>
+            <span className="bg-white/90 text-terravik-gold-600 text-xs font-bold px-1.5 py-0.5 rounded">
+              {product.discountPercent}% OFF
+            </span>
+            <span className="text-white text-xs font-semibold">!</span>
+          </>
+        )}
       </div>
 
       {/* Produto */}
       <div className="flex items-center gap-3 p-3">
-        {/* Imagem real do produto */}
         <div className="w-12 h-12 rounded-lg overflow-hidden bg-white flex-shrink-0 border border-terravik-cream-200 relative">
           <Image
             src={product.image}
@@ -79,9 +81,11 @@ export function OrderBump({ cartProductIds }: OrderBumpProps) {
             {product.pitch}
           </p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-xs text-terravik-brown/35 line-through">
-              {formatPrice(product.compareAtPrice)}
-            </span>
+            {product.compareAtPrice && (
+              <span className="text-xs text-terravik-brown/35 line-through">
+                {formatPrice(product.compareAtPrice)}
+              </span>
+            )}
             <span className="text-sm font-bold text-leaf">
               {formatPrice(product.price)}
             </span>
