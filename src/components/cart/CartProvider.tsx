@@ -194,7 +194,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (id) {
           try {
             raw = await addToCartMutation(id, variantId, quantity)
-          } catch {
+          } catch (erro) {
+            // Aviso de estoque não é carrinho inválido: sobe como está.
+            if (erro instanceof Error && erro.name === 'AvisoDaShopify') throw erro
             // Carrinho expirado ou já convertido em pedido: a Shopify recusa
             // adicionar. Começa um carrinho novo abaixo.
             raw = null
@@ -209,7 +211,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         atualizarCarrinho(normalizeCart(raw))
       } catch (erro) {
-        avisarFalha('Não foi possível adicionar ao carrinho. Tente de novo em instantes.', erro)
+        // A frase da Shopify, quando existe ("O produto 'X' já esgotou."), é a
+        // pista de que o problema é do depósito, e não do site.
+        const mensagem =
+          erro instanceof Error && erro.name === 'AvisoDaShopify'
+            ? erro.message
+            : 'Não foi possível adicionar ao carrinho. Tente de novo em instantes.'
+        avisarFalha(mensagem, erro)
         // Relança para quem chamou não mostrar "Adicionado!".
         throw erro
       } finally {

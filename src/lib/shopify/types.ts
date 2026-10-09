@@ -165,9 +165,19 @@ export interface CartResponse {
   cart: ShopifyCart
 }
 
+/**
+ * Aviso que a Shopify manda SEM erro: `userErrors` vazio, carrinho criado e a
+ * linha com quantidade zero. Ver recusarSeNaoEntrou em queries/cart.ts.
+ */
+export interface ShopifyCartWarning {
+  code: string
+  message: string
+}
+
 export interface CartCreateResponse {
   cartCreate: {
     cart: ShopifyCart
+    warnings?: ShopifyCartWarning[]
     userErrors: Array<{ field: string[]; message: string }>
   }
 }
@@ -175,6 +185,7 @@ export interface CartCreateResponse {
 export interface CartLinesAddResponse {
   cartLinesAdd: {
     cart: ShopifyCart
+    warnings?: ShopifyCartWarning[]
     userErrors: Array<{ field: string[]; message: string }>
   }
 }

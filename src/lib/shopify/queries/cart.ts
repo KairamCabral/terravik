@@ -12,6 +12,8 @@ import type {
   CartLinesUpdateResponse,
   CartLinesRemoveResponse,
   CartResponse,
+  ShopifyCart,
+  ShopifyCartWarning,
 } from '../types'
 
 // ---- Fragments ----
@@ -90,6 +92,10 @@ const CREATE_CART = `
         field
         message
       }
+      warnings {
+        code
+        message
+      }
     }
   }
 `
@@ -103,6 +109,10 @@ const ADD_CART_LINES = `
       }
       userErrors {
         field
+        message
+      }
+      warnings {
+        code
         message
       }
     }
@@ -150,6 +160,46 @@ const GET_CART = `
 
 // ---- Funções exportadas ----
 
+/**
+ * Erro que carrega a frase da própria Shopify, para a tela mostrar.
+ * O CartProvider decide pela propriedade `name` entre a mensagem genérica e esta.
+ */
+export class AvisoDaShopify extends Error {
+  constructor(mensagem: string) {
+    super(mensagem)
+    this.name = 'AvisoDaShopify'
+  }
+}
+
+/**
+ * Recusa a "adição" que a Shopify aceitou sem adicionar.
+ *
+ * `cartCreate` e `cartLinesAdd` podem devolver `userErrors: []`, um carrinho
+ * válido e a linha do produto com `quantity: 0`. O motivo vem em `warnings`
+ * (MERCHANDISE_OUT_OF_STOCK), com a frase pronta. A causa costuma estar no
+ * admin da loja, não no estoque: depósito fora do perfil de entrega.
+ *
+ * A segunda checagem, pela quantidade da linha, cobre o caso de a Shopify
+ * zerar sem avisar.
+ */
+function recusarSeNaoEntrou(
+  cart: ShopifyCart,
+  warnings: ShopifyCartWarning[] | undefined,
+  variantId: string
+) {
+  const semEstoque = (warnings ?? []).find(
+    (w) => w.code === 'MERCHANDISE_OUT_OF_STOCK' || w.code === 'MERCHANDISE_NOT_ENOUGH_STOCK'
+  )
+  if (semEstoque) throw new AvisoDaShopify(semEstoque.message)
+
+  const linha = cart.lines.edges.find((e) => e.node.merchandise.id === variantId)
+  if (linha && linha.node.quantity === 0) {
+    throw new AvisoDaShopify(
+      'A loja não conseguiu reservar este produto agora. Tente de novo em instantes.'
+    )
+  }
+}
+
 export async function createCart(variantId: string, quantity = 1) {
   const data = await shopifyMutate<CartCreateResponse>({
     query: CREATE_CART,
@@ -163,6 +213,8 @@ export async function createCart(variantId: string, quantity = 1) {
   if (data.cartCreate.userErrors.length > 0) {
     throw new Error(data.cartCreate.userErrors[0].message)
   }
+
+  recusarSeNaoEntrou(data.cartCreate.cart, data.cartCreate.warnings, variantId)
 
   return data.cartCreate.cart
 }
@@ -183,6 +235,8 @@ export async function addToCart(
   if (data.cartLinesAdd.userErrors.length > 0) {
     throw new Error(data.cartLinesAdd.userErrors[0].message)
   }
+
+  recusarSeNaoEntrou(data.cartLinesAdd.cart, data.cartLinesAdd.warnings, variantId)
 
   return data.cartLinesAdd.cart
 }
