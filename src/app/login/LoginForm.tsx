@@ -18,7 +18,7 @@ export function LoginForm() {
   // os dois são lidos pelo navegador como protocolo relativo e passariam por
   // um teste de startsWith('/').
   const destinoPedido = searchParams.get('redirect') || '/conta'
-  const redirectTo = /^\/(?![/\])/.test(destinoPedido) ? destinoPedido : '/conta'
+  const redirectTo = /^\/(?![/\\])/.test(destinoPedido) ? destinoPedido : '/conta'
   const callbackError = searchParams.get('error')
 
   const [email, setEmail] = useState('')
