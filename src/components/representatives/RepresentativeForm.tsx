@@ -36,12 +36,25 @@ export function RepresentativeForm() {
 
     setState('loading')
 
+    // /api/contact exige mensagem com 10 caracteres ou mais, e aqui o campo é
+    // opcional. Enviar o formulário cru fazia a API responder 400 para quem
+    // seguia o rótulo "(opcional)". A mensagem é composta a partir dos campos
+    // estruturados, então nunca chega vazia e leva contexto a quem a recebe.
+    const mensagem = [
+      `Interesse em representar a Terravik em ${formData.city.trim()}/${formData.state.trim().toUpperCase()}.`,
+      `Experiência com vendas: ${formData.experience}.`,
+      formData.message.trim(),
+    ]
+      .filter(Boolean)
+      .join('\n\n')
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          message: mensagem,
           subject: 'Quero ser Representante',
         }),
       })
