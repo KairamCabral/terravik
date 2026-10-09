@@ -13,11 +13,22 @@ import {
   TrendingDown,
   GraduationCap,
   MapPin,
-  Activity,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { ShopifyQuickLinks } from '@/components/admin/ShopifyQuickLinks';
 import { formatPrice } from '@/lib/subscription/pricing';
+import {
+  agruparReceitaPorMes,
+  dentroDe,
+  formatarVariacao,
+  janelas,
+  somarReceita,
+  temVariacao,
+  variacao,
+} from '@/lib/admin/metricas';
+
+/** Tamanho, em dias, da janela usada nos selos de variação. */
+const DIAS_DA_VARIACAO = 30;
 
 const DashboardCharts = dynamic(
   () => import('@/components/admin/DashboardCharts'),
@@ -29,10 +40,10 @@ interface DashboardMetrics {
   totalOrders: number;
   totalCustomers: number;
   activeSubscriptions: number;
-  revenueChange: number;
-  ordersChange: number;
-  customersChange: number;
-  subscriptionsChange: number;
+  /** Undefined quando o período anterior não tem base de comparação. */
+  revenueChange?: number;
+  ordersChange?: number;
+  customersChange?: number;
 }
 
 interface RevenueData {
@@ -59,11 +70,9 @@ export default function AdminDashboardPage() {
     totalOrders: 0,
     totalCustomers: 0,
     activeSubscriptions: 0,
-    revenueChange: 12.5,
-    ordersChange: 8.2,
-    customersChange: 15.3,
-    subscriptionsChange: 22.1,
   });
+  /** null: a contagem não veio (erro na consulta), e o painel mostra "--". */
+  const [activeStores, setActiveStores] = useState<number | null>(null);
   const [revenueChart, setRevenueChart] = useState<RevenueData[]>([]);
   const [courseStats, setCourseStats] = useState<CourseStatData[]>([]);
   const [recentActivity, setRecentActivity] = useState<OrderSync[]>([]);
@@ -76,36 +85,66 @@ export default function AdminDashboardPage() {
   const loadDashboardData = async () => {
     const supabase = createClient();
 
-    // Carregar métricas
-    const [ordersRes, customersRes, subscriptionsRes, coursesRes] = await Promise.all([
-      supabase.from('orders_sync').select('id, total_price', { count: 'exact' }),
-      supabase.from('profiles').select('id', { count: 'exact' }).eq('role', 'customer'),
+    const agora = new Date();
+    const { inicioAtual, inicioAnterior } = janelas(agora, DIAS_DA_VARIACAO);
+    const isoAtual = inicioAtual.toISOString();
+    const isoAnterior = inicioAnterior.toISOString();
+
+    const contarClientes = () =>
+      supabase
+        .from('profiles')
+        .select('id', { count: 'exact', head: true })
+        .eq('role', 'customer');
+
+    const [
+      ordersRes,
+      customersRes,
+      customersAtualRes,
+      customersAnteriorRes,
+      subscriptionsRes,
+      coursesRes,
+      storesRes,
+    ] = await Promise.all([
+      // shopify_created_at vem junto: sem a data não há receita por mês nem variação.
+      supabase
+        .from('orders_sync')
+        .select('id, total_price, shopify_created_at', { count: 'exact' }),
+      contarClientes(),
+      contarClientes().gte('created_at', isoAtual),
+      contarClientes().gte('created_at', isoAnterior).lt('created_at', isoAtual),
       supabase.from('subscriptions').select('id', { count: 'exact' }).eq('status', 'active'),
       supabase.from('courses').select('id, title').eq('is_published', true),
+      supabase.from('stores').select('id', { count: 'exact', head: true }).eq('is_active', true),
     ]);
 
-    // Calcular receita total
-    const totalRevenue = ordersRes.data?.reduce(
-      (sum, order) => sum + (order.total_price || 0), 0
-    ) || 0;
+    const pedidos = ordersRes.data || [];
+    const pedidosAtuais = pedidos.filter((o) =>
+      dentroDe(o.shopify_created_at, inicioAtual, agora)
+    );
+    const pedidosAnteriores = pedidos.filter((o) =>
+      dentroDe(o.shopify_created_at, inicioAnterior, inicioAtual)
+    );
 
-    setMetrics(prev => ({
-      ...prev,
-      totalRevenue,
+    setMetrics({
+      totalRevenue: somarReceita(pedidos),
       totalOrders: ordersRes.count || 0,
       totalCustomers: customersRes.count || 0,
       activeSubscriptions: subscriptionsRes.count || 0,
-    }));
+      // Últimos 30 dias contra os 30 anteriores. Sem base, fica undefined e o selo não aparece.
+      revenueChange: variacao(somarReceita(pedidosAtuais), somarReceita(pedidosAnteriores)),
+      ordersChange: variacao(pedidosAtuais.length, pedidosAnteriores.length),
+      customersChange:
+        customersAtualRes.count === null || customersAnteriorRes.count === null
+          ? undefined
+          : variacao(customersAtualRes.count, customersAnteriorRes.count),
+      // Assinaturas ativas é um retrato do agora. Comparar com "ativas há 30 dias"
+      // exigiria histórico de status, que o banco não guarda: fica sem selo.
+    });
 
-    // Mock data para gráficos (em produção, buscar de admin_metrics)
-    setRevenueChart([
-      { name: 'Jan', revenue: 12500, orders: 45 },
-      { name: 'Fev', revenue: 15800, orders: 52 },
-      { name: 'Mar', revenue: 18200, orders: 61 },
-      { name: 'Abr', revenue: 16900, orders: 58 },
-      { name: 'Mai', revenue: 21500, orders: 72 },
-      { name: 'Jun', revenue: 24800, orders: 85 },
-    ]);
+    setActiveStores(storesRes.error ? null : storesRes.count);
+
+    // Receita dos últimos seis meses, agrupada dos pedidos sincronizados.
+    setRevenueChart(agruparReceitaPorMes(pedidos, agora, 6));
 
     // Estatísticas dos cursos
     const { data: progressData } = await supabase
@@ -162,28 +201,23 @@ export default function AdminDashboardPage() {
           value={formatPrice(metrics.totalRevenue)}
           change={metrics.revenueChange}
           icon={DollarSign}
-          color="emerald"
         />
         <StatsCard
           title="Pedidos"
           value={metrics.totalOrders.toString()}
           change={metrics.ordersChange}
           icon={ShoppingCart}
-          color="blue"
         />
         <StatsCard
           title="Clientes"
           value={metrics.totalCustomers.toString()}
           change={metrics.customersChange}
           icon={Users}
-          color="purple"
         />
         <StatsCard
           title="Assinaturas Ativas"
           value={metrics.activeSubscriptions.toString()}
-          change={metrics.subscriptionsChange}
           icon={RefreshCw}
-          color="amber"
         />
       </div>
 
@@ -205,19 +239,11 @@ export default function AdminDashboardPage() {
               icon={GraduationCap}
               label="Cursos Publicados"
               value={courseStats.length.toString()}
-              color="purple"
             />
             <QuickStat
               icon={MapPin}
               label="Lojas Conveniadas"
-              value="--"
-              color="red"
-            />
-            <QuickStat
-              icon={Activity}
-              label="Assinaturas Ativas"
-              value={metrics.activeSubscriptions.toString()}
-              color="blue"
+              value={activeStores === null ? '--' : activeStores.toString()}
             />
           </div>
         </div>
@@ -270,29 +296,23 @@ export default function AdminDashboardPage() {
 
 // ─── Componentes auxiliares ──────────────────────────────────────
 
-const COLOR_MAP: Record<string, { bg: string; text: string }> = {
-  emerald: { bg: 'bg-emerald-100', text: 'text-emerald-600' },
-  blue: { bg: 'bg-blue-100', text: 'text-blue-600' },
-  purple: { bg: 'bg-purple-100', text: 'text-purple-600' },
-  amber: { bg: 'bg-amber-100', text: 'text-amber-600' },
-  red: { bg: 'bg-red-100', text: 'text-red-600' },
-};
+// Cor só para estado: os ícones dos cartões são neutros, e a única cor que
+// carrega informação é a do selo de variação (subiu ou caiu).
+const ICONE_NEUTRO = { bg: 'bg-neutral-100', text: 'text-neutral-600' };
 
 function StatsCard({
   title,
   value,
   change,
   icon: Icon,
-  color,
 }: {
   title: string;
   value: string;
-  change: number;
+  /** Variação percentual sobre o período anterior. Sem número, sem selo. */
+  change?: number;
   icon: React.ElementType;
-  color: string;
 }) {
-  const isPositive = change >= 0;
-  const colors = COLOR_MAP[color] || COLOR_MAP.emerald;
+  const colors = ICONE_NEUTRO;
 
   return (
     <motion.div
@@ -302,12 +322,23 @@ function StatsCard({
     >
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-xl ${colors.bg}`}>
-          <Icon className={`w-6 h-6 ${colors.text}`} />
+          <Icon className={`w-6 h-6 ${colors.text}`} aria-hidden="true" />
         </div>
-        <div className={`flex items-center gap-1 text-sm ${isPositive ? 'text-emerald-600' : 'text-red-600'}`}>
-          {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-          {Math.abs(change)}%
-        </div>
+        {temVariacao(change) && (
+          <div
+            className={`flex items-center gap-1 text-sm ${change >= 0 ? 'text-emerald-700' : 'text-red-600'}`}
+            title={`Últimos ${DIAS_DA_VARIACAO} dias contra os ${DIAS_DA_VARIACAO} anteriores`}
+          >
+            {change >= 0 ? (
+              <TrendingUp className="w-4 h-4" aria-hidden="true" />
+            ) : (
+              <TrendingDown className="w-4 h-4" aria-hidden="true" />
+            )}
+            <span className="sr-only">{change >= 0 ? 'Alta de' : 'Queda de'}</span>
+            {formatarVariacao(change)}
+            <span className="text-xs text-neutral-500">em {DIAS_DA_VARIACAO} dias</span>
+          </div>
+        )}
       </div>
       <p className="text-2xl font-bold text-neutral-900">{value}</p>
       <p className="text-sm text-neutral-500">{title}</p>
@@ -319,14 +350,12 @@ function QuickStat({
   icon: Icon,
   label,
   value,
-  color,
 }: {
   icon: React.ElementType;
   label: string;
   value: string;
-  color: string;
 }) {
-  const colors = COLOR_MAP[color] || COLOR_MAP.emerald;
+  const colors = ICONE_NEUTRO;
 
   return (
     <div className="flex items-center justify-between">
