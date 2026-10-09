@@ -1,20 +1,21 @@
-'use client'
-
-import { useState } from 'react'
+import Image from 'next/image'
+import { cn } from '@/lib/utils/cn'
+import { VideoDeFundo } from './VideoDeFundo'
+import { VIDEO_DA_SECAO } from './video-secao'
 
 /**
- * VideoSection — Vídeo auto-play, loop, sem controles
+ * VideoSection: vídeo em loop do grânulo, sem controles à vista.
  *
- * Coloque o vídeo em: public/video/fertilizante-terravik.mp4
- * Se o arquivo não existir, a seção fica oculta (evita área preta).
+ * O que vai no HTML do servidor é a caixa e o pôster. O vídeo entra depois,
+ * por cima, seguindo as regras de rede e de acessibilidade de VideoDeFundo.
+ * Arquivos e descrição ficam em video-secao.ts.
+ *
+ * Se o vídeo faltar ou falhar, o pôster fica no lugar. Sem pôster cadastrado,
+ * a caixa fica com o fundo liso `surface-2` em vez de vazia.
  */
-
-const VIDEO_SRC = '/video/fertilizante-terravik.mp4'
-
 export function VideoSection() {
-  const [hasError, setHasError] = useState(false)
-
-  if (hasError) return null
+  const video = VIDEO_DA_SECAO
+  if (!video) return null
 
   return (
     <section
@@ -22,17 +23,22 @@ export function VideoSection() {
       aria-label="Vídeo Terravik"
     >
       <div className="container-main">
-        <div className="relative aspect-video w-full max-w-4xl mx-auto rounded-lg overflow-hidden">
-        <video
-          src={VIDEO_SRC}
-          autoPlay
-          loop
-          muted
-          playsInline
-          onError={() => setHasError(true)}
-          className="absolute inset-0 h-full w-full object-cover"
-          aria-hidden="true"
-        />
+        <div
+          className={cn(
+            'group relative mx-auto aspect-video w-full max-w-4xl overflow-hidden rounded-lg',
+            !video.poster && 'bg-bg-surface-2'
+          )}
+        >
+          {video.poster && (
+            <Image
+              src={video.poster}
+              alt={video.descricao}
+              fill
+              sizes="(max-width: 896px) 100vw, 896px"
+              className="object-cover"
+            />
+          )}
+          <VideoDeFundo fontes={video.fontes} />
         </div>
       </div>
     </section>
