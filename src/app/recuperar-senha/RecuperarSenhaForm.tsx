@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Mail, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { Container } from '@/components/ui'
+import { segundosDeEspera, mensagemDeEspera } from '@/lib/auth/erros'
 
 export function RecuperarSenhaForm() {
   const { resetPassword } = useAuth()
@@ -30,7 +31,14 @@ export function RecuperarSenhaForm() {
     setIsLoading(false)
 
     if (resetError) {
-      setError('Erro ao enviar e-mail de recuperação. Tente novamente.')
+      // O limite de envio do Supabase (429) tem mensagem própria: a genérica
+      // mandava repetir, e repetir na hora é o que garante outro 429.
+      const espera = segundosDeEspera(resetError)
+      setError(
+        espera === null
+          ? 'Não conseguimos enviar o e-mail de recuperação agora. Tente em alguns minutos.'
+          : mensagemDeEspera(espera)
+      )
       return
     }
 
@@ -60,9 +68,31 @@ export function RecuperarSenhaForm() {
               <p className="font-semibold text-neutral-900 mb-6">
                 {email}
               </p>
-              <p className="text-sm text-neutral-500 mb-8">
+              <p className="text-sm text-neutral-500 mb-6">
                 Verifique sua caixa de entrada e a pasta de spam.
                 O link expira em 1 hora.
+              </p>
+              {/*
+                Comprar na loja cria um cliente na Shopify, não um login aqui:
+                o webhook e a sincronização só preenchem shopify_customer_id
+                num perfil que já existe. Quem comprou como visitante e pede
+                recuperação cairia numa tela de sucesso esperando um e-mail que
+                nunca chega.
+
+                A frase fala da REGRA, não do e-mail digitado, para não revelar
+                quem tem conta (mesmo motivo do "se o e-mail estiver cadastrado"
+                acima). Não troque por "esta conta não existe".
+              */}
+              <p className="text-sm text-neutral-600 mb-8">
+                Comprar na loja não cria login no site. Se você nunca criou uma
+                conta aqui, não há senha para recuperar.{' '}
+                <Link
+                  href="/cadastro"
+                  className="font-semibold text-forest underline underline-offset-2 hover:no-underline"
+                >
+                  Criar conta
+                </Link>
+                .
               </p>
               <Link
                 href="/login"

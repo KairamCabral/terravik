@@ -8,6 +8,7 @@ import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { Container } from '@/components/ui'
+import { segundosDeEspera, mensagemDeMuitasTentativas } from '@/lib/auth/erros'
 
 export function LoginForm() {
   const router = useRouter()
@@ -47,7 +48,14 @@ export function LoginForm() {
       } else if (signInError.message.includes('Email not confirmed')) {
         setError('Confirme seu e-mail antes de fazer login. Verifique sua caixa de entrada.')
       } else {
-        setError('Erro ao fazer login. Tente novamente.')
+        // Limite de tentativas (429) depois dos casos do dia a dia e antes do
+        // genérico: mandar repetir na hora garante o erro seguinte.
+        const espera = segundosDeEspera(signInError)
+        setError(
+          espera === null
+            ? 'Erro ao fazer login. Tente novamente.'
+            : mensagemDeMuitasTentativas(espera)
+        )
       }
       return
     }

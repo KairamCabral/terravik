@@ -8,17 +8,10 @@ import { motion } from 'framer-motion'
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, User, CheckCircle2, Check } from 'lucide-react'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { Container } from '@/components/ui'
-
-// Regras de validação de senha
-function getPasswordStrength(password: string) {
-  const checks = {
-    length: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    number: /[0-9]/.test(password),
-  }
-  const passed = Object.values(checks).filter(Boolean).length
-  return { checks, passed, total: 3 }
-}
+// As regras de senha moram em lib/auth/senha.ts, compartilhadas com
+// /redefinir-senha, para as duas telas nunca divergirem.
+import { forcaDaSenha, REQUISITOS_DE_SENHA } from '@/lib/auth/senha'
+import { segundosDeEspera, mensagemDeEspera } from '@/lib/auth/erros'
 
 export function CadastroForm() {
   const router = useRouter()
@@ -34,7 +27,7 @@ export function CadastroForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [success, setSuccess] = useState(false)
 
-  const strength = useMemo(() => getPasswordStrength(password), [password])
+  const strength = useMemo(() => forcaDaSenha(password), [password])
 
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0
   const isValid =
@@ -60,7 +53,14 @@ export function CadastroForm() {
       } else if (signUpError.message.includes('password')) {
         setError('A senha não atende os requisitos mínimos.')
       } else {
-        setError('Erro ao criar conta. Tente novamente.')
+        // O cadastro dispara e-mail de confirmação, então cai no mesmo limite
+        // de envio da recuperação. Mandar repetir na hora garante outro 429.
+        const espera = segundosDeEspera(signUpError)
+        setError(
+          espera === null
+            ? 'Erro ao criar conta. Tente novamente.'
+            : mensagemDeEspera(espera, 'outro e-mail de confirmação')
+        )
       }
       return
     }
@@ -246,18 +246,15 @@ export function CadastroForm() {
                     </div>
                     {/* Checklist */}
                     <ul className="space-y-1">
-                      <li className={`flex items-center gap-2 text-xs ${strength.checks.length ? 'text-emerald-600' : 'text-neutral-400'}`}>
-                        <Check className="w-3.5 h-3.5" />
-                        Mínimo 8 caracteres
-                      </li>
-                      <li className={`flex items-center gap-2 text-xs ${strength.checks.uppercase ? 'text-emerald-600' : 'text-neutral-400'}`}>
-                        <Check className="w-3.5 h-3.5" />
-                        Uma letra maiúscula
-                      </li>
-                      <li className={`flex items-center gap-2 text-xs ${strength.checks.number ? 'text-emerald-600' : 'text-neutral-400'}`}>
-                        <Check className="w-3.5 h-3.5" />
-                        Um número
-                      </li>
+                      {REQUISITOS_DE_SENHA.map(({ chave, rotulo }) => (
+                        <li
+                          key={chave}
+                          className={`flex items-center gap-2 text-xs ${strength.checks[chave] ? 'text-emerald-600' : 'text-neutral-400'}`}
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          {rotulo}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}

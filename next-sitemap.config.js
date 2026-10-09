@@ -17,6 +17,7 @@ const NOINDEX_NA_PAGINA = [
   '/login',
   '/cadastro',
   '/recuperar-senha',
+  '/redefinir-senha',
   '/favoritos',
   '/conta',
 ]
