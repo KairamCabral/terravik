@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { Menu, ShoppingCart, Calculator, User, Heart } from 'lucide-react'
 import { NAV_LINKS } from '@/lib/utils/constants'
+import { AREAS_AUTENTICADAS, dentroDeAlguma } from '@/lib/utils/routes'
 import { Button } from '@/components/ui'
 import { MobileMenu } from './MobileMenu'
 import { useCart } from '@/components/cart'
@@ -39,13 +40,11 @@ export function Header() {
   const totalQuantity = cart?.totalQuantity || 0
   const favoritesCount = getFavoritesCount()
 
-  // Detectar se está em área autenticada (admin, conta, auth pages)
-  const isAuthenticatedArea = pathname?.startsWith('/admin') ||
-    pathname?.startsWith('/conta') ||
-    pathname?.startsWith('/login') ||
-    pathname?.startsWith('/cadastro') ||
-    pathname?.startsWith('/recuperar-senha') ||
-    pathname?.startsWith('/redefinir-senha')
+  // Detectar se está em área autenticada (admin, conta, auth pages).
+  // dentroDeAlguma respeita a fronteira de segmento: sem isso, '/contato'
+  // casava com '/conta' e a página pública de contato ganhava o header da
+  // área logada. Ver src/lib/utils/routes.ts.
+  const isAuthenticatedArea = dentroDeAlguma(pathname, AREAS_AUTENTICADAS)
 
   // Avatar ou iniciais do usuário
   const userInitial = profile?.full_name

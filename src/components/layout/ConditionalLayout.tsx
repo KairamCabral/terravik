@@ -4,6 +4,7 @@
 import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { Header, Footer, RotatingAnnouncementBar, MobileBottomNav } from '@/components/layout';
+import { AREAS_AUTENTICADAS, dentroDe, dentroDeAlguma } from '@/lib/utils/routes';
 
 const CartDrawer = dynamic(
   () => import('@/components/cart').then((m) => ({ default: m.CartDrawer })),
@@ -23,15 +24,11 @@ interface ConditionalLayoutProps {
 export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLayoutProps) {
   const pathname = usePathname();
 
-  // Rotas de áreas logadas (admin e conta do cliente)
-  const isAdminRoute = pathname?.startsWith('/admin');
-  const isAccountRoute = pathname?.startsWith('/conta');
-  const isAuthRoute = pathname?.startsWith('/login') || 
-                      pathname?.startsWith('/cadastro') || 
-                      pathname?.startsWith('/recuperar-senha') ||
-                      pathname?.startsWith('/redefinir-senha');
-  const isCheckoutRoute = pathname?.startsWith('/checkout') ||
-                          pathname?.startsWith('/pedido-confirmado');
+  // dentroDe respeita a fronteira de segmento: com startsWith puro,
+  // '/contato' casava com '/conta' e a página pública de contato saía sem
+  // rodapé, sem barra de anúncio e sem gaveta de carrinho.
+  const isCheckoutRoute = dentroDe(pathname, '/checkout') ||
+                          dentroDe(pathname, '/pedido-confirmado');
   const isCalculatorRoute = pathname === '/calculadora';
 
   // Fullscreen routes: layout próprio (sem header, footer, cart drawer)
@@ -39,7 +36,8 @@ export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLay
     return <>{children}</>;
   }
 
-  const isAuthenticatedArea = isAdminRoute || isAccountRoute || isAuthRoute;
+  // Áreas logadas (admin e conta do cliente) e telas de autenticação
+  const isAuthenticatedArea = dentroDeAlguma(pathname, AREAS_AUTENTICADAS);
 
   if (isAuthenticatedArea) {
     // Layout para áreas autenticadas: Header colado no topo + conteúdo (sem footer/announcement/carrinho)
