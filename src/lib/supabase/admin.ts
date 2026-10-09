@@ -1,6 +1,9 @@
 // src/lib/supabase/admin.ts
 // Cliente Supabase Admin para uso server-side (API Routes, Server Actions)
 // ATENÇÃO: Nunca expor este client no browser
+// `server-only` faz disso erro de build: importar este arquivo de um
+// componente cliente deixa de compilar.
+import 'server-only'
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { Database } from '@/types/database'
@@ -11,10 +14,12 @@ export function getSupabaseAdmin(): SupabaseClient<Database> {
   if (_supabaseAdmin) return _supabaseAdmin
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // Sem fallback para a chave anônima: com ela a RLS recusa as escritas do
+  // servidor e as rotas respondem sucesso sem gravar nada.
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!url) throw new Error('NEXT_PUBLIC_SUPABASE_URL não configurada')
-  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY ou NEXT_PUBLIC_SUPABASE_ANON_KEY não configurada')
+  if (!key) throw new Error('SUPABASE_SERVICE_ROLE_KEY não configurada')
 
   _supabaseAdmin = createClient<Database>(url, key, {
     auth: {

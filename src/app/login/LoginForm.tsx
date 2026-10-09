@@ -14,7 +14,11 @@ export function LoginForm() {
   const searchParams = useSearchParams()
   const { signIn } = useAuth()
 
-  const redirectTo = searchParams.get('redirect') || '/conta'
+  // Só caminho interno. O lookahead barra //site-externo.com e /\site-externo.com:
+  // os dois são lidos pelo navegador como protocolo relativo e passariam por
+  // um teste de startsWith('/').
+  const destinoPedido = searchParams.get('redirect') || '/conta'
+  const redirectTo = /^\/(?![/\])/.test(destinoPedido) ? destinoPedido : '/conta'
   const callbackError = searchParams.get('error')
 
   const [email, setEmail] = useState('')
