@@ -1,3 +1,7 @@
+// Espelha ALLOW_INDEXING de src/lib/utils/constants.ts. Fechado por padrão.
+// Produção precisa de NEXT_PUBLIC_ALLOW_INDEXING=true na Vercel.
+const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true'
+
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://terravik.com.br',
@@ -8,7 +12,7 @@ module.exports = {
   exclude: ['/api/*'],
   robotsTxtOptions: {
     additionalSitemaps: [],
-    policies: [
+    policies: !allowIndexing ? [{ userAgent: '*', disallow: '/' }] : [
       {
         userAgent: '*',
         allow: '/',

@@ -12,6 +12,16 @@ export const SITE = {
   currency: 'BRL',
 } as const
 
+/**
+ * Libera a indexação por buscadores. Fechado por padrão, de propósito:
+ * preview da Vercel e a URL .vercel.app são públicas e seriam indexáveis.
+ *
+ * O ambiente Production da Vercel PRECISA ter NEXT_PUBLIC_ALLOW_INDEXING=true.
+ * Sem ela, o site inteiro sai com noindex e robots.txt com Disallow: /.
+ * Espelhado em next-sitemap.config.js.
+ */
+export const ALLOW_INDEXING = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true'
+
 export const NAV_LINKS = [
   { label: 'Produtos', href: '/produtos' },
   { label: 'Calculadora', href: '/calculadora' },

@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { Inter, Fraunces } from 'next/font/google'
 import '@/styles/globals.css'
 import { organizationSchema, websiteSchema } from '@/lib/seo/metadata'
-import { SITE } from '@/lib/utils/constants'
+import { SITE, ALLOW_INDEXING } from '@/lib/utils/constants'
 import { CartProvider } from '@/components/cart'
 import { ToastProvider } from '@/components/ui'
 import { ServiceWorkerRegister } from '@/components/pwa'
@@ -88,17 +88,19 @@ export const metadata: Metadata = {
     description: SITE.description,
     images: ['/images/og/default.jpg'],
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
+  robots: ALLOW_INDEXING
+    ? {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      }
+    : { index: false, follow: false, nocache: true },
   verification: {
     // google: 'seu-codigo-aqui',
   },

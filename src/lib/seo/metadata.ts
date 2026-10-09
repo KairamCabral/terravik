@@ -5,6 +5,7 @@
 import type { Metadata } from 'next'
 import type { Product } from '@/types/product'
 import type { BlogArticle } from '@/lib/blog/articles'
+import { ALLOW_INDEXING } from '@/lib/utils/constants'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://terravik.com.br'
 const SITE_NAME = 'Terravik'
@@ -62,9 +63,11 @@ export function createMetadata({
       description,
       images: [image.startsWith('http') ? image : `${SITE_URL}${image}`],
     },
-    robots: noIndex
-      ? { index: false, follow: false }
-      : { index: true, follow: true },
+    robots: !ALLOW_INDEXING
+      ? { index: false, follow: false, nocache: true }
+      : noIndex
+        ? { index: false, follow: false }
+        : { index: true, follow: true },
   }
 }
 
