@@ -44,7 +44,7 @@ export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLay
     return (
       <>
         <Header />
-        <main className="min-h-screen pt-[64px] lg:pt-[80px]">
+        <main id="main-content" className="min-h-screen pt-[64px] lg:pt-[80px]">
           {children}
         </main>
       </>

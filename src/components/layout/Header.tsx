@@ -8,7 +8,7 @@ import { Menu, ShoppingCart, Calculator, User, Heart } from 'lucide-react'
 import { NAV_LINKS } from '@/lib/utils/constants'
 import { AREAS_AUTENTICADAS, dentroDeAlguma } from '@/lib/utils/routes'
 import { Button } from '@/components/ui'
-import { MobileMenu } from './MobileMenu'
+import { MobileMenu, ID_MENU_MOBILE } from './MobileMenu'
 import { useCart } from '@/components/cart'
 import { useFavorites } from '@/hooks/useFavorites'
 import { useAuth } from '@/components/auth/AuthProvider'
@@ -300,6 +300,7 @@ export function Header() {
                   )}
                   aria-label="Abrir menu"
                   aria-expanded={mobileMenuOpen}
+                  aria-controls={ID_MENU_MOBILE}
                 >
                   <Menu className={cn('w-5 h-5', isAuthenticatedArea ? 'text-white/80' : 'text-neutral-700')} />
                 </button>
