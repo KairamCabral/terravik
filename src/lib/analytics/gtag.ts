@@ -45,7 +45,19 @@ export const event = ({ action, category, label, value }: {
   }
 }
 
-// E-commerce events
+/**
+ * De onde veio uma adição ao carrinho. Vira `item_list_name` no GA4, e é o
+ * que permite saber qual bloco do site vende.
+ */
+export type OrigemDaAdicao =
+  | 'pdp'
+  | 'vitrine'
+  | 'calculadora'
+  | 'compra-rapida'
+  | 'sugestao-carrinho'
+
+// E-commerce events. Disparados SÓ pelo CartProvider: toda adição, remoção e
+// ida ao checkout passa por lá, então nenhum botão novo esquece o evento.
 export const ecommerce = {
   // Ver produto
   viewProduct: (product: {
@@ -66,20 +78,27 @@ export const ecommerce = {
     }
   },
 
-  // Adicionar ao carrinho
-  addToCart: (product: {
-    id: string
-    name: string
-    price: number
-    quantity: number
-  }) => {
+  // Adicionar ao carrinho. `origem` diz de qual bloco veio (ver OrigemDaAdicao).
+  addToCart: (
+    product: {
+      id: string
+      name: string
+      price: number
+      quantity: number
+    },
+    origem?: OrigemDaAdicao
+  ) => {
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'add_to_cart', {
+        currency: 'BRL',
+        value: product.price * product.quantity,
+        ...(origem ? { item_list_name: origem } : {}),
         items: [{
           item_id: product.id,
           item_name: product.name,
           price: product.price,
           quantity: product.quantity,
+          ...(origem ? { item_list_name: origem } : {}),
         }],
       })
     }
@@ -94,6 +113,8 @@ export const ecommerce = {
   }) => {
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'remove_from_cart', {
+        currency: 'BRL',
+        value: product.price * product.quantity,
         items: [{
           item_id: product.id,
           item_name: product.name,
@@ -116,6 +137,7 @@ export const ecommerce = {
   }) => {
     if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'begin_checkout', {
+        currency: 'BRL',
         items: cart.items.map(item => ({
           item_id: item.id,
           item_name: item.name,

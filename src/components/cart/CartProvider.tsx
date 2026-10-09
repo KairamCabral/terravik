@@ -29,6 +29,7 @@ import {
   clearMockCart,
 } from '@/lib/shopify/mock-cart'
 import { useToast } from '@/components/ui'
+import { ecommerce, type OrigemDaAdicao } from '@/lib/analytics/gtag'
 
 const CART_COOKIE_NAME = 'terravik-cart-id'
 
@@ -61,10 +62,15 @@ interface CartContextValue {
   cart: Cart | null
   isOpen: boolean
   isLoading: boolean
+  /**
+   * `origem` (4º parâmetro) diz de qual bloco a adição veio e vai para o GA4
+   * como `item_list_name`. O 3º continua sendo `subscriptionData`.
+   */
   addItem: (
     variantId: string,
     quantity?: number,
-    subscriptionData?: SubscriptionData
+    subscriptionData?: SubscriptionData,
+    origem?: OrigemDaAdicao
   ) => Promise<void>
   updateItem: (lineId: string, quantity: number) => Promise<void>
   removeItem: (lineId: string) => Promise<void>
@@ -183,14 +189,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
     carregar()
   }, [atualizarCarrinho])
 
+  // O item do evento vem do carrinho normalizado (nome e preço que o checkout
+  // vai cobrar), não de quem chamou, que só conhece o id da variante.
+  const registrarAdicao = useCallback(
+    (carrinho: Cart, variantId: string, quantity: number, origem?: OrigemDaAdicao) => {
+      const linha = carrinho.items.find((i) => i.variantId === variantId)
+      if (!linha) return
+      ecommerce.addToCart(
+        { id: variantId, name: linha.productTitle, price: linha.price, quantity },
+        origem
+      )
+    },
+    []
+  )
+
   const addItem = useCallback(
-    async (variantId: string, quantity = 1, subscriptionData?: SubscriptionData) => {
+    async (
+      variantId: string,
+      quantity = 1,
+      subscriptionData?: SubscriptionData,
+      origem?: OrigemDaAdicao
+    ) => {
       setIsLoading(true)
       try {
         if (MODO_MOCK) {
-          atualizarCarrinho(
-            normalizeMockCart(addToMockCart(variantId, quantity, subscriptionData))
-          )
+          const mock = normalizeMockCart(addToMockCart(variantId, quantity, subscriptionData))
+          atualizarCarrinho(mock)
+          registrarAdicao(mock, variantId, quantity, origem)
           return
         }
 
@@ -217,7 +242,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Guarda o id antes do render: a próxima chamada do mesmo laço já o vê.
         cartIdRef.current = raw.id
 
-        atualizarCarrinho(normalizeCart(raw))
+        const normalizado = normalizeCart(raw)
+        atualizarCarrinho(normalizado)
+        registrarAdicao(normalizado, variantId, quantity, origem)
       } catch (erro) {
         // A frase da Shopify, quando existe ("O produto 'X' já esgotou."), é a
         // pista de que o problema é do depósito, e não do site.
@@ -232,7 +259,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setIsLoading(false)
       }
     },
-    [atualizarCarrinho, avisarFalha]
+    [atualizarCarrinho, avisarFalha, registrarAdicao]
   )
 
   const updateItem = useCallback(
@@ -273,20 +300,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const id = cartIdRef.current
       if (!id) return
 
+      // Antes de remover: depois a linha não existe mais para descrever.
+      const linha = cartRef.current?.items.find((i) => i.id === lineId)
+
       setIsLoading(true)
       try {
         if (MODO_MOCK) {
           const mock = removeFromMockCart(lineId)
           atualizarCarrinho(mock.items.length === 0 ? null : normalizeMockCart(mock))
-          return
+        } else {
+          const normalizado = normalizeCart(await removeFromCartMutation(id, [lineId]))
+          if (normalizado.items.length === 0) {
+            apagarCookie()
+            atualizarCarrinho(null)
+          } else {
+            atualizarCarrinho(normalizado)
+          }
         }
 
-        const normalizado = normalizeCart(await removeFromCartMutation(id, [lineId]))
-        if (normalizado.items.length === 0) {
-          apagarCookie()
-          atualizarCarrinho(null)
-        } else {
-          atualizarCarrinho(normalizado)
+        if (linha) {
+          ecommerce.removeFromCart({
+            id: linha.variantId,
+            name: linha.productTitle,
+            price: linha.price,
+            quantity: linha.quantity,
+          })
         }
       } catch (erro) {
         avisarFalha('Não foi possível remover o item. Tente de novo.', erro)
@@ -354,6 +392,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const goToCheckout = useCallback(() => {
     setIsOpen(false)
+    // Da ref, não do closure: ver o comentário em `cartRef`.
+    const atual = cartRef.current
+    if (atual) {
+      ecommerce.beginCheckout({
+        items: atual.items.map((i) => ({
+          id: i.variantId,
+          name: i.productTitle,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+        value: atual.total,
+      })
+    }
     router.push('/checkout')
   }, [router])
 

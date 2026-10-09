@@ -93,7 +93,7 @@ export function CalculatorSubscriptionOffer({
     
     try {
       // Adicionar ao carrinho (mock ou real)
-      await addItem(recommendedProduct.variantId, recommendedQuantity);
+      await addItem(recommendedProduct.variantId, recommendedQuantity, undefined, 'calculadora');
       
       setIsAdded(true);
       

@@ -62,7 +62,7 @@ export function AddToCartSection({
       frequency: assinatura ? frequency : undefined,
       subscriptionPrice: assinatura ? subscriptionPrice : undefined,
       discountPercent: assinatura ? discountPercent : undefined,
-    })
+    }, 'pdp')
   }
 
   const handleAddToCart = async () => {

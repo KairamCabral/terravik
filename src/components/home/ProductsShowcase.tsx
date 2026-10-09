@@ -150,7 +150,7 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
         discountPercent: 10,
       } : {
         purchaseMode: 'one-time',
-      })
+      }, 'vitrine')
 
       setJustAdded(product.id)
       setTimeout(() => setJustAdded(null), 2000)

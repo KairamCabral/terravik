@@ -158,7 +158,7 @@ export function QuickPurchaseSheet() {
     setIsAdding(true)
     try {
       for (const item of itemsToAdd) {
-        await addItem(item.variantId, item.quantity)
+        await addItem(item.variantId, item.quantity, undefined, 'compra-rapida')
       }
       closeQuickPurchase()
       openCart()

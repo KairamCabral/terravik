@@ -55,7 +55,7 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
         return
       }
 
-      await addItem(variant.id, 1)
+      await addItem(variant.id, 1, undefined, 'calculadora')
       setShowSuccess(true)
       setTimeout(() => {
         setShowSuccess(false)

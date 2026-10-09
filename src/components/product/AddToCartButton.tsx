@@ -26,7 +26,7 @@ export function AddToCartButton({
 
   const handleAddToCart = async () => {
     try {
-      await addItem(variantId, 1)
+      await addItem(variantId, 1, undefined, 'pdp')
       setShowSuccess(true)
       // Abrir drawer após adicionar
       setTimeout(() => openCart(), 300)

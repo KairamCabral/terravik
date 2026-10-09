@@ -30,7 +30,7 @@ export function useCalculatorToCart({
       
       // Adicionar ao carrinho
       // Nota: Em produção, aqui você passaria metadados de assinatura
-      await addItem(variantId, quantity);
+      await addItem(variantId, quantity, undefined, 'calculadora');
       
       setIsSuccess(true);
       openCart();
@@ -48,7 +48,7 @@ export function useCalculatorToCart({
     setIsLoading(true);
     
     try {
-      await addItem(variantId, quantity);
+      await addItem(variantId, quantity, undefined, 'calculadora');
       setIsSuccess(true);
       openCart();
     } catch (error) {

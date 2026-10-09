@@ -27,7 +27,7 @@ export function OrderBump({ cartProductIds }: OrderBumpProps) {
     if (!product) return
     setIsAdding(true)
     try {
-      await addItem(product.variantId, 1)
+      await addItem(product.variantId, 1, undefined, 'sugestao-carrinho')
       setIsAdded(true)
       setTimeout(() => setIsAdded(false), 2000)
     } catch (error) {
