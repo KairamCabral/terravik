@@ -10,6 +10,12 @@ const supabaseHostnames = [
   ]),
 ]
 
+// Origem da loja Shopify para a CSP, derivada do domínio configurado.
+const shopifyDomain = (process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || '')
+  .replace(/^https?:\/\//, '')
+  .replace(/\/.*$/, '')
+const shopifyOrigin = shopifyDomain ? `https://${shopifyDomain}` : 'https://*.myshopify.com'
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -44,8 +50,15 @@ const nextConfig = {
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https: http:",
       "font-src 'self' https://fonts.gstatic.com",
-      "connect-src 'self' https://www.google-analytics.com https://*.supabase.co https://*.shopify.com wss://*.supabase.co",
-      "frame-src 'self' https://*.shopify.com",
+      // shopifyOrigin: https://*.shopify.com não casa loja.myshopify.com, e a
+      // Storefront API era bloqueada no navegador. viacep preenche o CEP.
+      // GA4 usa coletores regionais fora de www.google-analytics.com.
+      `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.supabase.co wss://*.supabase.co https://*.shopify.com ${shopifyOrigin} https://viacep.com.br`,
+      `frame-src 'self' https://*.shopify.com ${shopifyOrigin}`,
+      // Sem media-src, <video> do storage do Supabase cai em default-src e é bloqueado.
+      `media-src 'self' blob: data: https://*.supabase.co https://cdn.shopify.com ${shopifyOrigin}`,
+      // canvas-confetti cria worker a partir de blob.
+      "worker-src 'self' blob:",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
