@@ -124,7 +124,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: { full_name: fullName },
+        // Sem isto o link de confirmação volta para a Site URL do Supabase com
+        // ?code= na raiz, onde ninguém troca o código por sessão: a pessoa
+        // confirmava o e-mail e caía na home deslogada.
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     return { error: error as Error | null };
   }, [supabase]);

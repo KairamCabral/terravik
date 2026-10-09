@@ -13,7 +13,7 @@ feat/c-06-catalogo-no-servidor fix/h-01-service-worker feat/u-01-recuperacao-de-
 fix/h-07-painel-admin fix/p-01-preco-honesto fix/p-03-galeria fix/p-04-fluxo-de-compra chore/b-06-guardas-de-build
 fix/b-08-contato-area-logada fix/u-02-area-da-conta fix/h-08-acessibilidade feat/c-08-eventos-ga4 fix/h-09-busca
 feat/h-03-faq refactor/p-02-card-unico perf/h-02-lcp-e-consultas fix/h-06-dados-fabricados
-fix/u-03-pedidos-e-conquistas fix/h-05-video-de-fundo fix/h-04-carrossel-de-depoimentos feat/c-07-frete-faixas fix/cadastro-handle-new-user fix/login-redireciona-apos-entrar
+fix/u-03-pedidos-e-conquistas fix/h-05-video-de-fundo fix/h-04-carrossel-de-depoimentos feat/c-07-frete-faixas fix/cadastro-handle-new-user fix/login-redireciona-apos-entrar fix/cadastro-link-de-confirmacao
 )
 BASE=master
 for B in "${BRANCHES[@]}"; do
