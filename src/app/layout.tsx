@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Inter, Fraunces } from 'next/font/google'
 import '@/styles/globals.css'
-import { organizationSchema, websiteSchema } from '@/lib/seo/metadata'
+import { organizationSchema, websiteSchema, jsonLd } from '@/lib/seo/metadata'
 import { SITE, ALLOW_INDEXING } from '@/lib/utils/constants'
 import { CartProvider } from '@/components/cart'
 import { ToastProvider } from '@/components/ui'
@@ -128,15 +128,15 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationSchema()),
+            __html: jsonLd(organizationSchema()),
           }}
         />
 
-        {/* JSON-LD: WebSite (com SearchAction para sitelinks) */}
+        {/* JSON-LD: WebSite */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteSchema()),
+            __html: jsonLd(websiteSchema()),
           }}
         />
       </head>

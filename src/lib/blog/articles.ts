@@ -9,6 +9,8 @@ export interface BlogArticle {
   excerpt: string
   content: string // HTML
   publishedAt: string // ISO date
+  /** ISO date da última revisão. Sem ela, vale `publishedAt`. */
+  updatedAt?: string
   author: string
   category: 'como-fazer' | 'produto' | 'dicas'
   categoryLabel: string

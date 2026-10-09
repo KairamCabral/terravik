@@ -1,7 +1,13 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { breadcrumbSchema, articleSchema } from '@/lib/seo/metadata'
+import {
+  createMetadata,
+  resumoParaMeta,
+  breadcrumbSchema,
+  articleSchema,
+  jsonLd,
+} from '@/lib/seo/metadata'
 import { Container, Badge, Button } from '@/components/ui'
 import { ArticleCard } from '@/components/blog'
 import {
@@ -34,14 +40,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   }
 
+  // createMetadata dá canonical, título no template do layout e imagem
+  // social. Só o tipo do Open Graph muda para artigo.
+  const base = createMetadata({
+    title: article.title,
+    description: resumoParaMeta(article.excerpt),
+    path: `/blog/${article.slug}`,
+    ...(article.featuredImage ? { image: article.featuredImage } : {}),
+  })
+
   return {
-    title: `${article.title} — Blog Terravik`,
-    description: article.excerpt,
+    ...base,
     openGraph: {
-      title: article.title,
-      description: article.excerpt,
+      ...base.openGraph,
       type: 'article',
       publishedTime: article.publishedAt,
+      modifiedTime: article.updatedAt ?? article.publishedAt,
       authors: [article.author],
     },
   }
@@ -68,13 +82,13 @@ export default function BlogArticlePage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(articleSchema(article)),
+          __html: jsonLd(articleSchema(article)),
         }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Blog', url: '/blog' },

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
+import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { OndeEncontrarContent } from '@/components/onde-encontrar'
 
 export const metadata: Metadata = createMetadata({
@@ -15,7 +15,7 @@ export default function OndeEncontrarPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Onde Encontrar', url: '/onde-encontrar' },

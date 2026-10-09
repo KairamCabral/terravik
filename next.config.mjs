@@ -125,10 +125,6 @@ const nextConfig = {
         source: '/favicon.ico',
         destination: '/favicon.svg',
       },
-      {
-        source: '/apple-touch-icon.png',
-        destination: '/favicon.svg',
-      },
     ]
   },
 }

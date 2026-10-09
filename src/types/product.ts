@@ -13,6 +13,8 @@ export interface ProductImage {
 export interface ProductVariant {
   id: string
   title: string
+  /** Código cadastrado na Shopify. Nunca o id (gid) da variante. */
+  sku: string | null
   available: boolean
   quantityAvailable: number | null
   price: number

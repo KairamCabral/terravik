@@ -62,6 +62,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p1-1kg',
         title: '1kg',
+        sku: null,
         available: true,
         quantityAvailable: 50,
         price: 89.9,
@@ -73,6 +74,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p1-5kg',
         title: '5kg',
+        sku: null,
         available: true,
         quantityAvailable: 30,
         price: 379.9,
@@ -84,6 +86,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p1-10kg',
         title: '10kg',
+        sku: null,
         available: true,
         quantityAvailable: 20,
         price: 699.9,
@@ -149,6 +152,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p2-1kg',
         title: '1kg',
+        sku: null,
         available: true,
         quantityAvailable: 40,
         price: 64.9,
@@ -160,6 +164,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p2-5kg',
         title: '5kg',
+        sku: null,
         available: true,
         quantityAvailable: 25,
         price: 292.4,
@@ -171,6 +176,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p2-10kg',
         title: '10kg',
+        sku: null,
         available: true,
         quantityAvailable: 15,
         price: 552.4,
@@ -242,6 +248,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p3-1kg',
         title: '1kg',
+        sku: null,
         available: true,
         quantityAvailable: 45,
         price: 71.2,
@@ -253,6 +260,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p3-5kg',
         title: '5kg',
+        sku: null,
         available: true,
         quantityAvailable: 25,
         price: 322.4,
@@ -264,6 +272,7 @@ export const MOCK_PRODUCTS: Product[] = [
       {
         id: 'mock-p3-10kg',
         title: '10kg',
+        sku: null,
         available: true,
         quantityAvailable: 15,
         price: 599.9,

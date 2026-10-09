@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getProducts } from '@/lib/shopify/queries/products'
-import { createMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
+import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 import { ProductsPageClient } from './ProductsPageClient'
@@ -34,7 +34,7 @@ export default async function ProdutosPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Produtos', url: '/produtos' },

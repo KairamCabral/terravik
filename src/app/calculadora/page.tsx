@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createMetadata, howToSchema, breadcrumbSchema } from '@/lib/seo/metadata'
+import { createMetadata, howToSchema, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { CalculatorWizard } from '@/components/calculator/CalculatorWizard'
 import { CalculatorProvider } from '@/contexts/CalculatorContext'
 import { CatalogoProvider } from '@/contexts/CatalogoContext'
@@ -26,13 +26,13 @@ export default async function CalculadoraPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(howToSchema()),
+          __html: jsonLd(howToSchema()),
         }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Calculadora', url: '/calculadora' },

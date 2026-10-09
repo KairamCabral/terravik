@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createMetadata, breadcrumbSchema, organizationSchema } from '@/lib/seo/metadata'
+import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { SobrePageClient } from './SobrePageClient'
 
 export const metadata: Metadata = createMetadata({
@@ -15,13 +15,7 @@ export default function SobrePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationSchema()),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Sobre', url: '/sobre' },

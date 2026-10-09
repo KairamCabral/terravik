@@ -55,6 +55,7 @@ export interface ShopifyProduct {
 export interface ShopifyVariant {
   id: string
   title: string
+  sku: string | null
   availableForSale: boolean
   quantityAvailable: number | null
   price: ShopifyMoney

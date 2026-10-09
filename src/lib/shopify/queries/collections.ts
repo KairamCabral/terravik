@@ -59,6 +59,7 @@ const COLLECTION_QUERY = `
                 node {
                   id
                   title
+                  sku
                   availableForSale
                   quantityAvailable
                   price {

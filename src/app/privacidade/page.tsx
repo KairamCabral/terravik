@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { createMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
+import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { Container, Button } from '@/components/ui'
 import {
   Shield,
@@ -43,7 +43,7 @@ export default function PrivacidadePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Política de Privacidade', url: '/privacidade' },

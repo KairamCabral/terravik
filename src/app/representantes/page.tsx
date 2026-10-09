@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { createMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
+import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { Container } from '@/components/ui'
 import { FindRepresentative, RepresentativeForm } from '@/components/representatives'
 import { TrendingUp, Award, Handshake } from 'lucide-react'
@@ -35,7 +35,7 @@ export default function RepresentantesPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Representantes', url: '/representantes' },

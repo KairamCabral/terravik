@@ -43,6 +43,7 @@ const PRODUCT_FRAGMENT = `
         node {
           id
           title
+          sku
           availableForSale
           quantityAvailable
           price {

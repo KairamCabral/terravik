@@ -42,6 +42,7 @@ function normalizeVariant(variant: ShopifyVariant): ProductVariant {
   return {
     id: variant.id,
     title: variant.title,
+    sku: variant.sku || null,
     available: variant.availableForSale,
     quantityAvailable: variant.quantityAvailable,
     price: normalizeMoney(variant.price),

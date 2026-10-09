@@ -8,6 +8,7 @@ import {
   createProductMetadata,
   productSchema,
   breadcrumbSchema,
+  jsonLd,
 } from '@/lib/seo/metadata'
 import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { getMockProductByHandle, MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
@@ -83,13 +84,13 @@ export default async function ProductPage({ params }: Props) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productSchema(product)),
+          __html: jsonLd(productSchema(product)),
         }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: jsonLd(
             breadcrumbSchema([
               { name: 'Home', url: '/' },
               { name: 'Produtos', url: '/produtos' },
