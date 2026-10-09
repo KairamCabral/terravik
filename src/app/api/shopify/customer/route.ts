@@ -1,122 +1,114 @@
 // src/app/api/shopify/customer/route.ts
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN
 const SHOPIFY_ADMIN_ACCESS_TOKEN = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN
+const API_VERSION = process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION || '2024-10'
 
 /**
- * GET/POST - Buscar dados do cliente no Shopify
+ * Dados do cliente na Shopify, para /conta/dados.
+ *
+ * Exige sessão, e o id do cliente vem do perfil de quem está logado, lido no
+ * servidor. O corpo da requisição é ignorado: antes a rota lia `customerId`
+ * dele sem sessão nenhuma, e qualquer pessoa pedia e-mail, endereços e total
+ * gasto de qualquer cliente trocando o número. O PUT, sem chamador no site,
+ * alterava o cadastro de qualquer cliente e foi removido.
+ *
+ * A consulta usa `numberOfOrders`; `ordersCount` não existe mais na Admin API.
  */
-export async function POST(request: NextRequest) {
+const CONSULTA = `
+  query getCustomer($id: ID!) {
+    customer(id: $id) {
+      id
+      email
+      firstName
+      lastName
+      phone
+      defaultAddress { address1 address2 city province zip country phone }
+      addresses { address1 address2 city province zip country phone }
+      numberOfOrders
+      amountSpent { amount currencyCode }
+    }
+  }
+`
+
+export async function POST() {
+  const supabase = createServerSupabaseClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
+  const { data: perfil } = await supabase
+    .from('profiles')
+    .select('shopify_customer_id')
+    .eq('id', user.id)
+    .single()
+
+  const idDoPerfil = perfil?.shopify_customer_id ?? null
+  if (!idDoPerfil) {
+    return NextResponse.json(
+      { error: 'Conta sem cliente vinculado na Shopify' },
+      { status: 404 }
+    )
+  }
+
+  if (!SHOPIFY_STORE_DOMAIN || !SHOPIFY_ADMIN_ACCESS_TOKEN) {
+    console.error('[api/shopify/customer] Admin API da Shopify não configurada')
+    return NextResponse.json(
+      { error: 'Configuração do Shopify não encontrada' },
+      { status: 500 }
+    )
+  }
+
+  // O webhook grava o id numérico e o sync pode gravar o gid: aceita os dois.
+  const gid = idDoPerfil.startsWith('gid://')
+    ? idDoPerfil
+    : `gid://shopify/Customer/${idDoPerfil}`
+
   try {
-    const { customerId } = await request.json()
-
-    if (!customerId) {
-      return NextResponse.json(
-        { error: 'customerId é obrigatório' },
-        { status: 400 }
-      )
-    }
-
-    if (!SHOPIFY_STORE_DOMAIN || !SHOPIFY_ADMIN_ACCESS_TOKEN) {
-      console.error('[API] Variáveis de ambiente do Shopify não configuradas')
-      return NextResponse.json(
-        { error: 'Configuração do Shopify não encontrada' },
-        { status: 500 }
-      )
-    }
-
-    // Extrair ID numérico do GID
-    const numericId = customerId.includes('/')
-      ? customerId.split('/').pop()
-      : customerId
-
-    console.log('[API] Buscando cliente Shopify:', numericId)
-
-    // GraphQL Query para buscar dados do cliente
-    const query = `
-      query getCustomer($id: ID!) {
-        customer(id: $id) {
-          id
-          email
-          firstName
-          lastName
-          phone
-          defaultAddress {
-            address1
-            address2
-            city
-            province
-            zip
-            country
-            phone
-          }
-          addresses {
-            address1
-            address2
-            city
-            province
-            zip
-            country
-            phone
-          }
-          ordersCount
-          amountSpent {
-            amount
-            currencyCode
-          }
-        }
-      }
-    `
-
     const response = await fetch(
-      `https://${SHOPIFY_STORE_DOMAIN}/admin/api/2024-01/graphql.json`,
+      `https://${SHOPIFY_STORE_DOMAIN}/admin/api/${API_VERSION}/graphql.json`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Shopify-Access-Token': SHOPIFY_ADMIN_ACCESS_TOKEN,
         },
-        body: JSON.stringify({
-          query,
-          variables: {
-            id: customerId.includes('gid://') ? customerId : `gid://shopify/Customer/${numericId}`,
-          },
-        }),
+        body: JSON.stringify({ query: CONSULTA, variables: { id: gid } }),
       }
     )
 
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error('[API] Erro do Shopify:', errorText)
+      console.error('[api/shopify/customer] Shopify respondeu', response.status)
       return NextResponse.json(
         { error: 'Erro ao buscar dados no Shopify' },
-        { status: response.status }
+        { status: 502 }
       )
     }
 
     const { data, errors } = await response.json()
 
+    // O detalhe do erro fica no log do servidor; quem chama recebe só a
+    // mensagem genérica.
     if (errors) {
-      console.error('[API] Erros GraphQL:', errors)
-      return NextResponse.json(
-        { error: 'Erro na consulta GraphQL', details: errors },
-        { status: 400 }
-      )
+      console.error('[api/shopify/customer] Erro GraphQL:', JSON.stringify(errors).slice(0, 300))
+      return NextResponse.json({ error: 'Erro na consulta à Shopify' }, { status: 502 })
     }
 
-    if (!data?.customer) {
-      console.warn('[API] Cliente não encontrado:', customerId)
+    const customer = data?.customer
+    if (!customer) {
       return NextResponse.json(
         { error: 'Cliente não encontrado no Shopify' },
         { status: 404 }
       )
     }
 
-    const customer = data.customer
-
-    // Formatar resposta
-    const customerData = {
+    return NextResponse.json({
       id: customer.id,
       email: customer.email,
       firstName: customer.firstName,
@@ -124,125 +116,13 @@ export async function POST(request: NextRequest) {
       phone: customer.phone,
       defaultAddress: customer.defaultAddress,
       addresses: customer.addresses || [],
-      ordersCount: customer.ordersCount || 0,
+      ordersCount: Number(customer.numberOfOrders) || 0,
       totalSpent: customer.amountSpent?.amount || '0',
-    }
-
-    console.log('[API] Cliente encontrado:', customerData.email)
-    return NextResponse.json(customerData)
-  } catch (error: any) {
-    console.error('[API] Exceção ao buscar cliente:', error)
+    })
+  } catch (error) {
+    console.error('[api/shopify/customer] Exceção:', (error as Error).message)
     return NextResponse.json(
-      { error: 'Erro interno ao buscar cliente', details: error.message },
-      { status: 500 }
-    )
-  }
-}
-
-/**
- * PUT - Atualizar dados do cliente no Shopify
- */
-export async function PUT(request: NextRequest) {
-  try {
-    const { customerId, updates } = await request.json()
-
-    if (!customerId || !updates) {
-      return NextResponse.json(
-        { error: 'customerId e updates são obrigatórios' },
-        { status: 400 }
-      )
-    }
-
-    if (!SHOPIFY_STORE_DOMAIN || !SHOPIFY_ADMIN_ACCESS_TOKEN) {
-      return NextResponse.json(
-        { error: 'Configuração do Shopify não encontrada' },
-        { status: 500 }
-      )
-    }
-
-    console.log('[API] Atualizando cliente:', customerId, updates)
-
-    // GraphQL Mutation para atualizar cliente
-    const mutation = `
-      mutation customerUpdate($input: CustomerInput!) {
-        customerUpdate(input: $input) {
-          customer {
-            id
-            email
-            firstName
-            lastName
-            phone
-          }
-          userErrors {
-            field
-            message
-          }
-        }
-      }
-    `
-
-    const input: any = {
-      id: customerId.includes('gid://') ? customerId : `gid://shopify/Customer/${customerId}`,
-    }
-
-    if (updates.firstName) input.firstName = updates.firstName
-    if (updates.lastName) input.lastName = updates.lastName
-    if (updates.phone) input.phone = updates.phone
-
-    // Se houver endereço, adicionar
-    if (updates.address) {
-      input.addresses = [{
-        address1: updates.address.address1,
-        address2: updates.address.address2,
-        city: updates.address.city,
-        province: updates.address.province,
-        zip: updates.address.zip,
-        country: updates.address.country || 'BR',
-        phone: updates.address.phone,
-      }]
-    }
-
-    const response = await fetch(
-      `https://${SHOPIFY_STORE_DOMAIN}/admin/api/2024-01/graphql.json`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Shopify-Access-Token': SHOPIFY_ADMIN_ACCESS_TOKEN,
-        },
-        body: JSON.stringify({
-          query: mutation,
-          variables: { input },
-        }),
-      }
-    )
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('[API] Erro ao atualizar:', errorText)
-      return NextResponse.json(
-        { error: 'Erro ao atualizar no Shopify' },
-        { status: response.status }
-      )
-    }
-
-    const { data, errors } = await response.json()
-
-    if (errors || data?.customerUpdate?.userErrors?.length > 0) {
-      const errorDetails = errors || data.customerUpdate.userErrors
-      console.error('[API] Erros na atualização:', errorDetails)
-      return NextResponse.json(
-        { error: 'Erro ao atualizar cliente', details: errorDetails },
-        { status: 400 }
-      )
-    }
-
-    console.log('[API] Cliente atualizado com sucesso')
-    return NextResponse.json({ success: true, customer: data.customerUpdate.customer })
-  } catch (error: any) {
-    console.error('[API] Exceção ao atualizar:', error)
-    return NextResponse.json(
-      { error: 'Erro interno ao atualizar', details: error.message },
+      { error: 'Erro interno ao buscar cliente' },
       { status: 500 }
     )
   }

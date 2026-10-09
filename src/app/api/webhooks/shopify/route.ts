@@ -163,16 +163,27 @@ async function handleCustomerWebhook(customer: Record<string, unknown>) {
     .single();
 
   if (existingProfile) {
-    // Atualizar com ID do Shopify
+    // Só grava o que veio preenchido. Cliente que comprou só com e-mail chega
+    // com first_name, last_name e phone nulos: gravar tudo deixava "null null"
+    // como nome e apagava o telefone cadastrado no site.
+    const nome = [firstName, lastName].filter(Boolean).join(' ').trim();
+    const atualizacao: {
+      shopify_customer_id: string;
+      shopify_email: string;
+      updated_at: string;
+      full_name?: string;
+      phone?: string;
+    } = {
+      shopify_customer_id: customerId.toString(),
+      shopify_email: email,
+      updated_at: new Date().toISOString(),
+    };
+    if (nome) atualizacao.full_name = nome;
+    if (phone) atualizacao.phone = phone;
+
     await supabaseAdmin
       .from('profiles')
-      .update({
-        shopify_customer_id: customerId.toString(),
-        shopify_email: email,
-        full_name: `${firstName} ${lastName}`.trim(),
-        phone: phone,
-        updated_at: new Date().toISOString(),
-      })
+      .update(atualizacao)
       .eq('id', existingProfile.id);
   }
 }

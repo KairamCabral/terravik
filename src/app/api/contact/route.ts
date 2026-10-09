@@ -31,6 +31,21 @@ export async function POST(request: NextRequest) {
       errors.push('Mensagem deve ter pelo menos 10 caracteres')
     }
 
+    // Tetos de tamanho por campo.
+    const TETOS: Array<[keyof ContactData, string, number]> = [
+      ['name', 'Nome', 200],
+      ['email', 'E-mail', 254],
+      ['phone', 'Telefone', 30],
+      ['subject', 'Assunto', 200],
+      ['message', 'Mensagem', 5000],
+    ]
+    for (const [campo, rotulo, maximo] of TETOS) {
+      const valor = data[campo]
+      if (typeof valor === 'string' && valor.length > maximo) {
+        errors.push(`${rotulo} passou do limite de ${maximo} caracteres`)
+      }
+    }
+
     if (errors.length > 0) {
       return NextResponse.json(
         {

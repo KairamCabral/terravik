@@ -7,13 +7,19 @@ import { checkRateLimit, getPathPrefix } from '@/lib/rate-limit'
 /**
  * Middleware de Autenticação e Rate Limiting
  *
- * - Rate limit por IP: /api/upload (20/min), /api/contact e /api/newsletter (5/min), login/cadastro (10/15min)
+ * - Rate limit por IP, só em requisição que grava (POST, PUT, PATCH, DELETE):
+ *   /api/upload (20/min), /api/contact (5/min).
+ *   /login e /cadastro ficaram de fora: o limite contava a abertura da página,
+ *   o Next pré-carrega /login a cada página visitada e o cliente levava 429 ao
+ *   clicar em Entrar. Login e cadastro falam direto com o Supabase, que tem
+ *   limite próprio.
  * - Rotas protegidas (/conta/*, /admin/*): redireciona para /login se não autenticado
  * - Rotas de auth (/login, /cadastro): redireciona para /conta se já autenticado
  * - Atualiza cookies de sessão a cada request
  */
 
-const RATE_LIMIT_PATHS = ['/api/upload', '/api/contact', '/api/newsletter', '/login', '/cadastro']
+const RATE_LIMIT_PATHS = ['/api/upload', '/api/contact']
+const METODOS_QUE_GRAVAM = ['POST', 'PUT', 'PATCH', 'DELETE']
 
 // Rotas que exigem autenticação
 const PROTECTED_ROUTES = ['/conta', '/admin']
@@ -26,7 +32,7 @@ export async function middleware(request: NextRequest) {
 
   // Rate limiting para APIs e rotas de auth
   const pathPrefix = getPathPrefix(request)
-  if (RATE_LIMIT_PATHS.includes(pathPrefix)) {
+  if (RATE_LIMIT_PATHS.includes(pathPrefix) && METODOS_QUE_GRAVAM.includes(request.method)) {
     const { allowed, retryAfter } = checkRateLimit(request)
     if (!allowed) {
       return new NextResponse(
@@ -117,7 +123,6 @@ export const config = {
     // Rate limit
     '/api/upload',
     '/api/contact',
-    '/api/newsletter',
     // Rotas protegidas
     '/conta/:path*',
     '/admin/:path*',

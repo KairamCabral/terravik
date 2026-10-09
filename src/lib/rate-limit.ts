@@ -1,28 +1,22 @@
 /**
  * Rate limiter in-memory (por instância).
  * Em produção com múltiplas réplicas, considerar Redis.
+ *
+ * Só requisição que grava chega aqui: o middleware deixa GET e HEAD de fora,
+ * porque as cotas foram dimensionadas para envios, não para leitura.
  */
 
 const store = new Map<string, { count: number; resetAt: number }>();
 
 const WINDOW_MS = 60 * 1000;       // 1 minuto
-const AUTH_WINDOW_MS = 15 * 60 * 1000; // 15 minutos
 
 function getKey(ip: string, path: string): string {
   return `${ip}:${path}`;
 }
 
-function getWindow(path: string): number {
-  if (path.startsWith('/api/upload')) return WINDOW_MS;
-  if (path.startsWith('/api/contact') || path.startsWith('/api/newsletter')) return WINDOW_MS;
-  if (path === '/login' || path === '/cadastro') return AUTH_WINDOW_MS;
-  return WINDOW_MS;
-}
-
 function getLimit(path: string): number {
   if (path.startsWith('/api/upload')) return 20;
-  if (path.startsWith('/api/contact') || path.startsWith('/api/newsletter')) return 5;
-  if (path === '/login' || path === '/cadastro') return 10;
+  if (path.startsWith('/api/contact')) return 5;
   return 60;
 }
 
@@ -39,8 +33,6 @@ export function getPathPrefix(request: Request): string {
   const path = url.pathname;
   if (path.startsWith('/api/upload')) return '/api/upload';
   if (path.startsWith('/api/contact')) return '/api/contact';
-  if (path.startsWith('/api/newsletter')) return '/api/newsletter';
-  if (path === '/login' || path === '/cadastro') return path;
   return path;
 }
 
@@ -52,7 +44,7 @@ export function checkRateLimit(request: Request): { allowed: boolean; retryAfter
   const path = getPathPrefix(request);
   const key = getKey(ip, path);
   const now = Date.now();
-  const windowMs = getWindow(path);
+  const windowMs = WINDOW_MS;
   const limit = getLimit(path);
 
   let entry = store.get(key);

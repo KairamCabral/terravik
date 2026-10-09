@@ -104,6 +104,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nenhum arquivo enviado' }, { status: 400 });
     }
 
+    // A pasta vem do formulário e entra direto em path.join no fallback
+    // local: sem esta lista, "../../src" escreveria fora de public/uploads.
+    // São as pastas que o admin de cursos manda hoje.
+    if (!/^(thumbnails(\/[a-z0-9-]+)?|videos|materials)$/.test(folder)) {
+      return NextResponse.json({ error: 'Pasta inválida' }, { status: 400 });
+    }
+
     const ext = file.name.split('.').pop()?.toLowerCase() || '';
     if (!ALLOWED_EXT.has(ext)) {
       return NextResponse.json({ error: 'Tipo de arquivo não permitido' }, { status: 400 });

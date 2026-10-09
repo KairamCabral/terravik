@@ -90,7 +90,7 @@ export default function MeusDadosPage() {
     setIsLoadingShopify(true)
     setShopifyError(null)
 
-    const { data, error } = await getShopifyCustomer(profile.shopify_customer_id)
+    const { data, error } = await getShopifyCustomer()
 
     if (error || !data) {
       console.error('[MeusDados] Erro ao carregar dados do Shopify:', error)

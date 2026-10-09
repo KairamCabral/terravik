@@ -1,9 +1,10 @@
 // src/app/api/academia/seed/route.ts
 // Seed dos cursos estáticos para o Supabase
-// Rodar uma vez: POST /api/academia/seed
+// Rodar uma vez, logado como admin: POST /api/academia/seed
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 const STATIC_COURSES = [
   {
@@ -136,14 +137,18 @@ const STATIC_COURSES = [
 
 export async function POST() {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json({ error: 'Supabase env vars missing' }, { status: 500 });
+    // Só admin logado: a rota grava com a chave de serviço.
+    const sessao = createServerSupabaseClient();
+    const { data: { user } } = await sessao.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    }
+    const { data: perfil } = await sessao.from('profiles').select('role').eq('id', user.id).single();
+    if (perfil?.role !== 'admin' && perfil?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = getSupabaseAdmin();
     const results: any[] = [];
 
     for (const courseData of STATIC_COURSES) {
