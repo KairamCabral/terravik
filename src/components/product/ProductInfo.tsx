@@ -54,7 +54,7 @@ export function ProductInfo({
             <span className="text-lg text-txt-muted line-through">
               {formatCurrency(compareAtPrice, product.currency)}
             </span>
-            <span className="rounded-full border border-gold px-2 py-0.5 text-xs font-semibold text-gold">
+            <span className="rounded-full border border-gold px-2 py-0.5 text-xs font-semibold text-gold-ink">
               {Math.round(((compareAtPrice - price) / compareAtPrice) * 100)}% OFF
             </span>
           </div>

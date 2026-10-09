@@ -2,6 +2,7 @@
 
 import type { ProductVariant } from '@/types/product'
 import { cn } from '@/lib/utils/cn'
+import { rotuloDaOpcao } from '@/lib/shopify/variant-options'
 
 /**
  * VariantSelector — Design System 2026
@@ -27,10 +28,13 @@ export function VariantSelector({
 }: VariantSelectorProps) {
   if (variants.length <= 1) return null
 
+  // O rótulo vem do produto ("Tamanho", "Peso"...), não de texto fixo.
+  const rotulo = rotuloDaOpcao(variants)
+
   if (intuitive) {
     return (
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-txt-secondary">Tamanho</label>
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium text-txt-secondary">{rotulo}</legend>
         <div className="flex flex-wrap items-center gap-2">
           {variants.map((variant) => (
             <button
@@ -53,13 +57,13 @@ export function VariantSelector({
             </button>
           ))}
         </div>
-      </div>
+      </fieldset>
     )
   }
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-medium text-txt-secondary">Tamanho</h3>
+    <fieldset className="space-y-3">
+      <legend className="text-sm font-medium text-txt-secondary">{rotulo}</legend>
       <div className="flex flex-wrap gap-2">
         {variants.map((variant) => (
           <button
@@ -83,6 +87,6 @@ export function VariantSelector({
           </button>
         ))}
       </div>
-    </div>
+    </fieldset>
   )
 }

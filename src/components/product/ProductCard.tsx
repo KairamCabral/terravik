@@ -60,7 +60,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Badge Desconto — Outline dourado, NÃO fundo dourado */}
         {hasDiscount && (
           <div className="absolute right-3 top-3 z-10">
-            <span className="inline-flex items-center px-3 py-1 border border-gold text-gold bg-bg-surface/90 backdrop-blur-sm rounded-full text-xs font-bold">
+            <span className="inline-flex items-center px-3 py-1 border border-gold text-gold-ink bg-bg-surface/90 backdrop-blur-sm rounded-full text-xs font-bold">
               {discountPercentage}% OFF
             </span>
           </div>

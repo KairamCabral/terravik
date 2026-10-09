@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tag } from 'lucide-react'
 
@@ -29,12 +30,32 @@ export function PriceDisplay({
 
   const totalBasePrice = basePrice * quantity
   const totalSubscriptionPrice = subscriptionPrice * quantity
-  const totalCompareAt = compareAtPrice ? compareAtPrice * quantity : null
+  // Só risca quando o preço "de" é MAIOR que o de venda. A Shopify devolve
+  // compareAtPrice igual ao preço em produto sem promoção, e a tela mostrava
+  // "R$ 89,90" ao lado de "R$ 89,90" riscado.
+  const totalCompareAt =
+    compareAtPrice && compareAtPrice > basePrice ? compareAtPrice * quantity : null
 
   const displayPrice =
     purchaseMode === 'subscription' ? totalSubscriptionPrice : totalBasePrice
   const unitPrice =
     purchaseMode === 'subscription' ? subscriptionPrice : basePrice
+
+  // Produto sem preço cadastrado: nada de "R$ 0,00" nem parcela de R$ 0,00.
+  if (basePrice <= 0) {
+    return (
+      <div className="space-y-1">
+        <p className="font-heading text-2xl font-bold text-forest">Preço em definição</p>
+        <p className="text-sm text-txt-secondary">
+          Este produto ainda não tem preço publicado.{' '}
+          <Link href="/contato" className="font-medium text-forest underline underline-offset-2">
+            Fale com a equipe
+          </Link>
+          .
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-2">

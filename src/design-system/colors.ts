@@ -14,6 +14,9 @@ export const brand = {
   forest: '#093E28',
   forestInk: '#052317',
   gold: '#B38B25',
+  // Dourado para TEXTO pequeno. O gold sobre branco dá 3,16:1 e reprova AA;
+  // este dá 5,84:1 sobre branco e 5,46:1 sobre o creme.
+  goldInk: '#7D611A',
 } as const
 
 // ── Backgrounds ─────────────────────────────────────────
@@ -65,6 +68,7 @@ export const palette = {
   },
   gold: {
     DEFAULT: brand.gold,
+    ink: brand.goldInk,
     soft: support.goldSoft,
     muted: support.goldMuted,
   },
