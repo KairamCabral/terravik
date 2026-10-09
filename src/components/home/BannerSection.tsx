@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import Image from 'next/image'
+import { getImageProps } from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
@@ -47,6 +47,12 @@ const FALLBACK_BANNERS: BannerData[] = [
     alt: 'Terravik Resistência Total - Proteção Completa',
   },
 ]
+
+// Corte do Tailwind `md`. As duas mídias precisam ser exatamente
+// complementares: se sobrar largura em que nenhuma casa, o LCP fica sem
+// preload; se as duas casarem, o navegador baixa os dois cortes.
+const MIDIA_DESKTOP = '(min-width: 768px)'
+const MIDIA_CELULAR = '(max-width: 767.98px)'
 
 const AUTO_PLAY_INTERVAL = 5000
 const REFRESH_INTERVAL = 30000
@@ -140,6 +146,22 @@ export function BannerSection() {
 
   if (!currentBanner) return null
 
+  // Direção de arte: o ARQUIVO muda por tela, então é <picture>, não dois
+  // <Image>. Com dois <Image priority> saíam dois preloads sem `media`, e o
+  // celular baixava também o corte de 1920x800.
+  // getImageProps não registra preload nenhum: os dois <link> saem à mão, um
+  // por tela, só no primeiro slide.
+  const primeiroSlide = safeIndex === 0
+  const propsComuns = {
+    alt: currentBanner.alt,
+    fill: true,
+    sizes: '100vw',
+    quality: 90,
+    priority: primeiroSlide,
+  }
+  const { props: imgDesktop } = getImageProps({ ...propsComuns, src: currentBanner.desktop })
+  const { props: imgMobile } = getImageProps({ ...propsComuns, src: currentBanner.mobile })
+
   const imageContent = (
     <motion.div
       key={`${currentBanner.id}-${safeIndex}`}
@@ -149,26 +171,33 @@ export function BannerSection() {
       transition={{ duration: 0.5 }}
       className="absolute inset-0"
     >
-      {/* Desktop */}
-      <Image
-        src={currentBanner.desktop}
-        alt={currentBanner.alt}
-        fill
-        priority={safeIndex === 0}
-        className="hidden md:block object-cover"
-        sizes="100vw"
-        quality={90}
-      />
-      {/* Mobile */}
-      <Image
-        src={currentBanner.mobile}
-        alt={currentBanner.alt}
-        fill
-        priority={safeIndex === 0}
-        className="md:hidden object-cover"
-        sizes="100vw"
-        quality={90}
-      />
+      {primeiroSlide && (
+        <>
+          <link
+            rel="preload"
+            as="image"
+            href={imgDesktop.src}
+            imageSrcSet={imgDesktop.srcSet}
+            imageSizes={imgDesktop.sizes}
+            media={MIDIA_DESKTOP}
+            fetchPriority="high"
+          />
+          <link
+            rel="preload"
+            as="image"
+            href={imgMobile.src}
+            imageSrcSet={imgMobile.srcSet}
+            imageSizes={imgMobile.sizes}
+            media={MIDIA_CELULAR}
+            fetchPriority="high"
+          />
+        </>
+      )}
+      <picture>
+        <source media={MIDIA_DESKTOP} srcSet={imgDesktop.srcSet} sizes={imgDesktop.sizes} />
+        {/* eslint-disable-next-line @next/next/no-img-element -- props vêm de getImageProps */}
+        <img {...imgMobile} alt={currentBanner.alt} className="object-cover" />
+      </picture>
     </motion.div>
   )
 

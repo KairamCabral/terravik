@@ -2,6 +2,7 @@
  * GraphQL queries para produtos Shopify
  */
 
+import { cache } from 'react'
 import { shopifyFetch } from '../client'
 import type { ProductsResponse, ProductByHandleResponse } from '../types'
 import { normalizeProduct } from '../mappers'
@@ -129,21 +130,44 @@ const GET_PRODUCTS_BY_TAG = `
 
 // ---- Funções exportadas ----
 
-export async function getProducts(
-  first = 20,
-  opcoes: { revalidate?: number } = {}
+/**
+ * shopifyFetch é POST, e a memoização automática de fetch do Next só cobre
+ * GET: chamadas repetidas no mesmo render saíam todas pela rede. `cache()` da
+ * React deduplica por passe de renderização (não substitui o cache de dados
+ * do Next, que segue valendo entre requisições pelo `revalidate`).
+ *
+ * `cache()` compara argumentos por identidade. Por isso a função memoizada
+ * recebe só primitivos, e `getProducts` (abaixo) desmonta o objeto de opções e
+ * resolve o default antes de chamar: `getProducts()` e `getProducts(20)` caem
+ * na mesma entrada, e um objeto de opções novo a cada chamada não fura a
+ * deduplicação.
+ */
+const buscarProdutos = cache(async function buscarProdutos(
+  first: number,
+  revalidate: number | undefined
 ): Promise<Product[]> {
   const data = await shopifyFetch<ProductsResponse>({
     query: GET_ALL_PRODUCTS,
     variables: { first },
     tags: ['products'],
-    ...(opcoes.revalidate !== undefined ? { revalidate: opcoes.revalidate } : {}),
+    ...(revalidate !== undefined ? { revalidate } : {}),
   })
 
   return data.products.edges.map((edge) => normalizeProduct(edge.node))
+})
+
+export function getProducts(
+  first = 20,
+  opcoes: { revalidate?: number } = {}
+): Promise<Product[]> {
+  return buscarProdutos(first, opcoes.revalidate)
 }
 
-export async function getProductByHandle(
+/**
+ * Memoizada pelo handle (string, comparada por valor): generateMetadata e a
+ * página da PDP chamam com o mesmo handle no mesmo render e fazem um POST só.
+ */
+export const getProductByHandle = cache(async function getProductByHandle(
   handle: string
 ): Promise<Product | null> {
   const data = await shopifyFetch<ProductByHandleResponse>({
@@ -154,7 +178,7 @@ export async function getProductByHandle(
 
   if (!data.product) return null
   return normalizeProduct(data.product)
-}
+})
 
 export async function getProductsByTag(
   tag: string,

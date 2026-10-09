@@ -92,7 +92,7 @@ export function Header() {
                   'h-8 lg:h-10 w-auto',
                   isAuthenticatedArea && 'brightness-0 invert'
                 )}
-                priority
+                loading="eager"
               />
             </Link>
 

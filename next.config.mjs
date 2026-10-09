@@ -42,6 +42,9 @@ const nextConfig = {
       },
     ],
     formats: ['image/avif', 'image/webp'],
+    // 31 dias. O default do Next 14 é 60 s: a imagem otimizada era refeita a
+    // cada minuto. Trocar uma imagem exige trocar a URL (nome do arquivo).
+    minimumCacheTTL: 2678400,
   },
   async headers() {
     const csp = [
