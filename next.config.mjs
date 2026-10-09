@@ -77,6 +77,19 @@ const nextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
         ],
       },
+      // Arquivo em public/ sai com `Cache-Control: public, max-age=0`: o vídeo
+      // era revalidado a cada navegação. Sete dias, sem `immutable`, porque os
+      // nomes em /video não são versionados e sobrescrever o arquivo é o fluxo
+      // natural. `immutable` só depois de versionar os nomes.
+      {
+        source: '/video/:caminho*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=604800, stale-while-revalidate=86400',
+          },
+        ],
+      },
       // Área logada, painel e checkout são client components e não emitem
       // metadata: o noindex vai pelo header.
       ...[

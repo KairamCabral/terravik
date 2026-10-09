@@ -9,7 +9,7 @@ import { useState } from 'react'
  * Se o arquivo não existir, a seção fica oculta (evita área preta).
  */
 
-const VIDEO_SRC = '/video/Fertilizante%20Terravik.mp4'
+const VIDEO_SRC = '/video/fertilizante-terravik.mp4'
 
 export function VideoSection() {
   const [hasError, setHasError] = useState(false)

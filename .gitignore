@@ -53,3 +53,10 @@ public/robots.txt
 
 # Uploads locais (dev)
 public/uploads/
+
+# Videos originais, como chegam de quem edita: nome com espaco e dezenas de MB.
+# O que vai para o git e a versao comprimida, com nome sem espaco
+# (public/video/fertilizante-terravik.mp4). O original fica na pasta so para
+# recomprimir e nao entra no repositorio.
+public/video/* *.mp4
+public/video/* *.mov

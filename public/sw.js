@@ -1,7 +1,13 @@
 // Service Worker básico para PWA
 // Estratégia: Cache-first para assets estáticos, Network-first para dados dinâmicos
 
-const CACHE_NAME = 'terravik-v1'
+// v2: o v1 guardava vídeo sem teto. Trocar o nome faz o `activate` apagar o
+// cache antigo de quem já visitou.
+const CACHE_NAME = 'terravik-v2'
+
+// Só rota e arquivo que existem de fato. cache.addAll() é atômico: um único
+// 404 rejeita a promise inteira e o service worker não instala, sem erro
+// visível. Ao remover uma rota do site, tire-a daqui.
 const STATIC_ASSETS = [
   '/',
   '/produtos',
@@ -45,6 +51,23 @@ self.addEventListener('fetch', (event) => {
     url.origin !== location.origin ||
     url.pathname.startsWith('/api/') ||
     url.pathname.startsWith('/_next/webpack')
+  ) {
+    return
+  }
+
+  // Vídeo, áudio e qualquer pedido com Range saem pelo caminho do navegador,
+  // antes de qualquer respondWith.
+  //
+  // Sem isto caíam no branch de HTML lá embaixo, que responde com
+  // fetch(request) e guarda a resposta. Isso tira o streaming por faixa de
+  // bytes do caminho nativo, enche um cache sem teto nem expiração, e uma
+  // resposta 206 faz o cache.put rejeitar (resposta parcial não é cacheável).
+  // O cache de HTTP de /video, definido no next.config.mjs, é o certo aqui.
+  if (
+    request.destination === 'video' ||
+    request.destination === 'audio' ||
+    request.headers.has('range') ||
+    /\.(mp4|webm|mov|m4v)$/i.test(url.pathname)
   ) {
     return
   }
