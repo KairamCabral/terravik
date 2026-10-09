@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { X, Truck, Sparkles, Timer, TrendingUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
@@ -17,6 +18,11 @@ const COUPON_TO_APPLY_KEY = 'terravik-coupon-to-apply'
  * - Gradientes usando tokens (forest → leaf, gold)
  * - Motion discreto, respeita prefers-reduced-motion
  * - Sem shimmer exagerado
+ *
+ * A troca automática a cada 6 s saiu: texto que muda sozinho por mais de 5 s
+ * exige um controle para pausar (WCAG 2.2.2), e a barra não tinha. A
+ * variedade continua, porque o anúncio sai do CAMINHO da página: cada página
+ * tem o seu e ele fica parado enquanto a pessoa lê.
  */
 
 type AnnouncementVariant = 'freeShipping' | 'discount' | 'launch' | 'social'
@@ -24,8 +30,23 @@ type AnnouncementVariant = 'freeShipping' | 'discount' | 'launch' | 'social'
 interface AnnouncementBarProps {
   variant?: AnnouncementVariant
   closeable?: boolean
-  autoRotate?: boolean
-  rotateInterval?: number
+  /** Escolhe o anúncio pelo caminho da página, em vez de usar `variant`. */
+  porCaminho?: boolean
+}
+
+const VARIANTES: AnnouncementVariant[] = ['freeShipping', 'discount', 'launch', 'social']
+
+/**
+ * Índice estável a partir do caminho. É a mesma string no servidor e no
+ * cliente, então o HTML dos dois lados bate. Um sorteio com Math.random
+ * escolheria um anúncio em cada lado e daria erro de hidratação.
+ */
+export function varianteDoCaminho(caminho: string): AnnouncementVariant {
+  let hash = 7
+  for (let i = 0; i < caminho.length; i++) {
+    hash = (hash * 31 + caminho.charCodeAt(i)) | 0
+  }
+  return VARIANTES[Math.abs(hash) % VARIANTES.length]
 }
 
 // Textos em uma linha para não quebrar e sobrepor o header
@@ -55,7 +76,8 @@ const announcements: Record<
     highlight: '15% OFF',
     cta: 'Usar cupom',
     link: '/produtos',
-    gradient: 'from-gold to-gold',
+    // gold-ink: texto creme sobre o gold da marca dava 2,96:1; aqui dá 7,00:1.
+    gradient: 'from-gold-ink to-gold-ink',
     couponCode: FIRST_PURCHASE_COUPON_CODE,
   },
   launch: {
@@ -79,24 +101,15 @@ const announcements: Record<
 export function AnnouncementBar({
   variant = 'freeShipping',
   closeable = true,
-  autoRotate = false,
-  rotateInterval = 5000,
+  porCaminho = false,
 }: AnnouncementBarProps) {
   const [isVisible, setIsVisible] = useState(true)
-  const [currentVariant, setCurrentVariant] = useState<AnnouncementVariant>(variant)
+  const caminho = usePathname() ?? '/'
+  const currentVariant: AnnouncementVariant = porCaminho
+    ? varianteDoCaminho(caminho)
+    : variant
   const { openCart } = useCart()
   const { showToast } = useToast()
-
-  useEffect(() => {
-    if (!autoRotate) return
-    const variants: AnnouncementVariant[] = ['freeShipping', 'discount', 'launch', 'social']
-    let currentIndex = variants.indexOf(currentVariant)
-    const interval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % variants.length
-      setCurrentVariant(variants[currentIndex])
-    }, rotateInterval)
-    return () => clearInterval(interval)
-  }, [autoRotate, rotateInterval, currentVariant])
 
   useEffect(() => {
     try {
@@ -151,12 +164,14 @@ export function AnnouncementBar({
           'fixed top-0 left-0 right-0 z-[60] overflow-hidden',
           `bg-gradient-to-r ${announcement.gradient}`
         )}
-        role="banner"
+        // region, e não banner: banner é o landmark do <header> do site, e
+        // dois na mesma página confundem a navegação por regiões.
+        role="region"
         aria-label="Anúncio"
       >
         <div className="container-main relative">
           <div className="flex h-10 flex-nowrap items-center justify-center gap-1.5 sm:gap-2 px-3 py-0 sm:px-4">
-            <Icon className="h-4 w-4 flex-shrink-0 text-bg-primary sm:h-4 sm:w-4" strokeWidth={1.5} />
+            <Icon className="h-4 w-4 flex-shrink-0 text-bg-primary sm:h-4 sm:w-4" strokeWidth={1.5} aria-hidden="true" />
 
             <div className="flex min-w-0 flex-shrink flex-nowrap items-center justify-center gap-1.5 sm:gap-2">
               <span className="truncate text-xs font-semibold text-bg-primary sm:text-sm">
@@ -174,7 +189,7 @@ export function AnnouncementBar({
                 className="flex-shrink-0 inline-flex items-center gap-0.5 rounded-full bg-bg-surface px-2.5 py-1 text-xs font-semibold text-forest transition-colors hover:bg-bg-primary sm:px-3"
               >
                 {announcement.cta}
-                <span className="text-sm">→</span>
+                <span className="text-sm" aria-hidden="true">→</span>
               </button>
             ) : (
               <Link
@@ -182,7 +197,7 @@ export function AnnouncementBar({
                 className="flex-shrink-0 inline-flex items-center gap-0.5 rounded-full bg-bg-surface px-2.5 py-1 text-xs font-semibold text-forest transition-colors hover:bg-bg-primary sm:px-3"
               >
                 {announcement.cta}
-                <span className="text-sm">→</span>
+                <span className="text-sm" aria-hidden="true">→</span>
               </Link>
             )}
 
@@ -192,22 +207,11 @@ export function AnnouncementBar({
                 className="absolute right-1 top-1/2 -translate-y-1/2 flex-shrink-0 rounded-full p-1 transition-colors hover:bg-bg-primary/15 sm:right-2"
                 aria-label="Fechar anúncio"
               >
-                <X className="h-3.5 w-3.5 text-bg-primary/70 transition-colors hover:text-bg-primary" />
+                <X className="h-3.5 w-3.5 text-bg-primary/70 transition-colors hover:text-bg-primary" aria-hidden="true" />
               </button>
             )}
           </div>
         </div>
-
-        {/* Progress bar */}
-        {autoRotate && (
-          <motion.div
-            className="absolute bottom-0 left-0 h-0.5 bg-bg-primary/25"
-            initial={{ width: '0%' }}
-            animate={{ width: '100%' }}
-            transition={{ duration: rotateInterval / 1000, ease: 'linear' }}
-            key={currentVariant}
-          />
-        )}
       </motion.div>
     </AnimatePresence>
   )
@@ -229,6 +233,10 @@ export function SocialProofBar() {
   return <AnnouncementBar variant="social" />
 }
 
+/**
+ * O nome ficou por compatibilidade com quem importa: a barra não gira mais.
+ * Mostra um anúncio fixo por página, escolhido pelo caminho.
+ */
 export function RotatingAnnouncementBar() {
-  return <AnnouncementBar autoRotate rotateInterval={6000} closeable={false} />
+  return <AnnouncementBar porCaminho closeable={false} />
 }

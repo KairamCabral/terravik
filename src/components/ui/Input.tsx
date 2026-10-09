@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, forwardRef } from 'react'
+import { InputHTMLAttributes, forwardRef, useId } from 'react'
 import { cn } from '@/lib/utils/cn'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
 
@@ -35,7 +35,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`
+    // useId gera o mesmo id no servidor e no cliente. O Math.random de antes
+    // dava um id em cada lado e o React acusava erro de hidratação.
+    const idGerado = useId()
+    const inputId = id || `input-${idGerado}`
 
     return (
       <div className={cn('flex flex-col gap-1.5', fullWidth && 'w-full')}>
@@ -46,9 +49,12 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           >
             {label}
             {props.required && (
-              <span className="ml-1 text-accent-red" aria-label="obrigatório">
-                *
-              </span>
+              <>
+                <span className="ml-1 text-accent-red" aria-hidden="true">
+                  *
+                </span>
+                <span className="sr-only"> (obrigatório)</span>
+              </>
             )}
           </label>
         )}
@@ -67,7 +73,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               error
                 ? 'border-accent-red pr-10 focus:border-accent-red focus:ring-accent-red/20'
                 : success
-                  ? 'border-success pr-10 focus:border-success focus:ring-success/20'
+                  ? 'border-success-ink pr-10 focus:border-success-ink focus:ring-success-ink/20'
                   : 'border-neutral-300 focus:border-leaf focus:ring-leaf/20',
               className
             )}
@@ -85,14 +91,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {/* Ícone de erro */}
           {error && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <AlertCircle className="w-5 h-5 text-accent-red" />
+              <AlertCircle className="w-5 h-5 text-accent-red" aria-hidden="true" />
             </div>
           )}
 
           {/* Ícone de sucesso */}
           {success && !error && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <CheckCircle2 className="w-5 h-5 text-success" />
+              <CheckCircle2 className="w-5 h-5 text-success-ink" aria-hidden="true" />
             </div>
           )}
         </div>

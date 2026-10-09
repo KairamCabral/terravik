@@ -21,6 +21,10 @@ import { Container } from '@/components/ui'
  * 
  * Navegação lateral (desktop) / horizontal (mobile)
  * Design consistente com o site principal
+ *
+ * O conteúdo fica num <div>, e não num <main>: o ConditionalLayout já
+ * envolve a página num <main>, e main dentro de main deixava o leitor de
+ * tela com dois "conteúdo principal" aninhados.
  */
 
 const CONTA_MENU = [
@@ -57,13 +61,13 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                 {profile?.avatar_url ? (
                   <Image
                     src={profile.avatar_url}
-                    alt={userName}
+                    alt=""
                     width={48}
                     height={48}
                     className="rounded-full object-cover"
                   />
                 ) : (
-                  <span className="text-lg font-bold text-forest">
+                  <span className="text-lg font-bold text-forest" aria-hidden="true">
                     {userName.charAt(0).toUpperCase()}
                   </span>
                 )}
@@ -75,8 +79,13 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          {/* Nav — scrollable horizontally on mobile, vertical on desktop */}
-          <nav className="bg-white rounded-2xl border border-neutral-100 overflow-hidden">
+          {/* Nav: rolagem horizontal no mobile, vertical no desktop.
+              aria-label distingue esta navegação da principal do header, e
+              aria-current diz qual página está aberta (antes só a cor dizia). */}
+          <nav
+            aria-label="Área do cliente"
+            className="bg-white rounded-2xl border border-neutral-100 overflow-hidden"
+          >
             {/* Mobile: horizontal scroll */}
             <div className="flex lg:hidden overflow-x-auto gap-1 p-2">
               {CONTA_MENU.map((item) => {
@@ -87,13 +96,14 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-colors ${
                       isActive
                         ? 'bg-forest/10 text-forest'
                         : 'text-neutral-600 hover:bg-neutral-50'
                     }`}
                   >
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className="w-4 h-4" aria-hidden="true" />
                     {item.label}
                   </Link>
                 )
@@ -110,15 +120,16 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={isActive ? 'page' : undefined}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                       isActive
                         ? 'bg-forest/10 text-forest'
                         : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                     }`}
                   >
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    <item.icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
                     <span className="flex-1">{item.label}</span>
-                    {isActive && <ChevronRight className="w-4 h-4 opacity-40" />}
+                    {isActive && <ChevronRight className="w-4 h-4 opacity-40" aria-hidden="true" />}
                   </Link>
                 )
               })}
@@ -129,9 +140,9 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                   <div className="my-2 border-t border-neutral-100" />
                   <Link
                     href="/admin"
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-emerald-600 hover:bg-emerald-50 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-forest hover:bg-forest/10 transition-colors"
                   >
-                    <LayoutDashboard className="w-5 h-5" />
+                    <LayoutDashboard className="w-5 h-5" aria-hidden="true" />
                     <span>Painel Admin</span>
                   </Link>
                 </>
@@ -143,7 +154,7 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
               {/* Links úteis (sutil) */}
               <div className="px-4 py-3 space-y-3">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-neutral-400 font-semibold mb-2">
+                  <p className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-2">
                     Ajuda
                   </p>
                   <div className="space-y-1.5">
@@ -164,12 +175,12 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                 
                 {/* Horário de atendimento */}
                 <div className="pt-2 border-t border-neutral-50">
-                  <p className="text-[10px] uppercase tracking-wider text-neutral-400 font-semibold mb-1.5">
+                  <p className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-1.5">
                     Atendimento
                   </p>
                   <p className="text-[11px] text-neutral-500 leading-relaxed">
                     Seg a Sex<br />
-                    <span className="text-neutral-400">8h30-12h / 13h30-17h</span>
+                    <span>8h30-12h / 13h30-17h</span>
                   </p>
                 </div>
               </div>
@@ -179,7 +190,7 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                 onClick={handleLogout}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-500 hover:bg-red-50 hover:text-red-600 transition-colors w-full"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-5 h-5" aria-hidden="true" />
                 <span>Sair da conta</span>
               </button>
             </div>
@@ -187,9 +198,9 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
         </aside>
 
         {/* Content */}
-        <main className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0">
           {children}
-        </main>
+        </div>
       </div>
     </Container>
   )

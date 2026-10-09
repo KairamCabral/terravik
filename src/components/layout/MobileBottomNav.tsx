@@ -13,6 +13,12 @@ import { cn } from '@/lib/utils/cn'
  * CTA central: Compra Rápida (abre QuickPurchaseSheet)
  */
 
+/**
+ * Cor do item inativo. txt-muted dá 4,04:1 no branco, abaixo do AA para
+ * rótulo de 10px; txt-secondary dá 8,11:1.
+ */
+const INATIVO = 'text-txt-secondary'
+
 const NAV_ITEMS = [
   { icon: Home, label: 'Início', href: '/' },
   { icon: Calculator, label: 'Calculadora', href: '/calculadora' },
@@ -30,7 +36,10 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-bg-surface border-t border-border-subtle px-2 py-2 pb-safe lg:hidden"
+      // pb-safe não existe no tema: o Tailwind não gerava a classe e a barra
+      // ficava sob o indicador de início do iPhone. max() mantém os 0.5rem em
+      // tela sem recorte.
+      className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-bg-surface border-t border-border-subtle px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
       aria-label="Navegação principal"
     >
       {NAV_ITEMS.map((item) => {
@@ -51,9 +60,9 @@ export function MobileBottomNav() {
               aria-label="Compra rápida"
             >
               <div className="flex items-center justify-center w-14 h-14 rounded-full bg-forest text-white shadow-lg shadow-forest/30 hover:bg-forest-ink active:scale-95 transition-all">
-                <ShoppingBag className="w-6 h-6" />
+                <ShoppingBag className="w-6 h-6" aria-hidden="true" />
               </div>
-              <span className="text-[10px] font-medium text-txt-muted">
+              <span className={cn('text-[10px] font-medium', INATIVO)}>
                 {item.label}
               </span>
             </button>
@@ -66,17 +75,18 @@ export function MobileBottomNav() {
               key={item.label}
               onClick={openCart}
               className="flex flex-col items-center gap-0.5 py-1 min-w-[56px]"
-              aria-label={`Carrinho (${cartCount} itens)`}
+              aria-label={`Carrinho (${cartCount} ${cartCount === 1 ? 'item' : 'itens'})`}
             >
               <div className="relative">
                 <Icon
                   className={cn(
                     'w-6 h-6 transition-colors',
-                    isActive ? 'text-forest' : 'text-txt-muted'
+                    isActive ? 'text-forest' : INATIVO
                   )}
+                  aria-hidden="true"
                 />
                 {cartCount > 0 && (
-                  <span className="absolute -right-2 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  <span className="absolute -right-2 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-error px-1 text-[10px] font-bold text-white">
                     {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
@@ -84,7 +94,7 @@ export function MobileBottomNav() {
               <span
                 className={cn(
                   'text-[10px] font-medium',
-                  isActive ? 'text-forest' : 'text-txt-muted'
+                  isActive ? 'text-forest' : INATIVO
                 )}
               >
                 {item.label}
@@ -104,13 +114,14 @@ export function MobileBottomNav() {
             <Icon
               className={cn(
                 'w-6 h-6 transition-colors',
-                isActive ? 'text-forest' : 'text-txt-muted'
+                isActive ? 'text-forest' : INATIVO
               )}
+              aria-hidden="true"
             />
             <span
               className={cn(
                 'text-[10px] font-medium',
-                isActive ? 'text-forest' : 'text-txt-muted'
+                isActive ? 'text-forest' : INATIVO
               )}
             >
               {item.label}

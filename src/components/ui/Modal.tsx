@@ -1,8 +1,9 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useId, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '@/lib/utils/cn'
+import { focaveisDentro, prenderFoco } from '@/lib/utils/prender-foco'
 import { X } from 'lucide-react'
 import { Button } from './Button'
 
@@ -25,6 +26,13 @@ export function Modal({
   size = 'md',
   showCloseButton = true,
 }: ModalProps) {
+  const painelRef = useRef<HTMLDivElement>(null)
+  // useId no lugar do 'modal-title' fixo: com dois modais montados, os dois
+  // apontavam o aria-labelledby para o mesmo id.
+  const idBase = useId()
+  const tituloId = `${idBase}-titulo`
+  const descricaoId = `${idBase}-descricao`
+
   // Bloquear scroll do body quando modal aberto
   useEffect(() => {
     if (open) {
@@ -48,6 +56,24 @@ export function Modal({
     return () => window.removeEventListener('keydown', handleEsc)
   }, [open, onClose])
 
+  // Foco: entra no diálogo ao abrir e volta para quem abriu ao fechar. Antes
+  // ele ficava no botão da página de trás, e o Tab seguinte continuava por
+  // baixo do overlay.
+  useEffect(() => {
+    if (!open) return
+    const quemAbriu = document.activeElement as HTMLElement | null
+    const painel = painelRef.current
+    if (painel && !painel.contains(document.activeElement)) {
+      // Primeiro campo ou botão do conteúdo; o painel em si é a reserva
+      // (tabIndex -1) quando o modal só tem texto.
+      const alvo = focaveisDentro(painel)[0] ?? painel
+      alvo.focus()
+    }
+    return () => {
+      if (quemAbriu && document.contains(quemAbriu)) quemAbriu.focus()
+    }
+  }, [open])
+
   if (!open) return null
 
   const sizes = {
@@ -62,8 +88,9 @@ export function Modal({
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-labelledby={title ? 'modal-title' : undefined}
-      aria-describedby={description ? 'modal-description' : undefined}
+      aria-labelledby={title ? tituloId : undefined}
+      aria-describedby={description ? descricaoId : undefined}
+      onKeyDown={(e) => prenderFoco(e, painelRef.current)}
     >
       {/* Overlay */}
       <div
@@ -74,9 +101,11 @@ export function Modal({
 
       {/* Modal */}
       <div
+        ref={painelRef}
+        tabIndex={-1}
         className={cn(
           'relative z-10 w-full rounded-2xl bg-white p-6 shadow-2xl',
-          'animate-fade-in',
+          'animate-fade-in focus:outline-none',
           sizes[size]
         )}
       >
@@ -86,7 +115,7 @@ export function Modal({
             <div>
               {title && (
                 <h2
-                  id="modal-title"
+                  id={tituloId}
                   className="font-display text-2xl font-bold text-terravik-brown"
                 >
                   {title}
@@ -94,7 +123,7 @@ export function Modal({
               )}
               {description && (
                 <p
-                  id="modal-description"
+                  id={descricaoId}
                   className="mt-1 text-sm text-terravik-brown/60"
                 >
                   {description}
@@ -109,7 +138,7 @@ export function Modal({
                 className="rounded-full p-2"
                 aria-label="Fechar modal"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" aria-hidden="true" />
               </Button>
             )}
           </div>

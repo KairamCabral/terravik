@@ -99,12 +99,18 @@ export function Footer({ produtos = [] }: FooterProps) {
           </div>
 
           {/* Links */}
-          {Object.entries(footerLinks).map(([title, links]) => (
+          {/* Título de coluna é <p>, não <h3>: o rodapé não tem h2 acima, e
+              um h3 solto quebrava a hierarquia de títulos de toda página.
+              O aria-labelledby dá nome à lista para o leitor de tela. */}
+          {Object.entries(footerLinks).map(([title, links], indice) => (
             <div key={title}>
-              <h3 className="mb-5 text-xs font-semibold uppercase tracking-wider text-gold">
+              <p
+                id={`rodape-coluna-${indice}`}
+                className="mb-5 text-xs font-semibold uppercase tracking-wider text-gold"
+              >
                 {title.charAt(0).toUpperCase() + title.slice(1)}
-              </h3>
-              <ul className="space-y-2.5">
+              </p>
+              <ul aria-labelledby={`rodape-coluna-${indice}`} className="space-y-2.5">
                 {links.map((link) => (
                   <li key={link.href}>
                     <Link
@@ -127,9 +133,9 @@ export function Footer({ produtos = [] }: FooterProps) {
         {/* Grupo CTA */}
         <div className="border-t border-white/10 py-8">
           <div className="mx-auto max-w-md text-center">
-            <h3 className="text-sm font-semibold text-txt-on-dark">
+            <p className="text-sm font-semibold text-txt-on-dark">
               Acesse nosso grupo e descubra ofertas secretas
-            </h3>
+            </p>
             <p className="mt-1 text-xs text-txt-on-dark-muted">
               Promoções exclusivas, dicas e novidades em primeira mão.
             </p>

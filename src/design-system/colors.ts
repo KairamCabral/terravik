@@ -14,9 +14,12 @@ export const brand = {
   forest: '#093E28',
   forestInk: '#052317',
   gold: '#B38B25',
-  // Dourado para TEXTO pequeno. O gold sobre branco dá 3,16:1 e reprova AA;
-  // este dá 5,84:1 sobre branco e 5,46:1 sobre o creme.
-  goldInk: '#7D611A',
+  /**
+   * Dourado para TEXTO e para fundo com texto claro. O gold da marca dá
+   * 3,16:1 no branco e 2,96:1 no creme, abaixo do mínimo AA de 4,5:1.
+   * Este dá 7,48:1 no branco, 7,00:1 no creme e 6,53:1 no surface-2.
+   */
+  goldInk: '#685215',
 } as const
 
 // ── Backgrounds ─────────────────────────────────────────
@@ -53,6 +56,11 @@ export const support = {
 // ── Functional ──────────────────────────────────────────
 export const functional = {
   success: '#22C55E',
+  /**
+   * Verde de sucesso escuro, para fundo com texto branco (8,88:1), ícone e
+   * borda. O success claro dá 2,28:1 com branco.
+   */
+  successInk: '#0A5535',
   warning: '#F59E0B',
   error: '#DC2626',
   info: '#3B82F6',

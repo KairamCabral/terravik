@@ -113,13 +113,13 @@ export default function AnnouncementDemoPage() {
                 </span>
               </div>
               <p className="font-inter text-neutral-700">
-                <strong>Psicologia:</strong> Variedade mantém atenção, progress bar indica tempo
+                <strong>Psicologia:</strong> Variedade entre páginas, sem texto trocando sozinho
               </p>
               <div className="rounded-xl overflow-hidden shadow-lg">
                 <RotatingAnnouncementBar />
               </div>
               <p className="font-inter text-sm text-neutral-700 italic">
-                💡 Observe a progress bar na parte inferior - alterna a cada 6 segundos
+                💡 O anúncio é escolhido pelo caminho da página e fica parado durante a leitura
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useId } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils/cn'
@@ -11,6 +11,10 @@ import { cn } from '@/lib/utils/cn'
  * - Ícone outline, borda sutil, estados polidos
  * - Ctrl/Cmd+K, Esc, click outside
  * - Tokens DS completos
+ *
+ * A contagem de resultados vai para uma região aria-live, porque a lista
+ * muda sem o foco sair do campo e, sem isso, quem usa leitor de tela
+ * digitava sem saber se tinha vindo alguma coisa.
  */
 
 interface SearchResult {
@@ -29,6 +33,18 @@ export function SearchBar() {
   const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  // O header pode montar mais de uma busca: useId evita id repetido.
+  const idBase = useId()
+  const dialogoId = `${idBase}-busca`
+
+  // Vazio enquanto carrega: a região vai de "" para a contagem e o leitor
+  // anuncia de novo mesmo quando o número se repete entre duas buscas.
+  const anuncio =
+    query.length < 2 || isLoading
+      ? ''
+      : results.length === 0
+        ? 'Nenhum resultado encontrado'
+        : `${results.length} ${results.length === 1 ? 'resultado encontrado' : 'resultados encontrados'}`
 
   // Click outside
   useEffect(() => {
@@ -82,13 +98,20 @@ export function SearchBar() {
     <div ref={containerRef} className="relative">
       {/* Trigger */}
       <button
+        type="button"
         onClick={() => { setIsOpen(true); setTimeout(() => inputRef.current?.focus(), 0) }}
-        className="flex items-center gap-2 rounded-lg border border-border-subtle bg-bg-surface px-3 py-2 text-sm text-txt-muted transition-colors hover:border-border-medium hover:text-txt-secondary"
+        className="flex items-center gap-2 rounded-lg border border-border-subtle bg-bg-surface px-3 py-2 text-sm text-txt-secondary transition-colors hover:border-border-medium hover:text-txt-primary"
         aria-label="Buscar produtos"
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? dialogoId : undefined}
       >
-        <Search className="h-4 w-4" strokeWidth={1.5} />
+        <Search className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
         <span className="hidden sm:inline">Buscar...</span>
-        <kbd className="hidden rounded border border-border-subtle px-1.5 py-0.5 text-[10px] font-medium text-txt-muted lg:inline">
+        <kbd
+          className="hidden rounded border border-border-subtle px-1.5 py-0.5 text-[10px] font-medium text-txt-secondary lg:inline"
+          aria-hidden="true"
+        >
           ⌘K
         </kbd>
       </button>
@@ -105,20 +128,21 @@ export function SearchBar() {
       {/* Modal */}
       {isOpen && (
         <div
+          id={dialogoId}
           className="fixed left-1/2 top-20 z-50 w-full max-w-2xl -translate-x-1/2 rounded-lg border border-border-subtle bg-bg-surface p-4 shadow-xl sm:top-24"
           role="dialog"
           aria-label="Buscar"
         >
           {/* Input */}
           <div className="flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-surface-2 px-4 py-3">
-            <Search className="h-5 w-5 text-txt-muted" strokeWidth={1.5} />
+            <Search className="h-5 w-5 text-txt-muted" strokeWidth={1.5} aria-hidden="true" />
             <input
               ref={inputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar produtos, artigos..."
-              className="flex-1 bg-transparent text-txt-primary placeholder:text-txt-muted focus:outline-none"
+              className="flex-1 bg-transparent text-txt-primary placeholder:text-txt-secondary focus:outline-none"
               aria-label="Buscar produtos e artigos"
               autoFocus
             />
@@ -129,10 +153,14 @@ export function SearchBar() {
                 className="rounded-md p-1 text-txt-muted transition-colors hover:bg-bg-surface hover:text-txt-primary"
                 aria-label="Limpar busca"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             )}
           </div>
+
+          <p className="sr-only" aria-live="polite" aria-atomic="true">
+            {anuncio}
+          </p>
 
           {/* Results */}
           {results.length > 0 && (
@@ -151,8 +179,10 @@ export function SearchBar() {
                           className={cn(
                             'rounded-full border px-2 py-0.5 text-[10px] font-medium',
                             result.type === 'product' && 'border-forest/20 text-forest',
-                            result.type === 'article' && 'border-gold/30 text-gold',
-                            result.type === 'page' && 'border-border-subtle text-txt-muted'
+                            // text-gold no fundo claro dá 3,16:1; gold-ink
+                            // é o dourado para texto (7,48:1).
+                            result.type === 'article' && 'border-gold/30 text-gold-ink',
+                            result.type === 'page' && 'border-border-subtle text-txt-secondary'
                           )}
                         >
                           {result.type === 'product' && 'Produto'}
@@ -160,7 +190,7 @@ export function SearchBar() {
                           {result.type === 'page' && 'Página'}
                         </span>
                         {result.category && (
-                          <span className="text-[10px] text-txt-muted">{result.category}</span>
+                          <span className="text-[10px] text-txt-secondary">{result.category}</span>
                         )}
                       </div>
                       <h4 className="mt-1 text-sm font-medium text-txt-primary">{result.title}</h4>
@@ -177,7 +207,7 @@ export function SearchBar() {
           {/* Empty */}
           {query.length >= 2 && !isLoading && results.length === 0 && (
             <div className="mt-3 rounded-lg bg-bg-surface-2 p-6 text-center">
-              <p className="text-sm text-txt-muted">
+              <p className="text-sm text-txt-secondary">
                 Nenhum resultado encontrado para &ldquo;{query}&rdquo;
               </p>
             </div>

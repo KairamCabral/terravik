@@ -72,11 +72,10 @@ function ToastContainer({
   if (!mounted || typeof window === 'undefined') return null
 
   const container = (
-    <div
-      className="pointer-events-none fixed inset-0 z-50 flex flex-col items-end justify-end gap-2 p-4"
-      aria-live="polite"
-      aria-atomic="true"
-    >
+    // Sem aria-live aqui: cada aviso já é a sua própria região viva (status ou
+    // alert, no ToastItem). Região viva dentro de outra faz o leitor de tela
+    // anunciar a mesma mensagem duas vezes.
+    <div className="pointer-events-none fixed inset-0 z-50 flex flex-col items-end justify-end gap-2 p-4">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
@@ -114,16 +113,18 @@ function ToastItem({
         'animate-slide-in-right',
         styles[toast.type]
       )}
-      role="alert"
+      // alert interrompe o que o leitor de tela estiver lendo, então fica só
+      // para erro. Confirmação, informação e aviso esperam a vez (status).
+      role={toast.type === 'error' ? 'alert' : 'status'}
     >
-      <div className="flex-shrink-0">{icons[toast.type]}</div>
+      <div className="flex-shrink-0" aria-hidden="true">{icons[toast.type]}</div>
       <div className="flex-1 text-sm font-medium">{toast.message}</div>
       <button
         onClick={() => onRemove(toast.id)}
         className="flex-shrink-0 rounded-full p-1 transition-colors hover:bg-black/10"
         aria-label="Fechar notificação"
       >
-        <X className="h-4 w-4" />
+        <X className="h-4 w-4" aria-hidden="true" />
       </button>
     </div>
   )

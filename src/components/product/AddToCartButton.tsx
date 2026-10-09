@@ -48,7 +48,8 @@ export function AddToCartButton({
       <Button
         fullWidth
         size="lg"
-        className="rounded-full bg-green-600 hover:bg-green-700"
+        // success-ink: branco sobre bg-green-600 dava 3,30:1; aqui dá 8,88:1.
+        className="rounded-full bg-success-ink hover:bg-success-ink"
         disabled
       >
         <Check className="h-5 w-5" />
