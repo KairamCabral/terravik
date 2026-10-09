@@ -1,7 +1,7 @@
 // src/lib/shipping/calculator.ts
 
 import type { ShippingAddress, ShippingOption } from './types'
-import { FREE_SHIPPING_CONFIG, getRegion } from './config'
+import { FREE_SHIPPING_CONFIG, getRegion, faixaDaUf, progressoDoFreteGratis } from './config'
 
 // Consulta de CEP via ViaCEP (gratuito)
 export async function fetchAddressByCep(cep: string): Promise<ShippingAddress | null> {
@@ -58,8 +58,10 @@ export async function calculateShipping(
   const region = getRegion(state)
 
   // Verificar se tem frete grátis
-  const hasFreeShipping = cartSubtotal >= FREE_SHIPPING_CONFIG.threshold
-  const isFreeShippingRegion = FREE_SHIPPING_CONFIG.regions?.includes(state) ?? true
+  // O mínimo é o da faixa da UF de destino, não um valor geral.
+  const faixa = faixaDaUf(state)
+  const hasFreeShipping = faixa !== null && cartSubtotal >= faixa.minimo
+  const isFreeShippingRegion = faixa !== null
 
   const rates = BASE_RATES[region] || BASE_RATES.outros
 
@@ -121,19 +123,17 @@ export async function calculateShipping(
   return options
 }
 
-// Calcular quanto falta para frete grátis
+// Calcular quanto falta para frete grátis.
+// Compatibilidade: delega a progressoDoFreteGratis (config.ts), a fonte única.
 export function calculateRemainingForFreeShipping(cartSubtotal: number): {
   remaining: number
   percentage: number
   achieved: boolean
 } {
-  const threshold = FREE_SHIPPING_CONFIG.threshold
-  const remaining = Math.max(0, threshold - cartSubtotal)
-  const percentage = Math.min(100, (cartSubtotal / threshold) * 100)
-
+  const progresso = progressoDoFreteGratis(cartSubtotal)
   return {
-    remaining,
-    percentage,
-    achieved: remaining === 0,
+    remaining: progresso.falta,
+    percentage: progresso.percentual,
+    achieved: progresso.proxima === null && progresso.liberada !== null,
   }
 }

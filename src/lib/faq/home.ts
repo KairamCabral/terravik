@@ -1,4 +1,4 @@
-import { FREE_SHIPPING_CONFIG } from '@/lib/shipping/config'
+import { fraseDoFreteGratis } from '@/lib/shipping/config'
 import { formatCurrency } from '@/lib/utils/formatters'
 
 /**
@@ -28,15 +28,8 @@ export interface PerguntaFrequente {
  * Devolve string vazia se o frete grátis estiver desligado.
  */
 function fraseFreteGratis(): string {
-  if (!FREE_SHIPPING_CONFIG.enabled) return ''
-
-  const estados = FREE_SHIPPING_CONFIG.regions ?? []
-  const onde =
-    estados.length > 0
-      ? new Intl.ListFormat('pt-BR', { style: 'long', type: 'conjunction' }).format(estados)
-      : 'todo o Brasil'
-
-  return ` Acima de ${formatCurrency(FREE_SHIPPING_CONFIG.threshold)}, frete grátis para ${onde}.`
+  const frase = fraseDoFreteGratis()
+  return frase ? ` ${frase}.` : ''
 }
 
 export const FAQ_HOME: PerguntaFrequente[] = [

@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils/cn'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { StarRating } from '@/components/product/StarRating'
 import { rotuloDaTag } from '@/lib/produtos/tags'
-import { fraseFreteGratis } from '@/lib/shipping/config'
+import { fraseDoFreteGratis } from '@/lib/shipping/config'
 
 interface ProductPageClientProps {
   product: Product
@@ -82,7 +82,7 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
   }, [])
 
   const topReview = reviews.find((r) => r.verified && r.rating >= 4)
-  const freteGratis = fraseFreteGratis()
+  const freteGratis = fraseDoFreteGratis()
 
   return (
     <div className="bg-bg-primary">

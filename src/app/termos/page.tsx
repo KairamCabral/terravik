@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { Container, Button } from '@/components/ui'
-import { limiteFreteGratis } from '@/lib/shipping/config'
+import { limiteFreteGratis, regiaoDoFreteGratis } from '@/lib/shipping/config'
 import {
   FileText,
   User,
@@ -285,7 +285,7 @@ export default function TermosPage() {
                   icon={Truck}
                   color="text-terravik-green"
                   items={[
-                    `Acima de ${limiteFreteGratis()} para todo o Brasil`,
+                    `Acima de ${limiteFreteGratis()} para ${regiaoDoFreteGratis()}`,
                     'Promoções especiais em datas comemorativas',
                   ]}
                 />
