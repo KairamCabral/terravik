@@ -60,6 +60,24 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
   const [showStickyCTA, setShowStickyCTA] = useState(false)
   const ctaRef = useRef<HTMLDivElement>(null)
 
+  // ?variant= na URL: lido depois do mount (a página é estática e não conhece
+  // a query no servidor) e regravado a cada troca, para o link ser compartilhável.
+  useEffect(() => {
+    const pedido = new URLSearchParams(window.location.search).get('variant')
+    if (!pedido) return
+    const variante = product.variants.find(
+      (v) => v.id === pedido || v.id.split('/').pop() === pedido
+    )
+    if (variante) setSelectedVariant(variante)
+  }, [product.variants])
+
+  const trocarVariante = (variante: ProductVariant) => {
+    setSelectedVariant(variante)
+    const url = new URL(window.location.href)
+    url.searchParams.set('variant', variante.id.split('/').pop() || variante.id)
+    window.history.replaceState(window.history.state, '', url)
+  }
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -83,6 +101,7 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
             <ProductGallery
               title={product.title}
               images={product.images}
+              imagemDaVariante={selectedVariant.image?.url}
               badge={product.tags.includes('novo') ? 'Lançamento' : undefined}
               videoUrl={PRODUCT_VIDEOS[product.handle]}
             />
@@ -131,7 +150,7 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
 
               {/* Disponibilidade (compacto) */}
               <div className="flex flex-wrap items-center gap-4">
-                {product.available ? (
+                {selectedVariant.available ? (
                   <p className="flex items-center gap-2 text-sm font-medium text-forest">
                     <span className="relative flex h-2 w-2">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-forest opacity-75" />
@@ -156,7 +175,8 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
                 <PurchaseSection
                   product={product}
                   selectedVariant={selectedVariant}
-                  onVariantChange={setSelectedVariant}
+                  onVariantChange={trocarVariante}
+                  barraFixaVisivel={showStickyCTA}
                 />
               </div>
 
@@ -417,33 +437,6 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
         </div>
       </div>
 
-      {/* ═══ STICKY CTA MOBILE ═══ */}
-      <AnimatePresence>
-        {showStickyCTA && product.available && (
-          <motion.div
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            exit={{ y: 100 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed inset-x-0 bottom-0 z-50 border-t border-border-subtle bg-white/95 backdrop-blur-lg lg:hidden"
-          >
-            <div className="flex items-center gap-4 px-4 py-3">
-              <div className="flex-1">
-                <p className="text-xs text-txt-muted line-clamp-1">{product.title}</p>
-                <p className="font-heading text-lg font-bold text-forest">
-                  {formatCurrency(selectedVariant.price, product.currency)}
-                </p>
-              </div>
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="shrink-0 rounded-full bg-forest px-6 py-3 text-sm font-semibold text-white transition-all active:scale-[0.98] hover:bg-forest-ink"
-              >
-                Comprar
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }

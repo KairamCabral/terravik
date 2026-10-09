@@ -23,12 +23,18 @@ interface PurchaseSectionProps {
   product: Product;
   selectedVariant: ProductVariant;
   onVariantChange: (variant: ProductVariant) => void;
+  /** Conteúdo entre a variante e a quantidade (simulador de frete). */
+  freteSlot?: React.ReactNode;
+  /** Mostra a barra fixa de compra no celular. */
+  barraFixaVisivel?: boolean;
 }
 
 export function PurchaseSection({ 
   product, 
   selectedVariant,
-  onVariantChange 
+  onVariantChange,
+  freteSlot,
+  barraFixaVisivel = false,
 }: PurchaseSectionProps) {
   // Estado do modo de compra (compra única como padrão)
   const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscription'>('one-time');
@@ -139,6 +145,8 @@ export function PurchaseSection({
         intuitive
       />
 
+      {freteSlot}
+
       {/* ========== SEÇÃO DE ADICIONAR AO CARRINHO ========== */}
       <AddToCartSection
         product={product}
@@ -148,6 +156,7 @@ export function PurchaseSection({
         purchaseMode={purchaseMode}
         frequency={frequency}
         subscriptionPrice={subscriptionPrice}
+        barraFixaVisivel={barraFixaVisivel}
       />
 
       {/* ========== BENEFÍCIOS DA ASSINATURA ========== */}

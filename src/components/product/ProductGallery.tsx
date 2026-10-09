@@ -20,6 +20,8 @@ interface ProductGalleryProps {
   videoThumbnailUrl?: string
   /** Nome do produto, para o texto alternativo das fotos. */
   title?: string
+  /** URL da foto da variante escolhida. Trocar a variante troca a foto. */
+  imagemDaVariante?: string
 }
 
 function getEmbedUrl(url: string): string {
@@ -41,8 +43,18 @@ function getYouTubeThumbnail(url: string): string | null {
   return match ? `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg` : null
 }
 
-export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl, title }: ProductGalleryProps) {
+export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl, title, imagemDaVariante }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
+
+  // Variante trocou: mostra a foto dela. O índice é ajustado durante o render
+  // (padrão "estado derivado de prop"), sem useEffect, para não piscar a foto
+  // antiga por um quadro.
+  const [variantePintada, setVariantePintada] = useState(imagemDaVariante)
+  if (imagemDaVariante !== variantePintada) {
+    setVariantePintada(imagemDaVariante)
+    const indice = imagemDaVariante ? images.findIndex((i) => i.url === imagemDaVariante) : -1
+    if (indice >= 0) setSelectedIndex(indice)
+  }
   const [isZoomed, setIsZoomed] = useState(false)
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 })
   const [lightboxOpen, setLightboxOpen] = useState(false)
