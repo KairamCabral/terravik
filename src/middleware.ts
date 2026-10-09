@@ -49,9 +49,26 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Sem credenciais do Supabase não dá para autenticar ninguém. O middleware
+  // roda nas rotas do matcher a cada requisição: deixar o createServerClient
+  // estourar responde 500. Degrada em vez de quebrar: segue sem sessão, e as
+  // rotas protegidas continuam protegidas.
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
+    if (isProtectedRoute) {
+      const loginUrl = new URL('/login', request.url)
+      loginUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+    return response
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {
