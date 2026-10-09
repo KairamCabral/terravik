@@ -4,20 +4,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase/admin';
+import { iguaisEmTempoConstante } from '@/lib/seguranca/comparar';
 
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET || '';
 
 // Verificar assinatura do webhook
 function verifyWebhook(body: string, signature: string): boolean {
+  // Sem segredo, nada passa. O ambiente onde a variável não foi definida é
+  // justamente o ambiente onde ninguém está olhando.
   if (!SHOPIFY_WEBHOOK_SECRET) {
-    console.warn('SHOPIFY_WEBHOOK_SECRET não configurado, pulando verificação');
-    return true;
+    console.error('[webhooks/shopify] SHOPIFY_WEBHOOK_SECRET não configurado. Webhook recusado.');
+    return false;
   }
   const hash = crypto
     .createHmac('sha256', SHOPIFY_WEBHOOK_SECRET)
     .update(body, 'utf8')
     .digest('base64');
-  return hash === signature;
+  return iguaisEmTempoConstante(hash, signature);
 }
 
 export async function POST(request: NextRequest) {

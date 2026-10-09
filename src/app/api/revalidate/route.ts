@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath, revalidateTag } from 'next/cache'
+import { iguaisEmTempoConstante } from '@/lib/seguranca/comparar'
 
 export async function POST(request: NextRequest) {
   const secret = request.nextUrl.searchParams.get('secret')
 
-  // Validar secret token (configurar em .env)
-  if (secret !== process.env.REVALIDATE_SECRET) {
+  // Falha explícita sem a variável, em vez de depender de `null !== undefined`.
+  const esperado = process.env.REVALIDATE_SECRET
+  if (!esperado) {
+    console.error('[revalidate] REVALIDATE_SECRET não configurado. Rota desabilitada.')
+    return NextResponse.json({ message: 'Revalidation not configured' }, { status: 503 })
+  }
+
+  if (!secret || !iguaisEmTempoConstante(secret, esperado)) {
     return NextResponse.json({ message: 'Invalid token' }, { status: 401 })
   }
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { iguaisEmTempoConstante } from '@/lib/seguranca/comparar';
 
 /**
  * POST /api/subscription/webhook
@@ -183,15 +184,15 @@ async function handleBillingChallenged(payload: any) {
  * Verifica se o webhook é realmente do Shopify
  * usando HMAC SHA256
  * 
- * IMPORTANTE: Em produção, usar variável de ambiente para secret
+ * Usa SHOPIFY_WEBHOOK_SECRET (a chave shpss_ do app, não o token shpat_).
  */
 function verifyWebhook(body: string, hmacHeader: string): boolean {
-  // TODO: Usar variável de ambiente
   const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET || '';
-  
+
+  // Sem segredo, nada passa (mesma regra de api/webhooks/shopify).
   if (!SHOPIFY_WEBHOOK_SECRET) {
-    console.warn('SHOPIFY_WEBHOOK_SECRET não configurado - pulando validação');
-    return true; // Em desenvolvimento, aceitar sem validar
+    console.error('[subscription/webhook] SHOPIFY_WEBHOOK_SECRET não configurado. Webhook recusado.');
+    return false;
   }
   
   const hash = crypto
@@ -199,7 +200,7 @@ function verifyWebhook(body: string, hmacHeader: string): boolean {
     .update(body, 'utf8')
     .digest('base64');
   
-  return hash === hmacHeader;
+  return iguaisEmTempoConstante(hash, hmacHeader);
 }
 
 /**
