@@ -21,6 +21,7 @@ import { useCart } from '@/components/cart'
 
 import type { Product as ProdutoDoCatalogo } from '@/types/product'
 import { CURADORIA_DA_VITRINE } from '@/lib/home/vitrine'
+import { fraseParcelamento } from '@/lib/pagamento/parcelas'
 
 interface Tamanho {
   label: string
@@ -283,7 +284,7 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                       </span>
                     </div>
                     <span className="text-xs text-neutral-500 block mt-1 mb-3">
-                      ou 6x de R$ {(primeiro.final / 6).toFixed(2)}
+                      {fraseParcelamento(primeiro.final) ? `ou ${fraseParcelamento(primeiro.final)}` : '\u00a0'}
                     </span>
 
                     {/* Botão Comprar */}

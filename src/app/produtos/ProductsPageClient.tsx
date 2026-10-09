@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils/cn'
 import { Button } from '@/components/ui'
 import { ProductCard } from '@/components/product/ProductCard'
 import { TAGS_DE_PRODUTO, rotuloDaTag } from '@/lib/produtos/tags'
+import { fraseFreteGratis } from '@/lib/shipping/config'
 
 type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'bestseller'
 
@@ -33,11 +34,13 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'price-desc', label: 'Maior preço' },
 ]
 
+// O frete lê a frase do config (fonte única); sem frete grátis ligado, o
+// item some. Nota média só volta quando houver avaliações reais.
+const FRASE_DO_FRETE = fraseFreteGratis()
 const TRUST_ITEMS = [
-  { icon: Truck, text: 'Frete grátis acima de R$ 149' },
+  ...(FRASE_DO_FRETE ? [{ icon: Truck, text: FRASE_DO_FRETE }] : []),
   { icon: ShieldCheck, text: 'Garantia de satisfação' },
   { icon: Leaf, text: 'Fórmulas premium' },
-  { icon: Star, text: '4.9★ avaliação média' },
 ]
 
 interface ProductsPageClientProps {

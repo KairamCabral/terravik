@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tag } from 'lucide-react'
+import { fraseParcelamento } from '@/lib/pagamento/parcelas'
 
 interface PriceDisplayProps {
   basePrice: number
@@ -40,6 +41,8 @@ export function PriceDisplay({
     purchaseMode === 'subscription' ? totalSubscriptionPrice : totalBasePrice
   const unitPrice =
     purchaseMode === 'subscription' ? subscriptionPrice : basePrice
+  // Regra única de parcelamento (lib/pagamento/parcelas.ts).
+  const parcelamento = fraseParcelamento(displayPrice)
 
   // Produto sem preço cadastrado: nada de "R$ 0,00" nem parcela de R$ 0,00.
   if (basePrice <= 0) {
@@ -109,13 +112,9 @@ export function PriceDisplay({
               </span>
               <span className="text-sm text-txt-muted">por entrega</span>
             </div>
-            {displayPrice >= 30 && (
-              <p className="text-xs text-txt-muted">
-                ou{' '}
-                <span className="font-medium text-txt-secondary">
-                  3x de {formatPrice(displayPrice / 3)}
-                </span>{' '}
-                sem juros
+            {parcelamento && (
+              <p className="text-xs text-txt-secondary">
+                ou <span className="font-medium">{parcelamento}</span>
               </p>
             )}
           </motion.div>
@@ -127,13 +126,9 @@ export function PriceDisplay({
             exit={{ opacity: 0, y: -4 }}
             className="space-y-1"
           >
-            {displayPrice >= 30 && (
-              <p className="text-xs text-txt-muted">
-                ou{' '}
-                <span className="font-medium text-txt-secondary">
-                  3x de {formatPrice(displayPrice / 3)}
-                </span>{' '}
-                sem juros
+            {parcelamento && (
+              <p className="text-xs text-txt-secondary">
+                ou <span className="font-medium">{parcelamento}</span>
               </p>
             )}
           </motion.div>

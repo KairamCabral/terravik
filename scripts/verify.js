@@ -320,10 +320,6 @@ console.log('\nAlegacoes sem prova')
     {
       nome: '"50K+" de calculos ou gramados',
       frases: [/50\s?K\s?\+/i, /50\s?mil\s?\+?\s+(gramados|c[aá]lculos|clientes|fam[ií]lias)/i],
-      // PENDENCIA CONHECIDA: FAQSection.tsx ainda afirma "mais de 50 mil
-      // gramados" (resposta e destaque da primeira pergunta). O arquivo estava
-      // fora do alcance da H-06. Retirada a frase, apague esta excecao.
-      exceto: [/home[\\/]FAQSection\.tsx$/],
       prova:
         'Nao ha contador de uso da calculadora nem base de 50 mil clientes.\n' +
         '         Volume so entra lido do analytics ou do banco.',
@@ -378,10 +374,6 @@ console.log('\nAlegacoes sem prova')
     {
       nome: 'o valor do frete gratis escrito a mao',
       frases: [/frete\s+gr[aá]tis\s+(acima|a\s+partir)\s+de\s+R\$\s?\d/i],
-      // PENDENCIA CONHECIDA: ProductsPageClient.tsx ainda traz o valor a mao
-      // (e diferente do config). O arquivo estava fora do alcance da H-06.
-      // Quando ele passar a usar fraseFreteGratis(), apague esta excecao.
-      exceto: [/produtos[\\/]ProductsPageClient\.tsx$/],
       prova:
         'O valor oficial esta em FREE_SHIPPING_CONFIG (src/lib/shipping/config.ts).\n' +
         '         Use fraseFreteGratis() ou limiteFreteGratis(): numero digitado no\n' +

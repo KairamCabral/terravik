@@ -1,13 +1,14 @@
 'use client'
 
 import { Shield, Truck, RotateCcw, CreditCard } from 'lucide-react'
+import { PARCELAMENTO } from '@/lib/pagamento/parcelas'
 
 export function TrustSignals() {
   const signals = [
     { icon: Shield, text: 'Compra segura' },
     { icon: Truck, text: 'Entrega garantida' },
     { icon: RotateCcw, text: 'Troca grátis' },
-    { icon: CreditCard, text: 'Parcele em até 12x' },
+    { icon: CreditCard, text: `Parcele em até ${PARCELAMENTO.parcelas}x` },
   ]
 
   return (
