@@ -17,6 +17,7 @@
     "clean:full": "rm -rf .next out node_modules package-lock.json && npm install",
     "analyze": "ANALYZE=true npm run build",
     "verify": "node scripts/verify.js",
+    "test:carrinho": "node scripts/testa-carrinho.js",
     "test": "echo \"Tests not yet implemented\" && exit 0"
   },
   "dependencies": {

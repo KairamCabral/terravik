@@ -6,17 +6,19 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   ReactNode,
 } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Cart } from '@/types/cart'
-import { getCart } from '@/lib/shopify/queries/cart'
 import {
+  getCart,
   createCart as createCartMutation,
   addToCart as addToCartMutation,
   updateCartLine as updateCartLineMutation,
   removeFromCart as removeFromCartMutation,
 } from '@/lib/shopify/queries/cart'
+import { shouldUseMock } from '@/lib/shopify/client'
 import { normalizeCart, normalizeMockCart } from '@/lib/shopify/mappers'
 import {
   getMockCart,
@@ -25,22 +27,38 @@ import {
   removeFromMockCart,
   clearMockCart,
 } from '@/lib/shopify/mock-cart'
+import { useToast } from '@/components/ui'
 
 const CART_COOKIE_NAME = 'terravik-cart-id'
+
+/**
+ * O carrinho mock vale SÓ quando a loja não está configurada.
+ *
+ * Antes, qualquer erro da Shopify ligava o modo mock e o carrinho mock ficava
+ * salvo no localStorage para sempre: nas visitas seguintes, "Adicionar ao
+ * carrinho" respondia "Adicionado!" sem que nada chegasse à Shopify.
+ *
+ * Agora a decisão é uma só, a mesma do catálogo: `shouldUseMock()`. Com a
+ * loja configurada, erro da Shopify vira aviso na tela e o carrinho continua
+ * real; carrinho mock que tenha ficado no navegador é descartado ao carregar.
+ */
+const MODO_MOCK = shouldUseMock()
+
+interface SubscriptionData {
+  purchaseMode: 'one-time' | 'subscription'
+  frequency?: number
+  subscriptionPrice?: number
+  discountPercent?: number
+}
 
 interface CartContextValue {
   cart: Cart | null
   isOpen: boolean
   isLoading: boolean
   addItem: (
-    variantId: string, 
+    variantId: string,
     quantity?: number,
-    subscriptionData?: {
-      purchaseMode: 'one-time' | 'subscription'
-      frequency?: number
-      subscriptionPrice?: number
-      discountPercent?: number
-    }
+    subscriptionData?: SubscriptionData
   ) => Promise<void>
   updateItem: (lineId: string, quantity: number) => Promise<void>
   removeItem: (lineId: string) => Promise<void>
@@ -51,221 +69,216 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null)
 
+/**
+ * O id de carrinho da Shopify termina em `?key=...`: tem um '=' DENTRO do
+ * valor. `split('=')[1]` cortava ali e devolvia um id sem a chave, o getCart
+ * da montagem falhava e o "adicionar" seguinte abria um carrinho novo.
+ *
+ * Grava codificado e decodifica na leitura. Cookie antigo, gravado sem
+ * codificar, continua valendo: decodeURIComponent devolve igual sem %XX.
+ */
+function lerCookie(): string | null {
+  if (typeof document === 'undefined') return null
+  const cookie = document.cookie
+    .split(';')
+    .find((c) => c.trim().startsWith(`${CART_COOKIE_NAME}=`))
+  if (!cookie) return null
+  const bruto = cookie.trim().slice(CART_COOKIE_NAME.length + 1)
+  if (!bruto) return null
+  try {
+    return decodeURIComponent(bruto)
+  } catch {
+    return bruto
+  }
+}
+
+function gravarCookie(cartId: string) {
+  if (typeof document === 'undefined') return
+  // Cookie válido por 30 dias
+  const expira = new Date()
+  expira.setDate(expira.getDate() + 30)
+  document.cookie = `${CART_COOKIE_NAME}=${encodeURIComponent(cartId)}; expires=${expira.toUTCString()}; path=/`
+}
+
+function apagarCookie() {
+  if (typeof document === 'undefined') return
+  document.cookie = `${CART_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
+  const { showToast } = useToast()
   const [cart, setCart] = useState<Cart | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [useMockMode, setUseMockMode] = useState(false)
 
-  // Helper: Get cart ID from cookie
-  const getCartIdFromCookie = useCallback((): string | null => {
-    if (typeof document === 'undefined') return null
-    const cookies = document.cookie.split(';')
-    const cartCookie = cookies.find((c) =>
-      c.trim().startsWith(`${CART_COOKIE_NAME}=`)
-    )
-    return cartCookie ? cartCookie.split('=')[1] : null
+  // O id do carrinho vive também numa ref. Quem adiciona vários itens em
+  // sequência (calculadora, Compra Rápida) chama addItem num laço com a mesma
+  // closure, em que `cart` ainda é null: cada chamada criava um carrinho novo.
+  const cartIdRef = useRef<string | null>(null)
+
+  // O carrinho mais recente, fora do ciclo de render. Quem faz
+  // `await addItem(...)` e em seguida `goToCheckout()` no mesmo handler chama
+  // a função capturada ANTES do add; a ref tem o carrinho que acabou de entrar.
+  const cartRef = useRef<Cart | null>(null)
+
+  const atualizarCarrinho = useCallback((novo: Cart | null) => {
+    cartIdRef.current = novo?.id ?? null
+    cartRef.current = novo
+    setCart(novo)
   }, [])
 
-  // Helper: Set cart ID in cookie
-  const setCartIdInCookie = useCallback((cartId: string) => {
-    if (typeof document === 'undefined') return
-    // Cookie válido por 30 dias
-    const expires = new Date()
-    expires.setDate(expires.getDate() + 30)
-    document.cookie = `${CART_COOKIE_NAME}=${cartId}; expires=${expires.toUTCString()}; path=/`
-  }, [])
-
-  // Helper: Clear cart ID from cookie
-  const clearCartIdFromCookie = useCallback(() => {
-    if (typeof document === 'undefined') return
-    document.cookie = `${CART_COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/`
-  }, [])
+  const avisarFalha = useCallback(
+    (mensagem: string, erro: unknown) => {
+      console.error('[carrinho]', mensagem, erro)
+      showToast('error', mensagem)
+    },
+    [showToast]
+  )
 
   // Load cart on mount
   useEffect(() => {
-    const loadCart = async () => {
-      // Tentar carregar mock cart primeiro se existir
+    const carregar = async () => {
       try {
-        const existingMockCart = getMockCart()
-        if (existingMockCart && existingMockCart.items.length > 0) {
-          console.log('[CartProvider] Carrinho mock encontrado, usando mock mode')
-          setUseMockMode(true)
-          setCart(normalizeMockCart(existingMockCart))
+        if (MODO_MOCK) {
+          const mock = getMockCart()
+          if (mock.items.length > 0) atualizarCarrinho(normalizeMockCart(mock))
           return
         }
-      } catch (error) {
-        console.log('[CartProvider] Erro ao verificar mock cart:', error)
-      }
 
-      // Tentar Shopify
-      const cartId = getCartIdFromCookie()
-      if (!cartId) return
-
-      try {
-        const rawCart = await getCart(cartId)
-        if (rawCart && rawCart.lines?.edges?.length > 0) {
-          setCart(normalizeCart(rawCart))
-        } else {
-          // Cart vazio ou inválido
-          clearCartIdFromCookie()
-          setCart(null)
+        // Carrinho mock que ficou no navegador pelo defeito antigo: descartado,
+        // senão o carrinho real nunca apareceria.
+        try {
+          if (getMockCart().items.length > 0) clearMockCart()
+        } catch {
+          // localStorage indisponível: nada a limpar.
         }
-      } catch (error) {
-        console.warn('[CartProvider] Shopify indisponível, modo mock ativado')
-        setUseMockMode(true)
-        clearCartIdFromCookie()
-        setCart(null)
+
+        const cartId = lerCookie()
+        if (!cartId) return
+
+        const raw = await getCart(cartId)
+        if (raw && raw.lines?.edges?.length > 0) {
+          atualizarCarrinho(normalizeCart(raw))
+        } else {
+          // Carrinho vazio, expirado ou já finalizado no checkout.
+          apagarCookie()
+          atualizarCarrinho(null)
+        }
+      } catch (erro) {
+        console.error('[carrinho] não foi possível carregar o carrinho salvo', erro)
+        apagarCookie()
+        atualizarCarrinho(null)
       }
     }
 
-    loadCart()
-  }, [getCartIdFromCookie, clearCartIdFromCookie])
+    carregar()
+  }, [atualizarCarrinho])
 
   const addItem = useCallback(
-    async (
-      variantId: string, 
-      quantity = 1,
-      subscriptionData?: {
-        purchaseMode: 'one-time' | 'subscription'
-        frequency?: number
-        subscriptionPrice?: number
-        discountPercent?: number
-      }
-    ) => {
+    async (variantId: string, quantity = 1, subscriptionData?: SubscriptionData) => {
       setIsLoading(true)
       try {
-        // Tentar Shopify real primeiro se não estiver em mock mode
-        if (!useMockMode) {
-          try {
-            let rawCart
-
-            if (!cart?.id) {
-              // Criar novo carrinho
-              rawCart = await createCartMutation(variantId, quantity)
-              setCartIdInCookie(rawCart.id)
-            } else {
-              // Adicionar ao carrinho existente
-              rawCart = await addToCartMutation(cart.id, variantId, quantity)
-            }
-
-            setCart(normalizeCart(rawCart))
-            return
-          } catch (error) {
-            console.warn('[CartProvider] Shopify falhou, usando mock cart:', error)
-            setUseMockMode(true)
-          }
+        if (MODO_MOCK) {
+          atualizarCarrinho(
+            normalizeMockCart(addToMockCart(variantId, quantity, subscriptionData))
+          )
+          return
         }
 
-        // Fallback para mock
-        console.log('[CartProvider] Adicionando ao mock cart:', variantId, subscriptionData)
-        const mockCart = addToMockCart(variantId, quantity, subscriptionData)
-        setCart(normalizeMockCart(mockCart))
-      } catch (error) {
-        console.error('Erro ao adicionar item:', error)
-        throw error
+        // Restaurar o carrinho salvo é assíncrono. Quem clicava em "adicionar"
+        // antes de a consulta voltar encontrava a ref nula e começava um
+        // carrinho novo. O cookie é síncrono e já existe no primeiro render.
+        const id = cartIdRef.current ?? lerCookie()
+        let raw = null
+        if (id) {
+          try {
+            raw = await addToCartMutation(id, variantId, quantity)
+          } catch {
+            // Carrinho expirado ou já convertido em pedido: a Shopify recusa
+            // adicionar. Começa um carrinho novo abaixo.
+            raw = null
+          }
+        }
+        if (!raw) {
+          raw = await createCartMutation(variantId, quantity)
+          gravarCookie(raw.id)
+        }
+        // Guarda o id antes do render: a próxima chamada do mesmo laço já o vê.
+        cartIdRef.current = raw.id
+
+        atualizarCarrinho(normalizeCart(raw))
+      } catch (erro) {
+        avisarFalha('Não foi possível adicionar ao carrinho. Tente de novo em instantes.', erro)
+        // Relança para quem chamou não mostrar "Adicionado!".
+        throw erro
       } finally {
         setIsLoading(false)
       }
     },
-    [cart, useMockMode, setCartIdInCookie]
+    [atualizarCarrinho, avisarFalha]
   )
 
   const updateItem = useCallback(
     async (lineId: string, quantity: number) => {
-      if (!cart) return
+      const id = cartIdRef.current
+      if (!id) return
 
       setIsLoading(true)
       try {
-        if (useMockMode) {
-          // Usar mock
-          console.log('[CartProvider] Atualizando mock cart:', lineId, quantity)
-          const mockCart = updateMockCartItem(lineId, quantity)
-          setCart(normalizeMockCart(mockCart))
-        } else {
-          // Tentar Shopify
-          try {
-            if (quantity === 0) {
-              // Remove se quantidade for 0
-              const rawCart = await removeFromCartMutation(cart.id, [lineId])
-              const normalized = normalizeCart(rawCart)
-
-              if (normalized.items.length === 0) {
-                clearCartIdFromCookie()
-                setCart(null)
-              } else {
-                setCart(normalized)
-              }
-              return
-            }
-
-            const rawCart = await updateCartLineMutation(cart.id, lineId, quantity)
-            setCart(normalizeCart(rawCart))
-          } catch (error) {
-            console.warn('[CartProvider] Shopify falhou, usando mock cart')
-            setUseMockMode(true)
-            const mockCart = updateMockCartItem(lineId, quantity)
-            setCart(normalizeMockCart(mockCart))
-          }
+        if (MODO_MOCK) {
+          atualizarCarrinho(normalizeMockCart(updateMockCartItem(lineId, quantity)))
+          return
         }
-      } catch (error) {
-        console.error('Erro ao atualizar item:', error)
-        throw error
+
+        const raw =
+          quantity === 0
+            ? await removeFromCartMutation(id, [lineId])
+            : await updateCartLineMutation(id, lineId, quantity)
+        const normalizado = normalizeCart(raw)
+
+        if (normalizado.items.length === 0) {
+          apagarCookie()
+          atualizarCarrinho(null)
+        } else {
+          atualizarCarrinho(normalizado)
+        }
+      } catch (erro) {
+        avisarFalha('Não foi possível atualizar o carrinho. Tente de novo.', erro)
       } finally {
         setIsLoading(false)
       }
     },
-    [cart, useMockMode, clearCartIdFromCookie]
+    [atualizarCarrinho, avisarFalha]
   )
 
   const removeItem = useCallback(
     async (lineId: string) => {
-      if (!cart) return
+      const id = cartIdRef.current
+      if (!id) return
 
       setIsLoading(true)
       try {
-        if (useMockMode) {
-          console.log('[CartProvider] Removendo do mock cart:', lineId)
-          const mockCart = removeFromMockCart(lineId)
-          
-          if (mockCart.items.length === 0) {
-            setCart(null)
-          } else {
-            setCart(normalizeMockCart(mockCart))
-          }
-        } else {
-          try {
-            const rawCart = await removeFromCartMutation(cart.id, [lineId])
-            const normalized = normalizeCart(rawCart)
-
-            if (normalized.items.length === 0) {
-              // Se carrinho ficou vazio, limpar
-              clearCartIdFromCookie()
-              setCart(null)
-            } else {
-              setCart(normalized)
-            }
-          } catch (error) {
-            console.warn('[CartProvider] Shopify falhou, usando mock cart')
-            setUseMockMode(true)
-            const mockCart = removeFromMockCart(lineId)
-            
-            if (mockCart.items.length === 0) {
-              setCart(null)
-            } else {
-              setCart(normalizeMockCart(mockCart))
-            }
-          }
+        if (MODO_MOCK) {
+          const mock = removeFromMockCart(lineId)
+          atualizarCarrinho(mock.items.length === 0 ? null : normalizeMockCart(mock))
+          return
         }
-      } catch (error) {
-        console.error('Erro ao remover item:', error)
-        throw error
+
+        const normalizado = normalizeCart(await removeFromCartMutation(id, [lineId]))
+        if (normalizado.items.length === 0) {
+          apagarCookie()
+          atualizarCarrinho(null)
+        } else {
+          atualizarCarrinho(normalizado)
+        }
+      } catch (erro) {
+        avisarFalha('Não foi possível remover o item. Tente de novo.', erro)
       } finally {
         setIsLoading(false)
       }
     },
-    [cart, useMockMode, clearCartIdFromCookie]
+    [atualizarCarrinho, avisarFalha]
   )
 
   const openCart = useCallback(() => setIsOpen(true), [])

@@ -142,18 +142,19 @@ export default function RootLayout({
         <AuthProvider>
           <FavoritesProvider>
             <SubscriptionProvider>
-              <CartProvider>
-                <QuickPurchaseProvider>
-                  <ToastProvider>
+              {/* ToastProvider por fora: o CartProvider avisa falha por toast. */}
+              <ToastProvider>
+                <CartProvider>
+                  <QuickPurchaseProvider>
                     <ServiceWorkerRegister />
                     <Suspense fallback={<div className="min-h-screen" />}>
                       <ConditionalLayout>
                         {children}
                       </ConditionalLayout>
                     </Suspense>
-                  </ToastProvider>
-                </QuickPurchaseProvider>
-              </CartProvider>
+                  </QuickPurchaseProvider>
+                </CartProvider>
+              </ToastProvider>
             </SubscriptionProvider>
           </FavoritesProvider>
         </AuthProvider>
