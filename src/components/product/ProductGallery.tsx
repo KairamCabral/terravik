@@ -7,6 +7,10 @@ import { createPortal } from 'react-dom'
 import type { ProductImage } from '@/types/product'
 import { cn } from '@/lib/utils/cn'
 import { Sparkles, Play, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { GaleriaEmTelaCheia } from './GaleriaEmTelaCheia'
+
+/** A lente só liga em foto com resolução para aguentar a ampliação. */
+const LADO_MINIMO_PARA_ZOOM = 800
 
 interface ProductGalleryProps {
   images: ProductImage[]
@@ -14,6 +18,8 @@ interface ProductGalleryProps {
   videoUrl?: string
   /** Miniatura do vídeo. Se não informado e for YouTube, usa thumbnail automática. */
   videoThumbnailUrl?: string
+  /** Nome do produto, para o texto alternativo das fotos. */
+  title?: string
 }
 
 function getEmbedUrl(url: string): string {
@@ -35,7 +41,7 @@ function getYouTubeThumbnail(url: string): string | null {
   return match ? `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg` : null
 }
 
-export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: ProductGalleryProps) {
+export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl, title }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 })
@@ -57,6 +63,13 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
   }
 
   const selectedImage = images[selectedIndex]
+  const podeAmpliar =
+    selectedImage.width >= LADO_MINIMO_PARA_ZOOM && selectedImage.height >= LADO_MINIMO_PARA_ZOOM
+  const altDaFoto = (imagem: ProductImage, indice: number) =>
+    imagem.alt ||
+    (title
+      ? `${title}, foto ${indice + 1} de ${images.length}`
+      : `Foto ${indice + 1} de ${images.length}`)
 
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     if (!imageRef.current) return
@@ -76,11 +89,22 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
         <div className="relative min-w-0 flex-1 order-first lg:order-none">
           <div
             ref={imageRef}
-            className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-2xl bg-bg-surface-2 shadow-sm"
-            onMouseEnter={() => setIsZoomed(true)}
+            role="button"
+            tabIndex={0}
+            aria-label="Abrir a foto em tela cheia"
+            className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-2xl bg-bg-surface-2 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            onMouseEnter={() => podeAmpliar && setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleMouseMove}
             onClick={() => setLightboxOpen(true)}
+            onKeyDown={(e) => {
+              // Só quando o foco está na própria foto, não nas setas de dentro.
+              if (e.target !== e.currentTarget) return
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setLightboxOpen(true)
+              }
+            }}
           >
             <AnimatePresence mode="wait">
               <motion.div
@@ -93,10 +117,11 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
               >
                 <Image
                   src={selectedImage.url}
-                  alt={selectedImage.alt || `Imagem ${selectedIndex + 1}`}
+                  alt={altDaFoto(selectedImage, selectedIndex)}
                   fill
                   className={cn(
-                    'object-cover transition-transform duration-300 ease-out',
+                    // object-contain: a embalagem aparece inteira, sem corte.
+                    'object-contain transition-transform duration-300 ease-out',
                     isZoomed && 'scale-150'
                   )}
                   style={
@@ -154,13 +179,13 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
 
         {/* Faixa de miniaturas + vídeo: no mobile fica abaixo da imagem (foco nas imagens); no desktop à esquerda */}
         {(images.length > 1 || videoUrl) && (
-        <div className="flex flex-col gap-2 lg:order-first lg:w-20 lg:flex-shrink-0 lg:self-start">
+        <div className="flex min-w-0 flex-col gap-2 lg:order-first lg:w-20 lg:flex-shrink-0 lg:self-start">
           {/* Thumbnails — horizontal no mobile, vertical no desktop */}
           {images.length > 1 && (
             <div
               ref={thumbScrollRef}
               className={cn(
-                'flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-x-visible lg:overflow-y-auto lg:max-h-[min(24rem,60vh)] lg:pb-0',
+                'flex min-w-0 gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-x-visible lg:overflow-y-auto lg:max-h-[min(24rem,60vh)] lg:pb-0',
                 'scrollbar-thin scrollbar-thumb-border-medium scrollbar-track-transparent'
               )}
               style={{ scrollbarWidth: 'thin' }}
@@ -176,13 +201,14 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
                       ? 'border-forest shadow-md ring-2 ring-forest/20'
                       : 'border-transparent hover:border-forest/40 hover:opacity-90'
                   )}
-                  aria-label={`Ver imagem ${index + 1}`}
+                  aria-label={`Ver foto ${index + 1} de ${images.length}`}
+                  aria-current={selectedIndex === index ? 'true' : undefined}
                 >
                   <Image
                     src={image.url}
-                    alt={image.alt || `Miniatura ${index + 1}`}
+                    alt=""
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     sizes="72px"
                   />
                 </button>
@@ -229,11 +255,12 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
 
       {lightboxOpen &&
         createPortal(
-          <Lightbox
+          <GaleriaEmTelaCheia
             images={images}
             selectedIndex={selectedIndex}
             onClose={() => setLightboxOpen(false)}
             onSelect={goTo}
+            title={title}
           />,
           document.body
         )}
@@ -248,100 +275,6 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl }: P
           document.body
         )}
     </div>
-  )
-}
-
-function Lightbox({
-  images,
-  selectedIndex,
-  onClose,
-  onSelect,
-}: {
-  images: ProductImage[]
-  selectedIndex: number
-  onClose: () => void
-  onSelect: (index: number) => void
-}) {
-  const goPrev = () => onSelect(selectedIndex - 1)
-  const goNext = () => onSelect(selectedIndex + 1)
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    const handleEsc = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
-    window.addEventListener('keydown', handleEsc)
-    return () => {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', handleEsc)
-    }
-  }, [onClose])
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-md"
-      onClick={onClose}
-    >
-      <button
-        onClick={onClose}
-        className="absolute right-4 top-4 z-10 rounded-full p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-        aria-label="Fechar"
-      >
-        <X className="h-8 w-8" />
-      </button>
-
-      <div
-        className="relative max-h-[90vh] max-w-[90vw]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={images[selectedIndex]?.url}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="relative aspect-square w-full max-w-4xl"
-          >
-            <Image
-              src={images[selectedIndex].url}
-              alt={images[selectedIndex].alt || `Imagem ${selectedIndex + 1}`}
-              fill
-              className="object-contain"
-              sizes="90vw"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </motion.div>
-        </AnimatePresence>
-
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={goPrev}
-              disabled={selectedIndex === 0}
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-all hover:bg-white/20 disabled:opacity-0"
-              aria-label="Anterior"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </button>
-            <button
-              onClick={goNext}
-              disabled={selectedIndex === images.length - 1}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white transition-all hover:bg-white/20 disabled:opacity-0"
-              aria-label="Próxima"
-            >
-              <ChevronRight className="h-8 w-8" />
-            </button>
-          </>
-        )}
-      </div>
-
-      {images.length > 1 && (
-        <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm text-white/70">
-          {selectedIndex + 1} / {images.length}
-        </p>
-      )}
-    </motion.div>
   )
 }
 

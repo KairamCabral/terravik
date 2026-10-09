@@ -81,6 +81,7 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
           {/* ── Coluna Esquerda: Galeria (sticky — acompanha a nav até o fim da seção) ── */}
           <div className="min-h-0 lg:sticky lg:top-[120px] lg:self-start">
             <ProductGallery
+              title={product.title}
               images={product.images}
               badge={product.tags.includes('novo') ? 'Lançamento' : undefined}
               videoUrl={PRODUCT_VIDEOS[product.handle]}
