@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { createMetadata } from '@/lib/seo/metadata'
+import { getCatalogoComEstado } from '@/lib/shopify/catalogo'
+import { REVALIDATE } from '@/lib/utils/constants'
 import { FavoritesPageClient } from './FavoritesPageClient'
 
 export const metadata: Metadata = createMetadata({
@@ -9,6 +11,9 @@ export const metadata: Metadata = createMetadata({
   noIndex: true,
 })
 
-export default function FavoritosPage() {
-  return <FavoritesPageClient />
+export const revalidate = REVALIDATE.products
+
+export default async function FavoritosPage() {
+  const { produtos, degradado } = await getCatalogoComEstado('favoritos')
+  return <FavoritesPageClient catalogo={produtos} degradado={degradado} />
 }

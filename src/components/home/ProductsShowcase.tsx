@@ -19,99 +19,86 @@ import { useCart } from '@/components/cart'
  * - Integração completa com carrinho
  */
 
-type ProductSize = '1kg' | '5kg' | '10kg'
+import type { Product as ProdutoDoCatalogo } from '@/types/product'
+import { CURADORIA_DA_VITRINE } from '@/lib/home/vitrine'
+
+interface Tamanho {
+  label: string
+  variantId: string
+  original: number
+  final: number
+}
 
 interface Product {
+  /** Handle do produto: é a URL e a chave dos favoritos. */
   id: string
   name: string
-  function: string
   description: string
   image: string
   badge: string | null
   discount: number
-  prices: {
-    '1kg': { original: number; final: number }
-    '5kg': { original: number; final: number }
-    '10kg': { original: number; final: number }
-  }
-  variantIds: {
-    '1kg': string
-    '5kg': string
-    '10kg': string
-  }
+  sizes: Tamanho[]
 }
 
-const products: Product[] = [
-  {
-    id: 'gramado-novo',
-    name: 'Gramado Novo',
-    function: 'Implantação',
-    description: 'Rico em fósforo para enraizamento forte desde o início.',
-    image: '/images/Gramado-novo.png',
-    badge: null,
-    discount: 0,
-    prices: {
-      '1kg': { original: 89.90, final: 89.90 },
-      '5kg': { original: 399.90, final: 379.90 },
-      '10kg': { original: 749.90, final: 699.90 },
-    },
-    variantIds: {
-      '1kg': 'mock-p1-1kg',
-      '5kg': 'mock-p1-5kg',
-      '10kg': 'mock-p1-10kg',
-    },
-  },
-  {
-    id: 'verde-rapido',
-    name: 'Verde Rápido',
-    function: 'Crescimento',
-    description: 'Alta carga de nitrogênio para verde visível em dias.',
-    image: '/images/Verde-Rápido.png',
-    badge: 'Mais vendido',
-    discount: 35,
-    prices: {
-      '1kg': { original: 99.90, final: 64.90 },
-      '5kg': { original: 449.90, final: 292.40 },
-      '10kg': { original: 849.90, final: 552.40 },
-    },
-    variantIds: {
-      '1kg': 'mock-p2-1kg',
-      '5kg': 'mock-p2-5kg',
-      '10kg': 'mock-p2-10kg',
-    },
-  },
-  {
-    id: 'resistencia-total',
-    name: 'Resistência Total',
-    function: 'Proteção',
-    description: 'NPK balanceado para gramados sob estresse e pisoteio.',
-    image: '/images/Resistencia-total.png',
-    badge: null,
-    discount: 25,
-    prices: {
-      '1kg': { original: 94.90, final: 71.20 },
-      '5kg': { original: 429.90, final: 322.40 },
-      '10kg': { original: 799.90, final: 599.90 },
-    },
-    variantIds: {
-      '1kg': 'mock-p3-1kg',
-      '5kg': 'mock-p3-5kg',
-      '10kg': 'mock-p3-10kg',
-    },
-  },
-]
+/**
+ * Monta os cards a partir do catálogo recebido do servidor.
+ *
+ * Antes os três produtos, os preços e os ids de variante estavam digitados
+ * aqui: com a loja real ligada, a vitrine venderia variante que não existe.
+ * Só entram variantes disponíveis; produto sem nenhuma fica fora.
+ */
+function montarVitrine(catalogo: ProdutoDoCatalogo[]): Product[] {
+  const cards: Product[] = []
+  for (const curadoria of CURADORIA_DA_VITRINE) {
+    const produto = catalogo.find((p) => p.handle === curadoria.handle)
+    if (!produto) continue
 
-export function ProductsShowcase() {
+    const sizes: Tamanho[] = produto.variants
+      .filter((v) => v.available && v.price > 0)
+      .map((v) => ({
+        label: v.title === 'Default Title' ? 'Unidade' : v.title,
+        variantId: v.id,
+        // Só há preço "de" quando ele é maior que o preço de venda.
+        original: v.compareAtPrice && v.compareAtPrice > v.price ? v.compareAtPrice : v.price,
+        final: v.price,
+      }))
+    if (sizes.length === 0) continue
+
+    const primeiro = sizes[0]
+    cards.push({
+      id: produto.handle,
+      name: produto.title,
+      description: curadoria.descricao,
+      image: produto.featuredImage?.url ?? '',
+      badge: curadoria.selo,
+      discount:
+        primeiro.original > primeiro.final
+          ? Math.round((1 - primeiro.final / primeiro.original) * 100)
+          : 0,
+      sizes,
+    })
+  }
+  return cards
+}
+
+interface ProductsShowcaseProps {
+  /** Catálogo resolvido no servidor (src/app/page.tsx). */
+  produtos: ProdutoDoCatalogo[]
+}
+
+export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
+  const products = montarVitrine(produtos)
   const { addItem, openCart, isLoading } = useCart()
   const [expandedProduct, setExpandedProduct] = useState<string | null>(null)
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, ProductSize>>({})
+  const [selectedSizes, setSelectedSizes] = useState<Record<string, string>>({})
   const [quantities, setQuantities] = useState<Record<string, number>>({})
   const [subscriptions, setSubscriptions] = useState<Record<string, boolean>>({})
   const [addingToCart, setAddingToCart] = useState(false)
   const [justAdded, setJustAdded] = useState<string | null>(null)
 
-  const getSelectedSize = (productId: string): ProductSize => 
-    selectedSizes[productId] || '1kg'
+  // Tamanho escolhido, ou o primeiro disponível.
+  const getSelectedSize = (product: Product): Tamanho =>
+    product.sizes.find((t) => t.label === selectedSizes[product.id]) ?? product.sizes[0]
   
   const getQuantity = (productId: string): number => 
     quantities[productId] || 1
@@ -121,15 +108,12 @@ export function ProductsShowcase() {
 
   const handleBuyClick = (productId: string) => {
     setExpandedProduct(productId)
-    if (!selectedSizes[productId]) {
-      setSelectedSizes({ ...selectedSizes, [productId]: '1kg' })
-    }
     if (!quantities[productId]) {
       setQuantities({ ...quantities, [productId]: 1 })
     }
   }
 
-  const updateSize = (productId: string, size: ProductSize) => {
+  const updateSize = (productId: string, size: string) => {
     setSelectedSizes({ ...selectedSizes, [productId]: size })
   }
 
@@ -144,17 +128,17 @@ export function ProductsShowcase() {
   }
 
   const getCurrentPrice = (product: Product) => {
-    const size = getSelectedSize(product.id)
+    const size = getSelectedSize(product)
     const quantity = getQuantity(product.id)
     const subscription = isSubscription(product.id)
-    return product.prices[size].final * quantity * (subscription ? 0.9 : 1)
+    return size.final * quantity * (subscription ? 0.9 : 1)
   }
 
   const handleAddToCart = async (product: Product) => {
-    const size = getSelectedSize(product.id)
+    const size = getSelectedSize(product)
     const quantity = getQuantity(product.id)
     const subscription = isSubscription(product.id)
-    const variantId = product.variantIds[size]
+    const variantId = size.variantId
 
     setAddingToCart(true)
     
@@ -162,7 +146,7 @@ export function ProductsShowcase() {
       await addItem(variantId, quantity, subscription ? {
         purchaseMode: 'subscription',
         frequency: 30,
-        subscriptionPrice: product.prices[size].final * 0.9,
+        subscriptionPrice: size.final * 0.9,
         discountPercent: 10,
       } : {
         purchaseMode: 'one-time',
@@ -180,6 +164,8 @@ export function ProductsShowcase() {
       setAddingToCart(false)
     }
   }
+
+  if (products.length === 0) return null
 
   return (
     <section className="bg-gradient-to-b from-white via-neutral-50 to-white py-20">
@@ -201,7 +187,8 @@ export function ProductsShowcase() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
           {products.map((product) => {
             const isExpanded = expandedProduct === product.id
-            const selectedSize = getSelectedSize(product.id)
+            const selectedSize = getSelectedSize(product)
+            const primeiro = product.sizes[0]
             const quantity = getQuantity(product.id)
             const subscription = isSubscription(product.id)
             const currentPrice = getCurrentPrice(product)
@@ -287,16 +274,16 @@ export function ProductsShowcase() {
                   <div className="mt-auto">
                     {product.discount > 0 && (
                       <span className="text-xs text-neutral-400 line-through block">
-                        De: R$ {product.prices['1kg'].original.toFixed(2)}
+                        De: R$ {primeiro.original.toFixed(2)}
                       </span>
                     )}
                     <div className="flex items-baseline gap-2 mt-1">
                       <span className="text-xl font-bold text-forest">
-                        R$ {product.prices['1kg'].final.toFixed(2)}
+                        R$ {primeiro.final.toFixed(2)}
                       </span>
                     </div>
                     <span className="text-xs text-neutral-500 block mt-1 mb-3">
-                      ou 6x de R$ {(product.prices['1kg'].final / 6).toFixed(2)}
+                      ou 6x de R$ {(primeiro.final / 6).toFixed(2)}
                     </span>
 
                     {/* Botão Comprar */}
@@ -362,13 +349,13 @@ export function ProductsShowcase() {
                             Tamanho:
                           </label>
                           <div className="flex gap-1.5">
-                            {(['1kg', '5kg', '10kg'] as ProductSize[]).map((size) => (
+                            {product.sizes.map(({ label: size }) => (
                               <button
                                 key={size}
                                 onClick={() => updateSize(product.id, size)}
                                 className={cn(
                                   'flex-1 py-2 px-2 rounded-full text-xs font-medium transition-all',
-                                  selectedSize === size
+                                  selectedSize.label === size
                                     ? 'bg-forest text-white'
                                     : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                                 )}

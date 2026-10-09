@@ -28,7 +28,8 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { OBJECTIVE_LABELS, CLIMATE_LABELS } from '@/lib/calculator/constants';
-import { getMockProductByCalculatorId } from '@/lib/shopify/mock-data';
+import { produtoDaCalculadora } from '@/lib/calculator/produtos';
+import { useCatalogo } from '@/contexts/CatalogoContext';
 import type { LawnData } from '@/lib/subscription/types';
 
 interface CalculatorResultSubscriptionProps {
@@ -71,6 +72,7 @@ export function CalculatorResultSubscription({
 }: CalculatorResultSubscriptionProps) {
   const { result, reset } = calculator;
   const lawnData = toLawnData(calculator);
+  const catalogo = useCatalogo();
   
   if (!result) {
     return (
@@ -149,7 +151,7 @@ export function CalculatorResultSubscription({
       {result.plan.length > 0 && (() => {
         // Pegar o primeiro produto do plano como principal
         const mainProduct = result.plan[0];
-        const mockProduct = getMockProductByCalculatorId(mainProduct.product_id);
+        const mockProduct = produtoDaCalculadora(catalogo, mainProduct.product_id);
         
         if (!mockProduct || mockProduct.variants.length === 0) {
           return null;

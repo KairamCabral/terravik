@@ -13,6 +13,7 @@ import { FavoritesProvider } from '@/contexts/FavoritesContext'
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import { ConditionalLayout } from '@/components/layout/ConditionalLayout'
 import { QuickPurchaseProvider } from '@/contexts/QuickPurchaseContext'
+import { getLinksDeProdutoDoRodape } from '@/lib/shopify/footer-links'
 
 // ── Fonts Premium (Design System 2026) ───────────────────
 
@@ -108,11 +109,13 @@ export const metadata: Metadata = {
 
 // ---- Layout ----
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const produtosNoRodape = await getLinksDeProdutoDoRodape()
+
   return (
     <html lang="pt-BR" className={`${inter.variable} ${fraunces.variable}`}>
       <head>
@@ -148,7 +151,7 @@ export default function RootLayout({
                   <QuickPurchaseProvider>
                     <ServiceWorkerRegister />
                     <Suspense fallback={<div className="min-h-screen" />}>
-                      <ConditionalLayout>
+                      <ConditionalLayout produtosNoRodape={produtosNoRodape}>
                         {children}
                       </ConditionalLayout>
                     </Suspense>

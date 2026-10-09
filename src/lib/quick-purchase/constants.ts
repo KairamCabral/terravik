@@ -1,6 +1,9 @@
 /**
- * Produtos para Compra Rápida
- * Cada produto pode ter múltiplas variantes (tamanhos).
+ * Compra Rápida.
+ *
+ * Os produtos vêm de /api/compra-rapida, montados do catálogo no servidor.
+ * Aqui fica só a curadoria: quais handles entram, em que ordem, com que
+ * selo e frase. Preço e variante nunca são escritos à mão.
  */
 
 export interface QuickPurchaseVariant {
@@ -11,8 +14,8 @@ export interface QuickPurchaseVariant {
 }
 
 export interface QuickPurchaseProduct {
+  /** Handle do produto no catálogo. */
   id: string
-  productId: string
   title: string
   image: string
   badge: string | null
@@ -20,42 +23,16 @@ export interface QuickPurchaseProduct {
   variants: QuickPurchaseVariant[]
 }
 
-export const QUICK_PURCHASE_PRODUCTS: QuickPurchaseProduct[] = [
-  {
-    id: 'mock-p2',
-    productId: 'mock-p2',
-    title: 'Verde Rápido',
-    image: '/images/Verde-Rápido.png',
-    badge: 'Mais vendido',
-    pitch: 'Recupere o verde em dias',
-    variants: [
-      { variantId: 'mock-p2-2700g', title: '2,7kg', price: 89.9 },
-    ],
-  },
-  {
-    id: 'mock-p1',
-    productId: 'mock-p1',
-    title: 'Gramado Novo',
-    image: '/images/Gramado-novo.png',
-    badge: null,
-    pitch: 'Enraizamento forte desde o início',
-    variants: [
-      { variantId: 'mock-p1-400g', title: '400g', price: 29.9 },
-      { variantId: 'mock-p1-900g', title: '900g', price: 59.9 },
-    ],
-  },
-  {
-    id: 'mock-p3',
-    productId: 'mock-p3',
-    title: 'Resistência Total',
-    image: '/images/Resistencia-total.png',
-    badge: null,
-    pitch: 'Proteção contra calor e pisoteio',
-    variants: [
-      { variantId: 'mock-p3-400g', title: '400g', price: 34.9 },
-      { variantId: 'mock-p3-900g', title: '900g', price: 69.9 },
-    ],
-  },
+export interface CuradoriaDaCompraRapida {
+  handle: string
+  badge: string | null
+  pitch: string
+}
+
+export const CURADORIA_DA_COMPRA_RAPIDA: CuradoriaDaCompraRapida[] = [
+  { handle: 'verde-rapido', badge: 'Mais vendido', pitch: 'Recupere o verde em dias' },
+  { handle: 'gramado-novo', badge: null, pitch: 'Enraizamento forte desde o início' },
+  { handle: 'resistencia-total', badge: null, pitch: 'Proteção contra calor e pisoteio' },
 ]
 
 export const CALCULATOR_RESULT_KEY = 'terravik-calculator-result'

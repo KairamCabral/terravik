@@ -142,8 +142,9 @@ export function addToMockCart(
   }
   
   if (!foundProduct || !foundVariant) {
-    console.error('Produto/variante não encontrado:', variantId);
-    return cart;
+    // Lança em vez de devolver o carrinho intacto: quem chamou mostraria
+    // "Adicionado!" sem nada ter entrado.
+    throw new Error(`Produto/variante não encontrado: ${variantId}`);
   }
 
   // Determinar se é assinatura

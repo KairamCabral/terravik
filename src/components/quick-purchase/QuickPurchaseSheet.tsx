@@ -10,23 +10,12 @@ import { FreeShippingBar } from '@/components/cart/FreeShippingBar'
 import { Button } from '@/components/ui'
 import { formatPrice } from '@/lib/subscription/pricing'
 import {
-  QUICK_PURCHASE_PRODUCTS,
   CALCULATOR_RESULT_KEY,
+  type QuickPurchaseProduct,
   type QuickPurchaseVariant,
 } from '@/lib/quick-purchase/constants'
+import { PRODUCT_HANDLE_MAP } from '@/lib/utils/constants'
 import type { CalculatorResult } from '@/types/calculator'
-
-const CALC_TO_VARIANT: Record<string, string> = {
-  P1: 'mock-p1-900g',
-  P2: 'mock-p2-2700g',
-  P3: 'mock-p3-900g',
-}
-
-const CALC_TO_IMAGE: Record<string, string> = {
-  P1: '/images/Gramado-novo.png',
-  P2: '/images/Verde-Rápido.png',
-  P3: '/images/Resistencia-total.png',
-}
 
 export function QuickPurchaseSheet() {
   const { isOpen, closeQuickPurchase } = useQuickPurchase()
@@ -44,10 +33,30 @@ export function QuickPurchaseSheet() {
   } | null>(null)
   const [isAdding, setIsAdding] = useState(false)
 
+  // Produtos vindos do catálogo, pelo servidor. Antes eram ids escritos à mão,
+  // e dois deles não existiam em catálogo nenhum.
+  const [produtos, setProdutos] = useState<QuickPurchaseProduct[]>([])
+
+  useEffect(() => {
+    if (!isOpen || produtos.length > 0) return
+    let ativo = true
+    fetch('/api/compra-rapida')
+      .then((r) => (r.ok ? r.json() : { itens: [] }))
+      .then((dados) => {
+        if (ativo) setProdutos(dados.itens ?? [])
+      })
+      .catch(() => {
+        // Sem catálogo o painel abre vazio; nada é vendido às cegas.
+      })
+    return () => {
+      ativo = false
+    }
+  }, [isOpen, produtos.length])
+
   // Inicializar variante selecionada por produto (primeira variante)
   const getSelectedVariant = useCallback(
     (productId: string): QuickPurchaseVariant => {
-      const product = QUICK_PURCHASE_PRODUCTS.find((p) => p.id === productId)
+      const product = produtos.find((p) => p.id === productId)
       if (!product || product.variants.length === 0) {
         return { variantId: '', title: '', price: 0 }
       }
@@ -55,7 +64,7 @@ export function QuickPurchaseSheet() {
         selectedVariants[productId] ?? product.variants[0]
       )
     },
-    [selectedVariants]
+    [selectedVariants, produtos]
   )
 
   const setSelectedVariant = useCallback((productId: string, variant: QuickPurchaseVariant) => {
@@ -71,17 +80,16 @@ export function QuickPurchaseSheet() {
         const result = JSON.parse(stored) as CalculatorResult
         const plan = result?.plan?.[0]
         if (plan) {
-          const variantId = CALC_TO_VARIANT[plan.product_id]
-          const product = QUICK_PURCHASE_PRODUCTS.find(
-            (p) => p.productId === `mock-${plan.product_id.toLowerCase()}`
-          )
-          const variant = product?.variants.find((v) => v.variantId === variantId) ?? product?.variants[0]
-          if (variantId && variant) {
+          // O produto recomendado sai do catálogo, pela mesma lista do painel.
+          const product = produtos.find((p) => p.id === PRODUCT_HANDLE_MAP[plan.product_id])
+          const variant = product?.variants[0]
+          if (product && variant) {
+            const variantId = variant.variantId
             setCalculatorProduct({
               productId: plan.product_id,
               variantId,
               title: plan.name,
-              image: CALC_TO_IMAGE[plan.product_id] || product?.image || '',
+              image: product.image,
               price: variant.price,
               area_m2: result.area_m2,
               need_display: plan.need_display,
@@ -94,7 +102,7 @@ export function QuickPurchaseSheet() {
     } catch {
       setCalculatorProduct(null)
     }
-  }, [isOpen])
+  }, [isOpen, produtos])
 
   // Reset quantities e variantes ao fechar
   useEffect(() => {
@@ -122,7 +130,7 @@ export function QuickPurchaseSheet() {
           },
         ]
       : []),
-    ...QUICK_PURCHASE_PRODUCTS.filter((p) => getQuantity(p.id) > 0).map(
+    ...produtos.filter((p) => getQuantity(p.id) > 0).map(
       (p) => ({
         variantId: getSelectedVariant(p.id).variantId,
         quantity: getQuantity(p.id),
@@ -135,7 +143,7 @@ export function QuickPurchaseSheet() {
     if (calculatorProduct && getQuantity(`calc-${calculatorProduct.productId}`) > 0) {
       total += calculatorProduct.price * getQuantity(`calc-${calculatorProduct.productId}`)
     }
-    QUICK_PURCHASE_PRODUCTS.forEach((p) => {
+    produtos.forEach((p) => {
       const q = getQuantity(p.id)
       if (q > 0) {
         const v = getSelectedVariant(p.id)
@@ -230,7 +238,7 @@ export function QuickPurchaseSheet() {
                   Mais vendidos
                 </p>
                 <div className="space-y-2">
-                  {QUICK_PURCHASE_PRODUCTS.map((product) => (
+                  {produtos.map((product) => (
                     <QuickPurchaseProductRow
                       key={product.id}
                       title={product.title}

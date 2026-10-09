@@ -10,6 +10,8 @@ import { AcademiaCTA } from '@/components/home/AcademiaCTA'
 import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import { StoreLocationsSection } from '@/components/home/StoreLocationsSection'
 import { FAQSection } from '@/components/home/FAQSection'
+import { getCatalogo } from '@/lib/shopify/catalogo'
+import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
   title: 'Terravik — Fertilizantes Premium para Gramados',
@@ -18,12 +20,16 @@ export const metadata: Metadata = createMetadata({
   path: '',
 })
 
-export default function HomePage() {
+export const revalidate = REVALIDATE.products
+
+export default async function HomePage() {
+  const produtos = await getCatalogo('home')
+
   return (
     <>
       <BannerSection />
       <VideoSection />
-      <ProductsShowcase />
+      <ProductsShowcase produtos={produtos} />
       <CalculatorCTA />
       <InfluencersSection />
       <BenefitsSection />

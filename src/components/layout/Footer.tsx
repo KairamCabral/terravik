@@ -12,16 +12,16 @@ import { SOCIAL_LINKS } from '@/lib/utils/constants'
  * - Selos discretos, sem imagem cafona
  */
 
-export function Footer() {
+interface FooterProps {
+  /** Links de produto vindos do catálogo (getLinksDeProdutoDoRodape no RootLayout). */
+  produtos?: Array<{ label: string; href: string }>
+}
+
+export function Footer({ produtos = [] }: FooterProps) {
   const currentYear = new Date().getFullYear()
 
   const footerLinks = {
-    produtos: [
-      { label: 'Gramado Novo', href: '/produtos/gramado-novo' },
-      { label: 'Verde Rápido', href: '/produtos/verde-rapido' },
-      { label: 'Resistência Total', href: '/produtos/resistencia-total' },
-      { label: 'Ver Todos', href: '/produtos' },
-    ],
+    produtos: [...produtos, { label: 'Ver Todos', href: '/produtos' }],
     recursos: [
       { label: 'Calculadora de Dose', href: '/calculadora', highlight: true },
       { label: 'Cursos Terravik', href: '/academia', highlight: true },

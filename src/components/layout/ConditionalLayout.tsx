@@ -14,7 +14,13 @@ const QuickPurchaseSheet = dynamic(
   { ssr: false }
 );
 
-export function ConditionalLayout({ children }: { children: React.ReactNode }) {
+interface ConditionalLayoutProps {
+  children: React.ReactNode
+  /** Links de produto do rodapé, resolvidos no servidor pelo RootLayout. */
+  produtosNoRodape?: Array<{ label: string; href: string }>
+}
+
+export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLayoutProps) {
   const pathname = usePathname();
 
   // Rotas de áreas logadas (admin e conta do cliente)
@@ -55,7 +61,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
       <main id="main-content" className="min-h-screen pt-[104px] lg:pt-[120px] pb-20 lg:pb-0">
         {children}
       </main>
-      <Footer />
+      <Footer produtos={produtosNoRodape} />
       <CartDrawer />
       <QuickPurchaseSheet />
       <MobileBottomNav />

@@ -29,8 +29,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { Database } from '@/types/database';
-import { MOCK_PRODUCTS } from '@/lib/shopify/mock-data';
-import type { Product } from '@/types/product';
+import type { ProdutoLeve } from '@/app/api/catalogo-leve/route';
 
 type Banner = Database['public']['Tables']['banners']['Row'];
 
@@ -214,7 +213,7 @@ function LinkSelector({
   value: string;
   onChange: (url: string) => void;
 }) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProdutoLeve[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   const getMode = (): LinkMode => {
@@ -229,9 +228,12 @@ function LinkSelector({
     const loadProducts = async () => {
       setIsLoadingProducts(true);
       try {
-        setProducts(MOCK_PRODUCTS);
+        // Catálogo pelo servidor: client não enxerga as credenciais da Shopify.
+        const resposta = await fetch('/api/catalogo-leve');
+        const dados = resposta.ok ? await resposta.json() : { produtos: [] };
+        setProducts(dados.produtos ?? []);
       } catch {
-        setProducts(MOCK_PRODUCTS);
+        setProducts([]);
       } finally {
         setIsLoadingProducts(false);
       }
@@ -331,11 +333,11 @@ function LinkSelector({
                           : 'border-neutral-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/30'
                       }`}
                     >
-                      {product.featuredImage && (
+                      {product.image && (
                         <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
                           <Image
-                            src={product.featuredImage.url}
-                            alt={product.featuredImage.alt}
+                            src={product.image}
+                            alt={product.title}
                             fill
                             className="object-cover"
                             sizes="56px"
@@ -764,7 +766,7 @@ export function BannersTab() {
                       {banner.link_url.startsWith('/produtos/') ? (
                         <>
                           <ShoppingBag className="w-3 h-3" />
-                          {MOCK_PRODUCTS.find(p => `/produtos/${p.handle}` === banner.link_url)?.title || banner.link_url}
+                          {banner.link_url}
                         </>
                       ) : (
                         <>

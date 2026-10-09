@@ -6,7 +6,8 @@ import { CATALOG } from '@/lib/calculator/constants'
 import { CheckCircle, ShoppingCart } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { useCart } from '@/components/cart'
-import { getMockProductByCalculatorId } from '@/lib/shopify/mock-data'
+import { produtoDaCalculadora } from '@/lib/calculator/produtos'
+import { useCatalogo } from '@/contexts/CatalogoContext'
 import { useState } from 'react'
 
 interface ProductPlanCardProps {
@@ -35,12 +36,13 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
   const catalog = CATALOG[plan.product_id]
   const colors = productColors[plan.product_id]
   const { addItem, openCart, isLoading } = useCart()
+  const catalogo = useCatalogo()
   const [showSuccess, setShowSuccess] = useState(false)
 
   const handleAddToCart = async () => {
     try {
-      // Buscar produto mock para pegar o variant ID
-      const mockProduct = getMockProductByCalculatorId(plan.product_id)
+      // Produto do catálogo resolvido no servidor, para pegar o variant ID
+      const mockProduct = produtoDaCalculadora(catalogo, plan.product_id)
       if (!mockProduct || mockProduct.variants.length === 0) {
         alert('Produto temporariamente indisponível')
         return

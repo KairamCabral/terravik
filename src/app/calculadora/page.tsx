@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import { createMetadata, howToSchema, breadcrumbSchema } from '@/lib/seo/metadata'
 import { CalculatorWizard } from '@/components/calculator/CalculatorWizard'
 import { CalculatorProvider } from '@/contexts/CalculatorContext'
+import { CatalogoProvider } from '@/contexts/CatalogoContext'
+import { getCatalogo } from '@/lib/shopify/catalogo'
+import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
   title: 'Calculadora — Plano Terravik para o seu Gramado',
@@ -10,7 +13,13 @@ export const metadata: Metadata = createMetadata({
   path: '/calculadora',
 })
 
-export default function CalculadoraPage() {
+export const revalidate = REVALIDATE.products
+
+export default async function CalculadoraPage() {
+  // O catálogo é resolvido aqui: o resultado da calculadora precisa das
+  // variantes reais para o carrinho aceitar.
+  const produtos = await getCatalogo('calculadora')
+
   return (
     <>
       {/* JSON-LD: HowTo + Breadcrumbs */}
@@ -32,9 +41,11 @@ export default function CalculadoraPage() {
         }}
       />
 
-      <CalculatorProvider>
-        <CalculatorWizard />
-      </CalculatorProvider>
+      <CatalogoProvider produtos={produtos}>
+        <CalculatorProvider>
+          <CalculatorWizard />
+        </CalculatorProvider>
+      </CatalogoProvider>
     </>
   )
 }

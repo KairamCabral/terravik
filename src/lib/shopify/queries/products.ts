@@ -128,11 +128,15 @@ const GET_PRODUCTS_BY_TAG = `
 
 // ---- Funções exportadas ----
 
-export async function getProducts(first = 20): Promise<Product[]> {
+export async function getProducts(
+  first = 20,
+  opcoes: { revalidate?: number } = {}
+): Promise<Product[]> {
   const data = await shopifyFetch<ProductsResponse>({
     query: GET_ALL_PRODUCTS,
     variables: { first },
     tags: ['products'],
+    ...(opcoes.revalidate !== undefined ? { revalidate: opcoes.revalidate } : {}),
   })
 
   return data.products.edges.map((edge) => normalizeProduct(edge.node))
