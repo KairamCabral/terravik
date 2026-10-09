@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { getProducts } from '@/lib/shopify/queries/products'
 import { createMetadata, breadcrumbSchema } from '@/lib/seo/metadata'
-import { normalizeProduct } from '@/lib/shopify/mappers'
+import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 import { ProductsPageClient } from './ProductsPageClient'
 import { REVALIDATE } from '@/lib/utils/constants'
@@ -19,12 +19,13 @@ export default async function ProdutosPage() {
   let products = MOCK_PRODUCTS
 
   try {
-    const rawProducts = await getProducts()
-    if (rawProducts && rawProducts.length > 0) {
-      products = rawProducts.map((p) => normalizeProduct(p as any))
+    // getProducts() já devolve Product normalizado.
+    const reais = await getProducts()
+    if (reais.length > 0) {
+      products = reais
     }
   } catch (error) {
-    console.warn('Shopify não configurado, usando mock data:', error)
+    reportarFalhaShopify('listagem de produtos', error)
   }
 
   return (

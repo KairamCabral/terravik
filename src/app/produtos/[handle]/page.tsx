@@ -9,7 +9,7 @@ import {
   productSchema,
   breadcrumbSchema,
 } from '@/lib/seo/metadata'
-import { normalizeProduct } from '@/lib/shopify/mappers'
+import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { getMockProductByHandle, MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 import { getProductReviews, getProductRating } from '@/lib/reviews/data'
 import { ProductPageClient } from './ProductPageClient'
@@ -31,6 +31,7 @@ export async function generateStaticParams() {
     const handles = await getAllProductHandles()
     return handles.map((handle) => ({ handle }))
   } catch (error) {
+    reportarFalhaShopify('generateStaticParams de produto', error)
     return MOCK_PRODUCTS.map((p) => ({ handle: p.handle }))
   }
 }
@@ -39,12 +40,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   let product = getMockProductByHandle(params.handle)
 
   try {
-    const rawProduct = await getProductByHandle(params.handle)
-    if (rawProduct) {
-      product = normalizeProduct(rawProduct as any)
+    // getProductByHandle() já devolve Product normalizado.
+    const real = await getProductByHandle(params.handle)
+    if (real) {
+      product = real
     }
   } catch (error) {
-    console.warn('Shopify não configurado, usando mock data')
+    reportarFalhaShopify(`metadata do produto ${params.handle}`, error)
   }
 
   if (!product) {
@@ -60,12 +62,12 @@ export default async function ProductPage({ params }: Props) {
   let product = getMockProductByHandle(params.handle)
 
   try {
-    const rawProduct = await getProductByHandle(params.handle)
-    if (rawProduct) {
-      product = normalizeProduct(rawProduct as any)
+    const real = await getProductByHandle(params.handle)
+    if (real) {
+      product = real
     }
   } catch (error) {
-    console.warn('Shopify não configurado, usando mock data')
+    reportarFalhaShopify(`página do produto ${params.handle}`, error)
   }
 
   if (!product) {

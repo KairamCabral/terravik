@@ -15,7 +15,7 @@ const storefrontAccessToken = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_
 const apiVersion = process.env.NEXT_PUBLIC_SHOPIFY_API_VERSION || '2024-10'
 
 // Verificar se deve usar mock
-function shouldUseMock(): boolean {
+export function shouldUseMock(): boolean {
   if (USE_MOCK_DATA) return true
   if (!domain || domain.trim() === '') return true
   if (!storefrontAccessToken || storefrontAccessToken.trim() === '') return true
