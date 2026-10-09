@@ -65,12 +65,7 @@ export function RepresentativeForm() {
           // /api/contact só repassa nome, e-mail, telefone, assunto e
           // mensagem. Cidade, estado e experiência vão dentro da mensagem,
           // senão ficariam pelo caminho.
-          message: [
-            `Cidade: ${formData.city.trim()} / ${formData.state.trim()}`,
-            `Já trabalha com vendas: ${formData.experience}`,
-            '',
-            formData.message.trim() || '(sem mensagem)',
-          ].join('\n'),
+          message: mensagem,
         }),
       })
 
