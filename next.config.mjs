@@ -1,3 +1,15 @@
+// Hostname do storage do Supabase derivado do env. Fixo, o next/image
+// devolvia 400 para imagens do storage quando o projeto mudava.
+// O hostname antigo continua aceito para imagens já cadastradas com ele.
+const supabaseHostnames = [
+  ...new Set([
+    process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+      : 'placeholder.supabase.co',
+    'lfydrrbmiticiusjznil.supabase.co',
+  ]),
+]
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -7,11 +19,11 @@ const nextConfig = {
         hostname: 'cdn.shopify.com',
         pathname: '/s/files/**',
       },
-      {
+      ...supabaseHostnames.map((hostname) => ({
         protocol: 'https',
-        hostname: 'lfydrrbmiticiusjznil.supabase.co',
+        hostname,
         pathname: '/storage/v1/object/public/**',
-      },
+      })),
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',

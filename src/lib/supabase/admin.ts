@@ -26,6 +26,15 @@ export function getSupabaseAdmin(): SupabaseClient<Database> {
       autoRefreshToken: false,
       persistSession: false,
     },
+    global: {
+      // Sem `no-store`, o Next guarda a RESPOSTA do Supabase. O App Router
+      // embrulha o `fetch` global num cache que sobrevive a restart, e o
+      // supabase-js usa esse mesmo fetch. `force-dynamic` impede o cache da
+      // rota, não o da chamada de dentro dela: loja cadastrada no admin não
+      // aparecia em /api/stores.
+      fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+        fetch(input, { ...init, cache: 'no-store' }),
+    },
   })
 
   return _supabaseAdmin
