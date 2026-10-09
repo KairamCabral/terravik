@@ -30,20 +30,12 @@ import {
 import { cn } from '@/lib/utils/cn'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { StarRating } from '@/components/product/StarRating'
+import { rotuloDaTag } from '@/lib/produtos/tags'
 
 interface ProductPageClientProps {
   product: Product
   reviews: Review[]
   rating: { average: number; count: number }
-}
-
-const TAG_LABELS: Record<string, string> = {
-  implantacao: 'Implantação',
-  crescimento: 'Crescimento',
-  resistencia: 'Proteção',
-  protecao: 'Resistência',
-  novo: 'Lançamento',
-  verde: 'Verde Intenso',
 }
 
 /** URLs de vídeo por produto (YouTube, Vimeo ou MP4). Substitua pelos vídeos reais. */
@@ -118,7 +110,7 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
                       key={tag}
                       className="rounded-full border border-forest/15 bg-forest/5 px-3 py-1 text-xs font-medium text-forest"
                     >
-                      {TAG_LABELS[tag] || tag}
+                      {rotuloDaTag(tag)}
                     </span>
                   ))}
                 </div>

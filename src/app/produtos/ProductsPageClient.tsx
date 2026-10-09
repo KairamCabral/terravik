@@ -21,6 +21,8 @@ import type { Product } from '@/types/product'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { cn } from '@/lib/utils/cn'
 import { Button } from '@/components/ui'
+import { ProductCard } from '@/components/product/ProductCard'
+import { TAGS_DE_PRODUTO, rotuloDaTag } from '@/lib/produtos/tags'
 
 type SortOption = 'relevance' | 'price-asc' | 'price-desc' | 'bestseller'
 
@@ -30,15 +32,6 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: 'price-asc', label: 'Menor preço' },
   { value: 'price-desc', label: 'Maior preço' },
 ]
-
-const PRODUCT_BENEFITS: Record<string, { label: string; color: string }> = {
-  implantacao: { label: 'Implantação', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  crescimento: { label: 'Crescimento', color: 'bg-sky-50 text-sky-700 border-sky-200' },
-  resistencia: { label: 'Proteção', color: 'bg-amber-50 text-amber-700 border-amber-200' },
-  protecao: { label: 'Resistência', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-  novo: { label: 'Novo', color: 'bg-forest/5 text-forest border-forest/20' },
-  verde: { label: 'Verde Intenso', color: 'bg-green-50 text-green-700 border-green-200' },
-}
 
 const TRUST_ITEMS = [
   { icon: Truck, text: 'Frete grátis acima de R$ 149' },
@@ -239,7 +232,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
               Todos
             </button>
             {availableTags.map((tag) => {
-              const benefit = PRODUCT_BENEFITS[tag]
+              const benefit = TAGS_DE_PRODUTO[tag]
               const isSelected = selectedTags.includes(tag)
               return (
                 <button
@@ -252,7 +245,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
                       : 'border-border-subtle text-txt-secondary hover:border-forest/30 hover:text-forest'
                   )}
                 >
-                  {benefit?.label || tag}
+                  {benefit?.rotulo || tag}
                 </button>
               )
             })}
@@ -278,7 +271,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
                   onClick={() => toggleTag(tag)}
                   className="flex items-center gap-1.5 rounded-full bg-forest/8 px-3 py-1 text-xs font-medium text-forest transition-colors hover:bg-forest/15"
                 >
-                  {PRODUCT_BENEFITS[tag]?.label || tag}
+                  {rotuloDaTag(tag)}
                   <X className="h-3 w-3" />
                 </motion.button>
               ))}
@@ -312,11 +305,12 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
             >
               {filteredAndSortedProducts.map((product, index) => (
-                <ProductCardPremium
+                <ProductCard
                   key={product.id}
                   product={product}
                   index={index}
                   featured={index === 0 && !hasActiveFilters}
+                  prioridade={index < 2}
                 />
               ))}
             </motion.div>
@@ -376,169 +370,5 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
         )}
       </section>
     </div>
-  )
-}
-
-/* ═══════════════════════════════════════════════════════════
-   PRODUCT CARD PREMIUM
-   ═══════════════════════════════════════════════════════════ */
-
-interface ProductCardPremiumProps {
-  product: Product
-  index: number
-  featured?: boolean
-}
-
-function ProductCardPremium({ product, index, featured }: ProductCardPremiumProps) {
-  const hasDiscount = product.compareAtPrice > product.price
-  const discountPercentage = hasDiscount
-    ? Math.round(
-        ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
-      )
-    : 0
-
-  const hasVariants = product.variants.length > 1
-  const priceRange =
-    hasVariants && product.maxPrice > product.price
-      ? `${formatCurrency(product.price, product.currency)} – ${formatCurrency(product.maxPrice, product.currency)}`
-      : null
-
-  const tagBenefits = product.tags
-    .map((t) => PRODUCT_BENEFITS[t])
-    .filter(Boolean)
-    .slice(0, 2)
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-      className={cn(
-        featured && 'sm:col-span-2 lg:col-span-1'
-      )}
-    >
-      <Link
-        href={`/produtos/${product.handle}`}
-        className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-bg-surface transition-all duration-300 hover:-translate-y-1 hover:border-forest/20 hover:shadow-xl"
-      >
-        {/* Top gradient accent */}
-        <div className="absolute left-0 right-0 top-0 z-10 h-1 bg-gradient-to-r from-forest via-forest to-gold opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-        {/* Image */}
-        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-bg-surface-2 to-bg-primary">
-          {product.featuredImage ? (
-            <Image
-              src={product.featuredImage.url}
-              alt={product.featuredImage.alt || product.title}
-              fill
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <Leaf className="h-16 w-16 text-forest/10" />
-            </div>
-          )}
-
-          {/* Overlay gradient on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-          {/* Badges */}
-          <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
-            {product.tags.includes('novo') && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-forest/90 px-3 py-1 text-[11px] font-semibold text-white uppercase tracking-wide backdrop-blur-sm">
-                <Sparkles className="h-3 w-3" />
-                Novo
-              </span>
-            )}
-          </div>
-
-          {hasDiscount && (
-            <div className="absolute right-3 top-3 z-10">
-              <span className="inline-flex items-center rounded-full bg-red-500/90 px-3 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
-                -{discountPercentage}%
-              </span>
-            </div>
-          )}
-
-          {/* Quick view overlay */}
-          <div className="absolute inset-x-4 bottom-4 z-10 opacity-0 transition-all duration-300 group-hover:opacity-100">
-            <div className="flex items-center justify-center gap-2 rounded-xl bg-white/95 py-2.5 text-sm font-semibold text-forest shadow-lg backdrop-blur-sm">
-              Ver detalhes
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </div>
-          </div>
-        </div>
-
-        {/* Info */}
-        <div className="flex flex-1 flex-col p-5 md:p-6">
-          {/* Tags */}
-          {tagBenefits.length > 0 && (
-            <div className="mb-3 flex flex-wrap gap-1.5">
-              {tagBenefits.map((benefit) => (
-                <span
-                  key={benefit!.label}
-                  className={cn(
-                    'rounded-full border px-2.5 py-0.5 text-[11px] font-medium',
-                    benefit!.color
-                  )}
-                >
-                  {benefit!.label}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Title */}
-          <h3 className="font-heading text-lg font-semibold text-txt-primary transition-colors group-hover:text-forest md:text-xl">
-            {product.title}
-          </h3>
-
-          {/* Description */}
-          {product.description && (
-            <p className="mt-2 flex-1 text-sm leading-relaxed text-txt-secondary line-clamp-2">
-              {product.description}
-            </p>
-          )}
-
-          {/* Variant info */}
-          {hasVariants && (
-            <p className="mt-3 text-xs text-txt-muted">
-              {product.variants.length} tamanhos disponíveis
-            </p>
-          )}
-
-          {/* Price section */}
-          <div className="mt-4 flex items-end justify-between border-t border-border-subtle pt-4">
-            <div>
-              {hasDiscount && (
-                <span className="text-xs text-txt-muted line-through">
-                  {formatCurrency(product.compareAtPrice, product.currency)}
-                </span>
-              )}
-              <div className="flex items-baseline gap-1">
-                {priceRange ? (
-                  <span className="font-heading text-sm font-semibold text-forest">
-                    {priceRange}
-                  </span>
-                ) : (
-                  <>
-                    <span className="text-xs text-txt-muted">a partir de</span>
-                    <span className="font-heading text-xl font-bold text-forest">
-                      {formatCurrency(product.price, product.currency)}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* CTA micro */}
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest/5 text-forest transition-all group-hover:bg-forest group-hover:text-white group-hover:shadow-md">
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </div>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
   )
 }

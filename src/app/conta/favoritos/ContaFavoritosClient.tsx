@@ -76,7 +76,6 @@ export function ContaFavoritosClient({ catalogo, degradado }: ContaFavoritosClie
         catalogo={catalogo}
         degradado={degradado}
         onRemove={removeFavorite}
-        variante="conta"
       />
 
       {/* CTA */}

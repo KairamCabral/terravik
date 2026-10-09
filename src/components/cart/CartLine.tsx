@@ -66,7 +66,7 @@ export function CartLine({ item }: CartLineProps) {
             src={item.image.url}
             alt={item.image.alt || item.productTitle}
             fill
-            className="object-cover"
+            className="object-contain"
             sizes="80px"
           />
         ) : (
