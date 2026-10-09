@@ -6,6 +6,7 @@ export const metadata: Metadata = createMetadata({
   title: 'Meus Favoritos',
   description: 'Seus produtos favoritos da Terravik. Gerencie sua lista de desejos e adicione ao carrinho quando quiser.',
   path: '/favoritos',
+  noIndex: true,
 })
 
 export default function FavoritosPage() {

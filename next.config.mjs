@@ -64,6 +64,20 @@ const nextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
         ],
       },
+      // Área logada, painel e checkout são client components e não emitem
+      // metadata: o noindex vai pelo header.
+      ...[
+        '/checkout/:path*',
+        '/conta/:path*',
+        '/admin/:path*',
+        '/pedido-confirmado',
+        '/assinatura/minha-assinatura',
+        '/academia/perfil',
+        '/academia/conquistas',
+      ].map((source) => ({
+        source,
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      })),
     ];
   },
   async redirects() {

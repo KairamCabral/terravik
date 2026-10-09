@@ -6,6 +6,7 @@ export const metadata: Metadata = createMetadata({
   title: 'Criar Conta',
   description: 'Crie sua conta Terravik e tenha acesso a pedidos, favoritos, academia e muito mais.',
   path: '/cadastro',
+  noIndex: true,
 })
 
 export default function CadastroPage() {

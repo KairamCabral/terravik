@@ -21,6 +21,11 @@ interface Props {
 
 export const revalidate = REVALIDATE.products
 
+// Sem isto, notFound() em handle fora do generateStaticParams responde 200
+// (soft 404). Efeito colateral: produto criado na Shopify depois do build
+// responde 404 até o próximo deploy.
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   try {
     const handles = await getAllProductHandles()

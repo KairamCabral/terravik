@@ -6,6 +6,7 @@ export const metadata: Metadata = createMetadata({
   title: 'Minha Conta',
   description: 'Gerencie sua conta Terravik, pedidos, endereços e preferências.',
   path: '/conta',
+  noIndex: true,
 })
 
 export default function ContaPage() {

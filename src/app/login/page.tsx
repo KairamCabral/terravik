@@ -7,6 +7,7 @@ export const metadata: Metadata = createMetadata({
   title: 'Entrar',
   description: 'Faça login na sua conta Terravik para acessar pedidos, favoritos e muito mais.',
   path: '/login',
+  noIndex: true,
 })
 
 export default function LoginPage() {

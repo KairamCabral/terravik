@@ -16,6 +16,9 @@ interface Props {
   params: { slug: string }
 }
 
+// Sem isto, notFound() em slug fora do generateStaticParams responde 200.
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   return BLOG_ARTICLES.map((article) => ({
     slug: article.slug,

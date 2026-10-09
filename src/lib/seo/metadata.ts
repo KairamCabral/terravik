@@ -22,6 +22,8 @@ interface PageMetadata {
   path?: string
   image?: string
   noIndex?: boolean
+  /** Só vale com noIndex: página fora do índice que ainda distribui link. */
+  follow?: boolean
 }
 
 export function createMetadata({
@@ -30,6 +32,7 @@ export function createMetadata({
   path = '',
   image = '/images/og/default.jpg',
   noIndex = false,
+  follow = false,
 }: PageMetadata): Metadata {
   const url = `${SITE_URL}${path}`
   const fullTitle = path === '' ? title : `${title} | ${SITE_NAME}`
@@ -66,7 +69,7 @@ export function createMetadata({
     robots: !ALLOW_INDEXING
       ? { index: false, follow: false, nocache: true }
       : noIndex
-        ? { index: false, follow: false }
+        ? { index: false, follow }
         : { index: true, follow: true },
   }
 }

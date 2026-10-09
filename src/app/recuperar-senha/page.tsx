@@ -6,6 +6,7 @@ export const metadata: Metadata = createMetadata({
   title: 'Recuperar Senha',
   description: 'Recupere o acesso à sua conta Terravik.',
   path: '/recuperar-senha',
+  noIndex: true,
 })
 
 export default function RecuperarSenhaPage() {
