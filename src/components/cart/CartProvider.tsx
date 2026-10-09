@@ -17,6 +17,7 @@ import {
   addToCart as addToCartMutation,
   updateCartLine as updateCartLineMutation,
   removeFromCart as removeFromCartMutation,
+  aplicarCodigosDeDesconto,
 } from '@/lib/shopify/queries/cart'
 import { shouldUseMock } from '@/lib/shopify/client'
 import { normalizeCart, normalizeMockCart } from '@/lib/shopify/mappers'
@@ -51,6 +52,11 @@ interface SubscriptionData {
   discountPercent?: number
 }
 
+export interface ResultadoDoCupom {
+  ok: boolean
+  mensagem?: string
+}
+
 interface CartContextValue {
   cart: Cart | null
   isOpen: boolean
@@ -62,6 +68,8 @@ interface CartContextValue {
   ) => Promise<void>
   updateItem: (lineId: string, quantity: number) => Promise<void>
   removeItem: (lineId: string) => Promise<void>
+  aplicarCupom: (codigo: string) => Promise<ResultadoDoCupom>
+  removerCupom: () => Promise<void>
   openCart: () => void
   closeCart: () => void
   goToCheckout: () => void
@@ -289,6 +297,58 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [atualizarCarrinho, avisarFalha]
   )
 
+  const aplicarCupom = useCallback(
+    async (codigo: string): Promise<ResultadoDoCupom> => {
+      const limpo = codigo.trim().toUpperCase()
+      if (!limpo) return { ok: false, mensagem: 'Informe o código do cupom.' }
+      if (MODO_MOCK) {
+        return { ok: false, mensagem: 'Cupom indisponível no modo de demonstração.' }
+      }
+
+      const id = cartIdRef.current
+      if (!id) return { ok: false, mensagem: 'Adicione um produto antes de aplicar o cupom.' }
+
+      setIsLoading(true)
+      try {
+        const normalizado = normalizeCart(await aplicarCodigosDeDesconto(id, [limpo]))
+        const aceito = normalizado.discountCodes?.some(
+          (d) => d.code.toUpperCase() === limpo && d.applicable
+        )
+
+        if (!aceito) {
+          // A Shopify guarda o código mesmo quando ele não vale para este
+          // carrinho. Tira de volta, para não seguir um código morto até o
+          // checkout.
+          atualizarCarrinho(normalizeCart(await aplicarCodigosDeDesconto(id, [])))
+          return { ok: false, mensagem: 'Cupom inválido ou não vale para este carrinho.' }
+        }
+
+        atualizarCarrinho(normalizado)
+        return { ok: true }
+      } catch (erro) {
+        console.error('[carrinho] falha ao aplicar cupom', erro)
+        return { ok: false, mensagem: 'Não foi possível aplicar o cupom agora. Tente de novo.' }
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [atualizarCarrinho]
+  )
+
+  const removerCupom = useCallback(async () => {
+    const id = cartIdRef.current
+    if (!id || MODO_MOCK) return
+
+    setIsLoading(true)
+    try {
+      atualizarCarrinho(normalizeCart(await aplicarCodigosDeDesconto(id, [])))
+    } catch (erro) {
+      avisarFalha('Não foi possível remover o cupom. Tente de novo.', erro)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [atualizarCarrinho, avisarFalha])
+
   const openCart = useCallback(() => setIsOpen(true), [])
   const closeCart = useCallback(() => setIsOpen(false), [])
 
@@ -306,6 +366,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addItem,
         updateItem,
         removeItem,
+        aplicarCupom,
+        removerCupom,
         openCart,
         closeCart,
         goToCheckout,

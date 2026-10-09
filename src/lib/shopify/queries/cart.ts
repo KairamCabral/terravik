@@ -12,6 +12,7 @@ import type {
   CartLinesUpdateResponse,
   CartLinesRemoveResponse,
   CartResponse,
+  CartDiscountCodesUpdateResponse,
   ShopifyCart,
   ShopifyCartWarning,
 } from '../types'
@@ -23,6 +24,16 @@ const CART_FRAGMENT = `
     id
     checkoutUrl
     totalQuantity
+    discountCodes {
+      code
+      applicable
+    }
+    discountAllocations {
+      discountedAmount {
+        amount
+        currencyCode
+      }
+    }
     cost {
       subtotalAmount {
         amount
@@ -284,47 +295,37 @@ export async function getCart(cartId: string) {
 }
 
 // ─── Cupom de desconto ───────────────────────────────────────
-//
-// PRONTO PARA SHOPIFY: Quando a Shopify estiver conectada,
-// descomentar a mutation abaixo e usar `applyDiscountCode`.
-// O cart fragment já precisa incluir `discountCodes { applicable code }`
-// e `discountAllocations { discountedAmount { amount currencyCode } }`.
-//
-// const UPDATE_DISCOUNT_CODES = `
-//   ${CART_FRAGMENT}
-//   mutation CartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
-//     cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
-//       cart {
-//         ...CartFields
-//       }
-//       userErrors {
-//         field
-//         message
-//       }
-//     }
-//   }
-// `
-//
-// interface CartDiscountCodesUpdateResponse {
-//   cartDiscountCodesUpdate: {
-//     cart: ShopifyCart
-//     userErrors: Array<{ field: string[]; message: string }>
-//   }
-// }
-//
-// export async function applyDiscountCode(cartId: string, codes: string[]) {
-//   const data = await shopifyMutate<CartDiscountCodesUpdateResponse>({
-//     query: UPDATE_DISCOUNT_CODES,
-//     variables: { cartId, discountCodes: codes },
-//   })
-//
-//   if (data.cartDiscountCodesUpdate.userErrors.length > 0) {
-//     throw new Error(data.cartDiscountCodesUpdate.userErrors[0].message)
-//   }
-//
-//   return data.cartDiscountCodesUpdate.cart
-// }
-//
-// export async function removeDiscountCode(cartId: string) {
-//   return applyDiscountCode(cartId, [])
-// }
+
+const UPDATE_DISCOUNT_CODES = `
+  ${CART_FRAGMENT}
+  mutation CartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+      cart {
+        ...CartFields
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`
+
+/**
+ * Substitui os códigos de desconto do carrinho. `[]` remove todos.
+ *
+ * A Shopify guarda o código mesmo quando ele não vale para o carrinho: quem
+ * chama precisa ler `discountCodes[].applicable` no retorno.
+ */
+export async function aplicarCodigosDeDesconto(cartId: string, codes: string[]) {
+  const data = await shopifyMutate<CartDiscountCodesUpdateResponse>({
+    query: UPDATE_DISCOUNT_CODES,
+    variables: { cartId, discountCodes: codes },
+  })
+
+  if (data.cartDiscountCodesUpdate.userErrors.length > 0) {
+    throw new Error(data.cartDiscountCodesUpdate.userErrors[0].message)
+  }
+
+  return data.cartDiscountCodesUpdate.cart
+}

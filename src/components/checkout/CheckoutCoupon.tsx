@@ -3,18 +3,15 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tag, Loader2, X, Check } from 'lucide-react'
-import { validateCoupon, removeCoupon } from '@/lib/shipping/coupon'
-import type { AppliedCoupon } from '@/lib/shipping/coupon'
+import { cupomDoCarrinho } from '@/lib/cart/cupom'
+import { useCart } from '@/components/cart'
 import { formatPrice } from '@/lib/subscription/pricing'
 import { cn } from '@/lib/utils/cn'
 
-interface CheckoutCouponProps {
-  cartSubtotal: number
-  coupon: AppliedCoupon | null
-  onCouponChange: (coupon: AppliedCoupon | null) => void
-}
-
-export function CheckoutCoupon({ cartSubtotal, coupon, onCouponChange }: CheckoutCouponProps) {
+/** Cupom do checkout. Quem valida é a Shopify, pelo CartProvider. */
+export function CheckoutCoupon() {
+  const { cart, aplicarCupom, removerCupom } = useCart()
+  const coupon = cupomDoCarrinho(cart)
   const [isOpen, setIsOpen] = useState(false)
   const [code, setCode] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -35,32 +32,28 @@ export function CheckoutCoupon({ cartSubtotal, coupon, onCouponChange }: Checkou
     setError(null)
 
     try {
-      const result = await validateCoupon(code, cartSubtotal)
+      const resultado = await aplicarCupom(code)
 
-      if (result.valid && result.coupon) {
-        onCouponChange(result.coupon)
+      if (resultado.ok) {
         setIsOpen(false)
         setCode('')
       } else {
-        setError(result.error || 'Cupom inválido')
+        setError(resultado.mensagem || 'Cupom inválido')
       }
-    } catch {
-      setError('Erro ao validar cupom')
     } finally {
       setIsLoading(false)
     }
-  }, [code, cartSubtotal, onCouponChange])
+  }, [code, aplicarCupom])
 
   const handleRemove = useCallback(async () => {
     setIsLoading(true)
     try {
-      await removeCoupon()
-      onCouponChange(null)
+      await removerCupom()
       setError(null)
     } finally {
       setIsLoading(false)
     }
-  }, [onCouponChange])
+  }, [removerCupom])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -86,7 +79,7 @@ export function CheckoutCoupon({ cartSubtotal, coupon, onCouponChange }: Checkou
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {coupon.type === 'free_shipping' ? (
+          {coupon.discountAmount <= 0 ? (
             <span className="text-sm font-medium text-forest">Frete grátis</span>
           ) : (
             <span className="text-sm font-medium text-forest">

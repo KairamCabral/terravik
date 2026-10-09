@@ -22,6 +22,13 @@ export const SITE = {
  */
 export const ALLOW_INDEXING = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true'
 
+/**
+ * Cupom anunciado na barra do topo. Quem valida é a Shopify: o código PRECISA
+ * estar cadastrado na loja com este mesmo nome, senão o anúncio promete um
+ * desconto que o carrinho recusa.
+ */
+export const FIRST_PURCHASE_COUPON_CODE = 'PRIMEIRACOMPRA'
+
 export const NAV_LINKS = [
   { label: 'Produtos', href: '/produtos' },
   { label: 'Calculadora', href: '/calculadora' },

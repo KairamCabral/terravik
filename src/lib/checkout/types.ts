@@ -3,7 +3,7 @@
  */
 
 import type { ShippingOption, ShippingAddress } from '@/lib/shipping/types'
-import type { AppliedCoupon } from '@/lib/shipping/coupon'
+import type { AppliedCoupon } from '@/lib/cart/cupom'
 import type { Cart } from '@/types/cart'
 
 export interface CheckoutCustomer {

@@ -3,19 +3,19 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tag, Loader2, X, ChevronRight, Check } from 'lucide-react'
-import { validateCoupon, removeCoupon } from '@/lib/shipping/coupon'
+import { cupomDoCarrinho } from '@/lib/cart/cupom'
+import { formatPrice } from '@/lib/subscription/pricing'
+import { useCart } from './CartProvider'
 
 const COUPON_TO_APPLY_KEY = 'terravik-coupon-to-apply'
-import type { AppliedCoupon } from '@/lib/shipping/coupon'
-import { formatPrice } from '@/lib/subscription/pricing'
 
-interface CouponInputProps {
-  cartSubtotal: number
-  onCouponApply: (coupon: AppliedCoupon | null) => void
-  appliedCoupon: AppliedCoupon | null
-}
-
-export function CouponInput({ cartSubtotal, onCouponApply, appliedCoupon }: CouponInputProps) {
+/**
+ * Cupom da gaveta. Quem valida é a Shopify, pelo CartProvider: nada aqui
+ * confere código contra lista local.
+ */
+export function CouponInput() {
+  const { cart, aplicarCupom, removerCupom } = useCart()
+  const appliedCoupon = cupomDoCarrinho(cart)
   const [code, setCode] = useState('')
   const [isExpanded, setIsExpanded] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -40,32 +40,28 @@ export function CouponInput({ cartSubtotal, onCouponApply, appliedCoupon }: Coup
     setError(null)
 
     try {
-      const result = await validateCoupon(code, cartSubtotal)
+      const resultado = await aplicarCupom(code)
 
-      if (result.valid && result.coupon) {
-        onCouponApply(result.coupon)
+      if (resultado.ok) {
         setIsExpanded(false)
         setCode('')
       } else {
-        setError(result.error || 'Cupom inválido')
+        setError(resultado.mensagem || 'Cupom inválido')
       }
-    } catch {
-      setError('Erro ao validar cupom')
     } finally {
       setIsLoading(false)
     }
-  }, [code, cartSubtotal, onCouponApply])
+  }, [code, aplicarCupom])
 
   const handleRemove = useCallback(async () => {
     setIsLoading(true)
     try {
-      await removeCoupon()
-      onCouponApply(null)
+      await removerCupom()
       setError(null)
     } finally {
       setIsLoading(false)
     }
-  }, [onCouponApply])
+  }, [removerCupom])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -86,8 +82,8 @@ export function CouponInput({ cartSubtotal, onCouponApply, appliedCoupon }: Coup
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {appliedCoupon.type === 'free_shipping' ? (
-            <span className="text-sm font-medium text-leaf">Frete grátis</span>
+          {appliedCoupon.discountAmount <= 0 ? (
+            <span className="text-sm font-medium text-leaf">Aplicado</span>
           ) : (
             <span className="text-sm font-medium text-leaf">
               -{formatPrice(appliedCoupon.discountAmount)}

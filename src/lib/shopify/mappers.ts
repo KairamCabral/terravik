@@ -126,6 +126,11 @@ export function normalizeCart(cart: ShopifyCart): Cart {
       : 0,
     currency: normalizeCurrency(cart.cost.totalAmount),
     items: cart.lines.edges.map((edge) => normalizeCartLine(edge.node)),
+    discountCodes: cart.discountCodes ?? [],
+    couponDiscount: (cart.discountAllocations ?? []).reduce(
+      (soma, a) => soma + normalizeMoney(a.discountedAmount),
+      0
+    ),
   }
 }
 

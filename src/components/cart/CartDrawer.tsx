@@ -14,7 +14,7 @@ import { ShippingCalculator } from './ShippingCalculator'
 import { OrderBump } from './OrderBump'
 import type { ShippingOption } from '@/lib/shipping/types'
 import { CouponInput } from './CouponInput'
-import type { AppliedCoupon } from '@/lib/shipping/coupon'
+import { cupomDoCarrinho } from '@/lib/cart/cupom'
 
 /**
  * CartDrawer — Design System 2026
@@ -30,7 +30,7 @@ import type { AppliedCoupon } from '@/lib/shipping/coupon'
 export function CartDrawer() {
   const { cart, isOpen, closeCart, goToCheckout, isLoading } = useCart()
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null)
-  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null)
+  const appliedCoupon = cupomDoCarrinho(cart)
   const drawerRef = useRef<HTMLDivElement>(null)
   const closeBtnRef = useRef<HTMLButtonElement>(null)
 
@@ -174,11 +174,7 @@ export function CartDrawer() {
                 )}
 
                 {/* Cupom */}
-                <CouponInput
-                  cartSubtotal={cart.subtotal}
-                  onCouponApply={setAppliedCoupon}
-                  appliedCoupon={appliedCoupon}
-                />
+                <CouponInput />
 
                 {/* Frete */}
                 <ShippingCalculator

@@ -40,6 +40,11 @@ export interface Cart {
   tax: number
   currency: string
   items: CartItem[]
+
+  /** Códigos de desconto no carrinho, como a Shopify devolveu. */
+  discountCodes?: Array<{ code: string; applicable: boolean }>
+  /** Desconto alocado no nível do carrinho. Ainda não está no subtotal. */
+  couponDiscount?: number
   
   // NOVOS CAMPOS
   hasSubscription?: boolean      // Tem pelo menos um item de assinatura?

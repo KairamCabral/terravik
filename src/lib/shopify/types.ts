@@ -98,6 +98,9 @@ export interface ShopifyCart {
     totalAmount: ShopifyMoney
     totalTaxAmount: ShopifyMoney | null
   }
+  discountCodes?: Array<{ code: string; applicable: boolean }>
+  /** Descontos alocados no nível do carrinho (cupom de pedido). */
+  discountAllocations?: Array<{ discountedAmount: ShopifyMoney }>
   lines: {
     edges: Array<{ node: ShopifyCartLine }>
   }
@@ -186,6 +189,13 @@ export interface CartLinesAddResponse {
   cartLinesAdd: {
     cart: ShopifyCart
     warnings?: ShopifyCartWarning[]
+    userErrors: Array<{ field: string[]; message: string }>
+  }
+}
+
+export interface CartDiscountCodesUpdateResponse {
+  cartDiscountCodesUpdate: {
+    cart: ShopifyCart
     userErrors: Array<{ field: string[]; message: string }>
   }
 }

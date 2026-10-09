@@ -20,7 +20,7 @@ import {
 } from '@/lib/checkout/validation'
 import type { CheckoutCustomer, CheckoutAddress } from '@/lib/checkout/types'
 import type { ShippingOption, ShippingAddress } from '@/lib/shipping/types'
-import type { AppliedCoupon } from '@/lib/shipping/coupon'
+import { cupomDoCarrinho } from '@/lib/cart/cupom'
 import type { DocumentType } from '@/components/checkout/CheckoutForm'
 import {
   CheckoutHeader,
@@ -71,7 +71,7 @@ export default function CheckoutPage() {
   const [cepRaw, setCepRaw] = useState('')
   const [cepMasked, setCepMasked] = useState('')
   const [shipping, setShipping] = useState<ShippingOption | null>(null)
-  const [coupon, setCoupon] = useState<AppliedCoupon | null>(null)
+  const coupon = cupomDoCarrinho(cart)
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({})
   const [touched, setTouched] = useState<Set<string>>(new Set())
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -449,11 +449,7 @@ export default function CheckoutPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 }}
               >
-                <CheckoutCoupon
-                  cartSubtotal={subtotal}
-                  coupon={coupon}
-                  onCouponChange={setCoupon}
-                />
+                <CheckoutCoupon />
               </motion.div>
             )}
 

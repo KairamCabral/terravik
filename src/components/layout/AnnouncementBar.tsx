@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils/cn'
 import { useCart } from '@/components/cart'
 import { useToast } from '@/components/ui'
-import { FIRST_PURCHASE_COUPON_CODE } from '@/lib/shipping/coupon'
+import { FIRST_PURCHASE_COUPON_CODE } from '@/lib/utils/constants'
 
 const COUPON_TO_APPLY_KEY = 'terravik-coupon-to-apply'
 

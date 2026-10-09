@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils/cn'
 import { formatPrice } from '@/lib/subscription/pricing'
 import type { Cart } from '@/types/cart'
 import type { ShippingOption } from '@/lib/shipping/types'
-import type { AppliedCoupon } from '@/lib/shipping/coupon'
+import type { AppliedCoupon } from '@/lib/cart/cupom'
 import { CheckoutTimer } from './CheckoutTimer'
 import { CheckoutTrustBadges } from './CheckoutTrustBadges'
 
