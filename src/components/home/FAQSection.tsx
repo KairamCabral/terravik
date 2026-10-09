@@ -1,279 +1,190 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, Calculator, Package, Calendar, Shield, Droplets, ShoppingCart, Layers, AlertCircle, CheckCircle2 } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { cn } from '@/lib/utils/cn'
 import Link from 'next/link'
+import {
+  ChevronDown,
+  Calculator,
+  Package,
+  Calendar,
+  Shield,
+  Droplets,
+  ShoppingCart,
+  Layers,
+  AlertCircle,
+} from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { cn } from '@/lib/utils/cn'
+import { FAQ_HOME } from '@/lib/faq/home'
 
 /**
- * FAQ — Premium, Estratégico e Minimalista
+ * Perguntas frequentes da home.
  *
- * Copy focada em:
- * - Reduzir objeções de compra
- * - Destacar benefícios e diferenciais
- * - Linguagem consultiva e confiante
- * - Transparência e credibilidade
+ * O conteúdo mora em src/lib/faq/home.ts, porque o servidor precisa dele para
+ * emitir o JSON-LD de FAQPage em src/app/page.tsx. Aqui fica só o desenho.
+ *
+ * Compacta: py-14 no lugar de section-spacing, sem a linha de categoria (a
+ * pergunta e o ícone já dizem o assunto), padding e corpo menores.
+ *
+ * Os painéis ficam sempre no DOM, fechados com altura 0 e visibility hidden:
+ * assim `aria-controls` aponta para um id que existe e a resposta sai no HTML
+ * inicial, igual ao que o FAQPage declara.
  */
 
-interface FAQ {
-  icon: typeof Calculator
-  category: string
-  question: string
-  answer: string
-  highlight?: string
-  cta?: {
-    text: string
-    href: string
-  }
+/** Ícone por pergunta. Mora aqui para o módulo de dados não importar React. */
+const ICONES: Record<string, typeof Package> = {
+  calculadora: Calculator,
+  produtos: Package,
+  frequencia: Calendar,
+  seguranca: Shield,
+  aplicacao: Droplets,
+  frete: ShoppingCart,
+  combinar: Layers,
+  dose: AlertCircle,
 }
 
-const faqs: FAQ[] = [
-  {
-    icon: Calculator,
-    category: 'Calculadora',
-    question: 'A calculadora realmente funciona para qualquer gramado?',
-    answer: 'Sim. Nossa calculadora considera 8 variáveis (área, clima, tipo de grama, irrigação, pisoteio, objetivo, etc.) e gera um plano personalizado com margem de segurança. Já foi usada em mais de 50 mil gramados do Rio Grande do Sul ao Amazonas.',
-    highlight: '50 mil+ gramados calculados',
-  },
-  {
-    icon: Package,
-    category: 'Produtos',
-    question: 'Por que só 3 produtos? Não falta algo?',
-    answer: 'Ao contrário. A maioria das marcas tem 15+ produtos porque vendem ingredientes separados. Nós formulamos produtos completos: um para cada fase do gramado. Menos escolha = menos erro = melhor resultado.',
-    highlight: '1 produto = 1 problema resolvido',
-  },
-  {
-    icon: Calendar,
-    category: 'Aplicação',
-    question: 'Vou precisar aplicar todo mês?',
-    answer: 'Não. Nossos fertilizantes são de liberação lenta. Verde Rápido dura 4-6 semanas. Resistência Total dura 6-8 semanas. Você aplica menos vezes e ainda economiza tempo e dinheiro comparado a produtos líquidos semanais.',
-    highlight: 'Até 8 semanas de efeito',
-    cta: {
-      text: 'Ver frequência recomendada',
-      href: '/calculadora'
-    }
-  },
-  {
-    icon: Shield,
-    category: 'Segurança',
-    question: 'É seguro para crianças e pets?',
-    answer: 'Totalmente. São fertilizantes granulados de liberação controlada, não são pesticidas. Após regar (1-2h), o produto já está absorvido pelo solo e o gramado pode ser usado normalmente. Usamos as mesmas fórmulas de campos de golfe profissionais.',
-    highlight: 'Liberado após 1-2h de rega',
-  },
-  {
-    icon: Droplets,
-    category: 'Aplicação',
-    question: 'É difícil aplicar? Preciso de equipamento especial?',
-    answer: 'É simples como regar. Distribua os grânulos uniformemente (pode ser a lanço, com espalhador ou até com a mão), depois regue. Não precisa dissolver, misturar ou calcular proporções. O produto já vem na concentração certa.',
-    highlight: 'Simples como regar o gramado',
-  },
-  {
-    icon: ShoppingCart,
-    category: 'Compra',
-    question: 'Onde compro e quanto custa o frete?',
-    answer: 'Vendemos online com frete calculado no checkout (PAC ou SEDEX) ou em pontos físicos parceiros. Acima de R$ 199, frete grátis para Sul e Sudeste. Entregamos para todo Brasil.',
-    cta: {
-      text: 'Ver pontos de venda',
-      href: '/onde-encontrar'
-    }
-  },
-  {
-    icon: Layers,
-    category: 'Uso',
-    question: 'Posso usar 2 produtos ao mesmo tempo?',
-    answer: 'Não na mesma aplicação. Se sua calculadora recomenda mais de um produto, aplique com intervalo mínimo de 7 dias. Isso evita sobrecarga de nutrientes e garante absorção ideal de cada fórmula.',
-    highlight: 'Intervalo mínimo: 7 dias',
-  },
-  {
-    icon: AlertCircle,
-    category: 'Dúvidas',
-    question: 'E se eu aplicar dose errada?',
-    answer: 'A calculadora já considera margem de segurança. Se aplicar menos, terá menos resultado (não há risco). Se aplicar até 2x a dose, regue bastante para diluir. Nossa fórmula é segura mesmo com pequenos excessos.',
-    highlight: 'Fórmula com margem de segurança',
-  },
-]
-
 export function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const [aberta, setAberta] = useState<string | null>(FAQ_HOME[0]?.id ?? null)
+  const reduzirMovimento = useReducedMotion()
 
   return (
-    <section className="relative bg-gradient-to-b from-bg-primary via-bg-surface-2 to-bg-primary section-spacing overflow-hidden">
-      
-      {/* Subtle pattern */}
-      <div className="absolute inset-0 opacity-[0.015]" style={{
-        backgroundImage: `radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)`,
-        backgroundSize: '32px 32px'
-      }} />
+    <section className="relative overflow-hidden bg-gradient-to-b from-bg-primary via-bg-surface-2 to-bg-primary py-14 lg:py-16">
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 opacity-[0.015]"
+        style={{
+          backgroundImage: 'radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0)',
+          backgroundSize: '32px 32px',
+        }}
+      />
 
       <div className="container-main relative">
-        
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto mb-16 max-w-3xl text-center"
-        >
-          <span className="inline-block px-3 py-1 mb-4 text-xs font-bold uppercase tracking-wider text-forest bg-forest/10 rounded-full">
+        <div className="mx-auto mb-9 max-w-2xl text-center">
+          <span className="mb-2.5 inline-block rounded-full bg-forest/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-forest">
             Tire suas dúvidas
           </span>
-          
-          <h2 className="font-heading text-h1 lg:text-display-sm text-txt-primary mb-4">
+          <h2 className="font-heading text-3xl font-bold text-txt-primary lg:text-4xl">
             Tudo que você precisa saber
           </h2>
-          
-          <p className="text-lg text-txt-secondary">
+          <p className="mt-3 text-sm text-txt-secondary">
             Respostas diretas para as perguntas mais comuns sobre Terravik
           </p>
-        </motion.div>
+        </div>
 
-        {/* FAQ Grid com categorias visuais */}
-        <div className="mx-auto max-w-4xl space-y-4">
-          {faqs.map((faq, index) => {
-            const isOpen = openIndex === index
-            const Icon = faq.icon
+        <div className="mx-auto max-w-3xl space-y-2.5">
+          {FAQ_HOME.map((item, i) => {
+            const estaAberta = aberta === item.id
+            const Icone = ICONES[item.id] ?? Package
+            const idPainel = `faq-${item.id}`
+            const idBotao = `faq-botao-${item.id}`
 
             return (
               <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                key={item.id}
+                initial={reduzirMovimento ? false : { opacity: 0, y: 10 }}
+                whileInView={reduzirMovimento ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.05, duration: 0.4 }}
+                transition={{ delay: i * 0.04, duration: 0.35 }}
               >
                 <div
                   className={cn(
-                    'group relative overflow-hidden rounded-2xl border bg-white transition-all duration-300',
-                    isOpen
+                    'group relative overflow-hidden rounded-2xl border bg-white transition-colors duration-300 motion-reduce:transition-none',
+                    estaAberta
                       ? 'border-forest/30 shadow-lg shadow-forest/5'
                       : 'border-border-subtle hover:border-forest/20 hover:shadow-md'
                   )}
                 >
-                  {/* Barra lateral de categoria */}
-                  <div className={cn(
-                    'absolute left-0 top-0 bottom-0 w-1 transition-all duration-300',
-                    isOpen ? 'bg-forest' : 'bg-transparent group-hover:bg-forest/20'
-                  )} />
-
-                  <button
-                    onClick={() => setOpenIndex(isOpen ? null : index)}
-                    className="flex w-full items-start gap-4 p-6 text-left"
-                    aria-expanded={isOpen}
-                  >
-                    {/* Icon + Category */}
-                    <div className="flex-shrink-0 mt-1">
-                      <div className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-300',
-                        isOpen 
-                          ? 'bg-forest text-white shadow-lg shadow-forest/20' 
-                          : 'bg-forest/10 text-forest group-hover:bg-forest/20'
-                      )}>
-                        <Icon className="h-5 w-5" />
-                      </div>
-                    </div>
-
-                    {/* Question */}
-                    <div className="flex-1 min-w-0">
-                      <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-txt-muted">
-                        {faq.category}
-                      </div>
-                      <h3 className="font-heading text-lg font-semibold text-txt-primary group-hover:text-forest transition-colors">
-                        {faq.question}
-                      </h3>
-                    </div>
-
-                    {/* Chevron */}
-                    <div className="flex-shrink-0 mt-1">
-                      <div className={cn(
-                        'flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-300',
-                        isOpen ? 'bg-forest/10' : 'group-hover:bg-neutral-100'
-                      )}>
-                        <ChevronDown
-                          className={cn(
-                            'h-4 w-4 text-txt-muted transition-all duration-300',
-                            isOpen && 'rotate-180 text-forest'
-                          )}
-                        />
-                      </div>
-                    </div>
-                  </button>
-
-                  {/* Answer */}
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                      >
-                        <div className="px-6 pb-6 pl-20">
-                          <div className="space-y-4">
-                            {/* Answer text */}
-                            <p className="text-txt-secondary leading-relaxed">
-                              {faq.answer}
-                            </p>
-
-                            {/* Highlight */}
-                            {faq.highlight && (
-                              <div className="flex items-center gap-2 p-3 rounded-lg bg-forest/5 border border-forest/10">
-                                <CheckCircle2 className="h-4 w-4 text-forest flex-shrink-0" />
-                                <span className="text-sm font-medium text-forest">
-                                  {faq.highlight}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* CTA */}
-                            {faq.cta && (
-                              <Link
-                                href={faq.cta.href}
-                                className="inline-flex items-center gap-2 text-sm font-semibold text-forest hover:text-forest/80 transition-colors group/link"
-                              >
-                                {faq.cta.text}
-                                <ChevronDown className="h-3 w-3 -rotate-90 transition-transform group-hover/link:translate-x-1" />
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
+                  {/* Fio lateral, só para marcar qual está aberta. */}
+                  <div
+                    aria-hidden="true"
+                    className={cn(
+                      'absolute bottom-0 left-0 top-0 w-1 transition-colors duration-300 motion-reduce:transition-none',
+                      estaAberta ? 'bg-forest' : 'bg-transparent group-hover:bg-forest/20'
                     )}
-                  </AnimatePresence>
+                  />
+
+                  <h3>
+                    <button
+                      type="button"
+                      id={idBotao}
+                      onClick={() => setAberta(estaAberta ? null : item.id)}
+                      aria-expanded={estaAberta}
+                      aria-controls={idPainel}
+                      className="flex w-full items-center gap-3.5 p-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-forest"
+                    >
+                      <span
+                        className={cn(
+                          'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors duration-300 motion-reduce:transition-none',
+                          estaAberta
+                            ? 'bg-forest text-white'
+                            : 'bg-forest/10 text-forest group-hover:bg-forest/20'
+                        )}
+                      >
+                        <Icone className="h-4 w-4" aria-hidden="true" />
+                      </span>
+
+                      <span className="min-w-0 flex-1 font-heading text-base font-semibold leading-snug text-txt-primary transition-colors group-hover:text-forest">
+                        {item.pergunta}
+                      </span>
+
+                      <ChevronDown
+                        className={cn(
+                          'h-4 w-4 shrink-0 text-txt-muted transition-transform duration-300 motion-reduce:transition-none',
+                          estaAberta && 'rotate-180 text-forest'
+                        )}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </h3>
+
+                  <motion.div
+                    id={idPainel}
+                    role="region"
+                    aria-labelledby={idBotao}
+                    className="overflow-hidden"
+                    initial={false}
+                    animate={
+                      estaAberta
+                        ? { height: 'auto', opacity: 1, visibility: 'visible' }
+                        : { height: 0, opacity: 0, transitionEnd: { visibility: 'hidden' } }
+                    }
+                    transition={{
+                      duration: reduzirMovimento ? 0 : 0.28,
+                      ease: [0.4, 0, 0.2, 1],
+                    }}
+                  >
+                    <div className="space-y-3 px-5 pb-5 pl-[4.25rem]">
+                      <p className="text-sm leading-relaxed text-txt-secondary">{item.resposta}</p>
+
+                      {item.acao && (
+                        <Link
+                          href={item.acao.href}
+                          className="group/link inline-flex items-center gap-1.5 text-sm font-semibold text-forest hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-forest"
+                        >
+                          {item.acao.texto}
+                          <ChevronDown
+                            className="h-3.5 w-3.5 -rotate-90 transition-transform group-hover/link:translate-x-0.5 motion-reduce:transition-none"
+                            aria-hidden="true"
+                          />
+                        </Link>
+                      )}
+                    </div>
+                  </motion.div>
                 </div>
               </motion.div>
             )
           })}
         </div>
 
-        {/* CTA Footer */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-16 text-center"
-        >
-          <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 rounded-2xl bg-gradient-to-r from-forest/5 to-emerald-500/5 border border-forest/10">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-forest/10">
-                <AlertCircle className="h-6 w-6 text-forest" />
-              </div>
-              <div className="text-left">
-                <p className="font-semibold text-txt-primary">Ainda tem dúvidas?</p>
-                <p className="text-sm text-txt-secondary">Nossa equipe responde em até 24h</p>
-              </div>
-            </div>
-            <Link
-              href="/contato"
-              className="px-6 py-2.5 rounded-xl bg-forest text-white font-medium hover:bg-forest/90 transition-colors whitespace-nowrap"
-            >
-              Falar com especialista
-            </Link>
-          </div>
-        </motion.div>
-
+        <div className="mt-10 flex flex-col items-center justify-center gap-3 text-center sm:flex-row sm:gap-4">
+          <p className="font-semibold text-txt-primary">Ainda tem dúvidas?</p>
+          <Link
+            href="/contato"
+            className="whitespace-nowrap rounded-xl bg-forest px-6 py-2.5 font-medium text-white transition-colors hover:bg-forest/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
+          >
+            Falar com especialista
+          </Link>
+        </div>
       </div>
     </section>
   )

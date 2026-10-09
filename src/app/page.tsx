@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { createMetadata } from '@/lib/seo/metadata'
+import { createMetadata, faqSchema, jsonLd } from '@/lib/seo/metadata'
+import { FAQ_HOME } from '@/lib/faq/home'
 import { BannerSection } from '@/components/home/BannerSection'
 import { VideoSection } from '@/components/home/VideoSection'
 import { ProductsShowcase } from '@/components/home/ProductsShowcase'
@@ -27,6 +28,18 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* FAQPage das perguntas da home. Sai daqui, do servidor, porque a
+          FAQSection é client component e o rastreador precisa do bloco no HTML
+          inicial. As duas leem a MESMA lista (src/lib/faq/home.ts). */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLd(
+            faqSchema(FAQ_HOME.map((f) => ({ question: f.pergunta, answer: f.resposta })))
+          ),
+        }}
+      />
+
       <BannerSection />
       <VideoSection />
       <ProductsShowcase produtos={produtos} />
