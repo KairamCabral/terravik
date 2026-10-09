@@ -25,6 +25,7 @@ import { updateProfile } from '@/lib/services/profile'
 import { getShopifyCustomer, ShopifyCustomerData } from '@/lib/services/shopify-customer'
 import { createClient } from '@/lib/supabase/client'
 import Image from 'next/image'
+import Link from 'next/link'
 
 /**
  * Meus Dados — Arquitetura Híbrida Inteligente
@@ -65,18 +66,6 @@ export default function MeusDadosPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
-  // Debug: Log auth state
-  useEffect(() => {
-    console.log('[MeusDados] Auth State:', {
-      hasUser: !!user,
-      userId: user?.id,
-      email: user?.email,
-      hasProfile: !!profile,
-      shopifyCustomerId: profile?.shopify_customer_id,
-      authLoading,
-    })
-  }, [user, profile, authLoading])
-
   // Carregar dados do Shopify se tiver customer_id
   useEffect(() => {
     if (profile?.shopify_customer_id && !shopifyData && !isLoadingShopify) {
@@ -90,14 +79,19 @@ export default function MeusDadosPage() {
     setIsLoadingShopify(true)
     setShopifyError(null)
 
-    const { data, error } = await getShopifyCustomer()
+    try {
+      const { data, error } = await getShopifyCustomer()
 
-    if (error || !data) {
-      console.error('[MeusDados] Erro ao carregar dados do Shopify:', error)
-      setShopifyError(error || 'Erro ao carregar dados')
-    } else {
-      console.log('[MeusDados] Dados do Shopify carregados:', data)
-      setShopifyData(data)
+      if (error || !data) {
+        console.error('[MeusDados] Erro ao carregar dados do Shopify:', error)
+        setShopifyError(error || 'Erro ao carregar dados')
+      } else {
+        // Sem console.log do objeto: ele traz telefone e endereço do cliente,
+        // e este componente roda no navegador.
+        setShopifyData(data)
+      }
+    } catch {
+      setShopifyError('Erro ao carregar dados')
     }
 
     setIsLoadingShopify(false)
@@ -155,7 +149,6 @@ export default function MeusDadosPage() {
       return
     }
 
-    console.log('[MeusDados] Iniciando salvamento de personalização...')
     setIsSaving(true)
     setFeedback(null)
 
@@ -359,6 +352,30 @@ export default function MeusDadosPage() {
             <Loader2 className="w-6 h-6 text-forest animate-spin mr-2" />
             <p className="text-sm text-neutral-500">Carregando dados do Shopify...</p>
           </div>
+        ) : shopifyError ? (
+          // A falha precisa aparecer na tela. shopifyError era preenchido e
+          // nunca renderizado, então quem já tinha comprado lia "faça seu
+          // primeiro pedido" bem ao lado do selo "Sincronizado com Shopify".
+          <div role="alert" className="bg-red-50 border border-red-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-700 flex-shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="flex-1">
+                <h3 className="font-medium text-neutral-900 mb-1">
+                  Não foi possível carregar seus dados comerciais
+                </h3>
+                <p className="text-sm text-neutral-700 mb-3">
+                  A loja não respondeu agora. Seus dados continuam salvos.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void loadShopifyData()}
+                  className="text-sm font-medium text-forest underline underline-offset-2"
+                >
+                  Tentar de novo
+                </button>
+              </div>
+            </div>
+          </div>
         ) : (
           // Sem dados do Shopify
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
@@ -454,22 +471,24 @@ export default function MeusDadosPage() {
               Preferências de Comunicação
             </label>
             <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={preferences.emailNotifications}
-                  onChange={(e) =>
-                    setPreferences({ ...preferences, emailNotifications: e.target.checked })
-                  }
-                  className="w-5 h-5 rounded border-neutral-300 text-forest focus:ring-forest"
-                />
-                <div>
-                  <p className="text-sm font-medium text-neutral-900">Notificações por E-mail</p>
-                  <p className="text-xs text-neutral-500">
-                    Receba atualizações de pedidos e novidades
-                  </p>
-                </div>
-              </label>
+              {/* Aqui morava um checkbox de e-mail que gravava a coluna
+                  `preferences`, enquanto /conta/preferencias grava
+                  `notification_settings`. Eram dois controles de e-mail que
+                  não se enxergavam: desligar um deixava o outro ligado. O
+                  e-mail passa a ter um dono só. O valor já gravado continua no
+                  estado e segue no save, sem perda; unir as duas colunas exige
+                  migração e é decisão de produto. WhatsApp e Newsletter ficam,
+                  porque só existem aqui. */}
+              <p className="text-sm text-neutral-700">
+                Os avisos por e-mail ficam em{' '}
+                <Link
+                  href="/conta/preferencias"
+                  className="font-medium text-forest underline underline-offset-2"
+                >
+                  Preferências
+                </Link>
+                , com controle separado para pedidos, promoções e cursos.
+              </p>
 
               <label className="flex items-center gap-3 cursor-pointer">
                 <input

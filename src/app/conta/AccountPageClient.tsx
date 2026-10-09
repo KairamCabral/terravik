@@ -49,17 +49,22 @@ interface RecentOrder {
   items: Array<{ title: string; quantity: number; price: string }>
 }
 
+// Contraste do texto do chip (12px, precisa de 4,5:1). Medido:
+//   emerald-600 no emerald-50 = 3,58:1 e amber-600 no amber-50 = 3,07:1,
+//   reprovados; red-600 no red-50 = 4,41:1, reprovado por pouco.
+//   success-ink = 8,43:1, warning-ink = 7,22:1, red-700 = 5,91:1.
+//   blue-600 (4,75:1) e indigo-600 (5,62:1) já passavam.
 const STATUS_MAP: Record<string, { label: string; color: string; icon: typeof CheckCircle2 }> = {
-  paid: { label: 'Pago', color: 'text-emerald-600 bg-emerald-50', icon: CheckCircle2 },
-  pending: { label: 'Pendente', color: 'text-amber-600 bg-amber-50', icon: Clock },
+  paid: { label: 'Pago', color: 'text-success-ink bg-emerald-50', icon: CheckCircle2 },
+  pending: { label: 'Pendente', color: 'text-warning-ink bg-amber-50', icon: Clock },
   fulfilled: { label: 'Enviado', color: 'text-blue-600 bg-blue-50', icon: Truck },
-  delivered: { label: 'Entregue', color: 'text-emerald-600 bg-emerald-50', icon: CheckCircle2 },
-  cancelled: { label: 'Cancelado', color: 'text-red-600 bg-red-50', icon: AlertCircle },
+  delivered: { label: 'Entregue', color: 'text-success-ink bg-emerald-50', icon: CheckCircle2 },
+  cancelled: { label: 'Cancelado', color: 'text-red-700 bg-red-50', icon: AlertCircle },
 }
 
 const FULFILLMENT_MAP: Record<string, { label: string; color: string; icon: typeof Truck }> = {
   shipped: { label: 'Enviado', color: 'text-blue-600 bg-blue-50', icon: Truck },
-  delivered: { label: 'Entregue', color: 'text-emerald-600 bg-emerald-50', icon: CheckCircle2 },
+  delivered: { label: 'Entregue', color: 'text-success-ink bg-emerald-50', icon: CheckCircle2 },
   in_transit: { label: 'Em trânsito', color: 'text-indigo-600 bg-indigo-50', icon: Truck },
 }
 

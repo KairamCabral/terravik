@@ -58,6 +58,16 @@ export const functional = {
   info: '#3B82F6',
 } as const
 
+// Tinta: a cor funcional como TEXTO sobre fundo claro. success e warning são
+// claros demais para texto (2,28:1 e 2,15:1 no branco). As tintas vêm da
+// paleta da marca: verde 400 e dourado 600.
+//   successInk #0A5535: 8,88:1 no branco, 8,43:1 no emerald-50
+//   warningInk #685215: 7,48:1 no branco, 7,22:1 no amber-50
+export const functionalInk = {
+  success: '#0A5535',
+  warning: '#685215',
+} as const
+
 // ── Full palette for Tailwind ───────────────────────────
 export const palette = {
   forest: {
@@ -90,4 +100,5 @@ export const palette = {
     medium: borders.medium,
   },
   functional,
+  functionalInk,
 } as const

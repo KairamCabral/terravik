@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Save, Loader2, CheckCircle2, Bell, Mail, Megaphone } from 'lucide-react'
+import { Save, Loader2, CheckCircle2, AlertCircle, Bell, Mail, Megaphone } from 'lucide-react'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { updateProfile } from '@/lib/services/profile'
 
@@ -33,6 +33,7 @@ export default function PreferenciasPage() {
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS)
   const [isSaving, setIsSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [erro, setErro] = useState<string | null>(null)
 
   useEffect(() => {
     if (profile?.notification_settings) {
@@ -43,15 +44,37 @@ export default function PreferenciasPage() {
   const toggleSetting = (key: keyof NotificationSettings) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }))
     setSaved(false)
+    setErro(null)
   }
 
   const handleSave = async () => {
     if (!user) return
     setIsSaving(true)
+    setSaved(false)
+    setErro(null)
 
-    await updateProfile(user.id, {
-      notification_settings: JSON.parse(JSON.stringify(settings)),
-    })
+    // O retorno de updateProfile precisa ser conferido. Antes ele era
+    // descartado e o "salvas com sucesso" aparecia mesmo quando o banco
+    // recusava a escrita; o refreshProfile logo abaixo fazia o efeito de
+    // [profile] reescrever os botões com o que continuava gravado. A pessoa
+    // via a faixa verde e o botão voltar sozinho, e seguia recebendo
+    // promoções achando que tinha cancelado.
+    let gravou = false
+    try {
+      const resultado = await updateProfile(user.id, {
+        notification_settings: JSON.parse(JSON.stringify(settings)),
+      })
+      gravou = resultado.success
+    } catch {
+      // Rede fora do ar faz o cliente lançar em vez de devolver erro.
+      gravou = false
+    }
+
+    if (!gravou) {
+      setIsSaving(false)
+      setErro('Não foi possível salvar suas preferências. Nada foi alterado.')
+      return
+    }
 
     await refreshProfile()
     setIsSaving(false)
@@ -84,6 +107,28 @@ export default function PreferenciasPage() {
           <CheckCircle2 className="w-5 h-5" />
           <p className="text-sm">Preferências salvas com sucesso!</p>
         </motion.div>
+      )}
+
+      {/* A falha precisa aparecer na tela. Sem isto, o único sinal de que a
+          escrita não foi era o botão voltar sozinho, sem explicação. */}
+      {erro && (
+        <div
+          role="alert"
+          className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700"
+        >
+          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="flex-1">
+            <p className="text-sm">{erro}</p>
+            <button
+              type="button"
+              onClick={() => void handleSave()}
+              disabled={isSaving}
+              className="mt-2 text-sm font-medium text-forest underline underline-offset-2 disabled:opacity-50"
+            >
+              Tentar de novo
+            </button>
+          </div>
+        </div>
       )}
 
       {/* E-mail Notifications */}

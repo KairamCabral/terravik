@@ -28,8 +28,16 @@ const config: Config = {
         border: palette.border,
 
         // Funcionais
-        success: palette.functional.success,
-        warning: palette.functional.warning,
+        // DEFAULT mantém text-success/bg-success; ink é a cor como texto
+        // sobre fundo claro (text-success-ink, text-warning-ink).
+        success: {
+          DEFAULT: palette.functional.success,
+          ink: palette.functionalInk.success,
+        },
+        warning: {
+          DEFAULT: palette.functional.warning,
+          ink: palette.functionalInk.warning,
+        },
         error: palette.functional.error,
         info: palette.functional.info,
 

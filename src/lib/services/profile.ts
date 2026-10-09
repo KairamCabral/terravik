@@ -23,9 +23,9 @@ export async function updateProfile(
   userId: string,
   updates: Partial<Pick<ProfileUpdate, 'full_name' | 'phone' | 'avatar_url' | 'address' | 'notification_settings' | 'preferences'>>
 ): Promise<{ success: boolean; error?: string }> {
-  console.log('[ProfileService] Iniciando atualização para userId:', userId)
-  console.log('[ProfileService] Updates recebidos:', updates)
-
+  // Sem console.log do perfil: este módulo roda no navegador (createClient é o
+  // cliente do browser), então imprimir userId, endereço e telefone deixava
+  // dado pessoal no console de quem usa o site. Erro continua sendo reportado.
   const supabase = createClient()
 
   // Converter address para JSON se existir
@@ -38,20 +38,24 @@ export async function updateProfile(
     updateData.address = JSON.parse(JSON.stringify(updates.address))
   }
 
-  console.log('[ProfileService] Dados formatados:', updateData)
-
   const { data, error } = await supabase
     .from('profiles')
     .update(updateData)
     .eq('id', userId)
-    .select()
+    .select('id')
 
   if (error) {
-    console.error('[ProfileService] Erro ao atualizar:', error)
+    console.error('[ProfileService] Erro ao atualizar:', error.message)
     return { success: false, error: error.message }
   }
 
-  console.log('[ProfileService] Atualização bem-sucedida:', data)
+  // UPDATE barrado por RLS não devolve erro: devolve zero linhas. Sem esta
+  // conferência, a tela dizia "salvo com sucesso" sem nada ter sido gravado.
+  if (!data || data.length === 0) {
+    console.error('[ProfileService] Atualização não gravou nenhuma linha')
+    return { success: false, error: 'Nenhum perfil foi atualizado.' }
+  }
+
   return { success: true }
 }
 
