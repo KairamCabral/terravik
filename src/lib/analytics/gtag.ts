@@ -1,14 +1,32 @@
 // Google Analytics helper functions
 
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+// Dois nomes de variável, de propósito: este arquivo lia só
+// NEXT_PUBLIC_GA_MEASUREMENT_ID e o .env.example documentava NEXT_PUBLIC_GA_ID.
+// Quem configurou pelo exemplo definiu uma variável que ninguém lia.
+// NEXT_PUBLIC_* é substituída em build por texto: precisa ser lida literal.
+const idDeclarado = (
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+  process.env.NEXT_PUBLIC_GA_ID ||
+  ''
+).trim()
 
-// Pageview
+// Só vale com a forma de um ID de fluxo do GA4 e sem ser o marcador do exemplo
+// (G-XXXXXXXXXX), que carregaria o gtag e mandaria evento para um ID inexistente.
+export const GA_MEASUREMENT_ID =
+  /^G-[A-Z0-9]{4,}$/i.test(idDeclarado) && !/X{4,}/i.test(idDeclarado)
+    ? idDeclarado
+    : undefined
+
+// Page view de troca de rota: evento explícito, não um segundo gtag('config').
+// Sem page_location o GA4 usa a URL da primeira tela em toda navegação.
 export const pageview = (url: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', GA_MEASUREMENT_ID as string, {
-      page_path: url,
-    })
-  }
+  if (typeof window === 'undefined' || !window.gtag || !GA_MEASUREMENT_ID) return
+
+  window.gtag('event', 'page_view', {
+    page_path: url,
+    page_location: window.location.href,
+    page_title: document.title,
+  })
 }
 
 // Event

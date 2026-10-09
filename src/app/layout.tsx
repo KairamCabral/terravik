@@ -121,9 +121,6 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
 
-        {/* Google Analytics */}
-        <GoogleAnalytics />
-
         {/* JSON-LD: Organization */}
         <script
           type="application/ld+json"
@@ -141,6 +138,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased">
+        <GoogleAnalytics />
         <AuthProvider>
           <FavoritesProvider>
             <SubscriptionProvider>
