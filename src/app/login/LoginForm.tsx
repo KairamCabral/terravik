@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -11,7 +11,6 @@ import { Container } from '@/components/ui'
 import { segundosDeEspera, mensagemDeMuitasTentativas } from '@/lib/auth/erros'
 
 export function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const { signIn } = useAuth()
 
@@ -60,8 +59,12 @@ export function LoginForm() {
       return
     }
 
-    router.push(redirectTo)
-    router.refresh()
+    // Navegação completa, e não router.push: o roteador do Next guarda em cache
+    // a resposta de /conta de quando a pessoa ainda estava deslogada (um
+    // redirect de volta para /login), e o push caía nela. A pessoa entrava e
+    // ficava presa na tela de login. redirectTo já foi validado como caminho
+    // interno acima.
+    window.location.assign(redirectTo)
   }
 
   return (
