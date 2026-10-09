@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getProducts } from '@/lib/shopify/queries/products'
+import { getCatalogoComEstado } from '@/lib/shopify/catalogo'
 import { BLOG_ARTICLES } from '@/lib/blog/articles'
-import { MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 
 interface SearchResult {
   type: 'product' | 'article' | 'page'
@@ -94,31 +93,12 @@ export async function GET(request: NextRequest) {
 
     const results: SearchResult[] = []
 
-    // 1. Buscar produtos
-    try {
-      const products = await getProducts()
-      
-      products.forEach((product) => {
-        const relevance = calculateRelevance(query, {
-          title: product.title,
-          description: product.description,
-          tags: product.tags,
-        })
-
-        if (relevance > 0) {
-          results.push({
-            type: 'product',
-            id: product.id,
-            title: product.title,
-            description: product.description?.substring(0, 150),
-            url: `/produtos/${product.handle}`,
-            relevance,
-          })
-        }
-      })
-    } catch (error) {
-      // Fallback para mock products
-      MOCK_PRODUCTS.forEach((product) => {
+    // 1. Buscar produtos. Com a loja configurada e a Shopify fora do ar, a
+    // busca segue sem produtos: empurrar o catálogo de exemplo mostraria
+    // itens que a loja pode não vender.
+    const { produtos, degradado } = await getCatalogoComEstado('api/search')
+    if (!degradado) {
+      produtos.forEach((product) => {
         const relevance = calculateRelevance(query, {
           title: product.title,
           description: product.description,

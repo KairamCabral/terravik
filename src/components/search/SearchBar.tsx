@@ -75,7 +75,13 @@ export function SearchBar() {
 
   // Debounced search
   useEffect(() => {
-    if (query.length < 2) { setResults([]); return }
+    if (query.length < 2) {
+      // Desliga o spinner: quem apagava rápido cancelava o timer com a busca
+      // em andamento e o spinner ficava eterno, escondendo o botão limpar.
+      setResults([])
+      setIsLoading(false)
+      return
+    }
     setIsLoading(true)
     const timer = setTimeout(async () => {
       try {
