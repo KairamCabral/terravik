@@ -9,8 +9,8 @@ import {
   TrustIndicators,
   SubscriptionCard 
 } from '@/components/subscription';
-import { MOCK_TESTIMONIALS, SUBSCRIPTION_FAQ, SUBSCRIPTION_STATS } from '@/lib/subscription/mock-data';
-import { Sparkles, Check, ChevronRight, Star, Package, Calendar, Heart } from 'lucide-react';
+import { SUBSCRIPTION_FAQ } from '@/lib/subscription/mock-data';
+import { Sparkles, Check, ChevronRight, Package, Calendar, Heart } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Assinatura Terravik | Gramado Perfeito no Piloto Automático',
@@ -22,12 +22,12 @@ export const metadata: Metadata = {
  * 
  * Estrutura otimizada para conversão:
  * 1. Hero com proposta de valor clara
- * 2. Prova social rápida
+ * 2. Garantias em uma linha
  * 3. Como funciona (3 passos)
  * 4. Benefícios
  * 5. Comparativo
  * 6. Produtos disponíveis
- * 7. Depoimentos
+ * 7. (depoimentos: só com depoimento real)
  * 8. FAQ
  * 9. Trust indicators
  * 10. CTA final
@@ -83,18 +83,6 @@ export default function AssinaturaPage() {
             {/* Quick stats */}
             <div className="flex flex-wrap items-center gap-6 mt-12 text-green-100">
               <div className="flex items-center gap-2">
-                <Check className="w-5 h-5" />
-                <span className="text-sm">
-                  <strong className="text-white">{SUBSCRIPTION_STATS.activeSubscribers.toLocaleString('pt-BR')}</strong> assinantes
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 fill-current" />
-                <span className="text-sm">
-                  <strong className="text-white">{SUBSCRIPTION_STATS.averageRating}/5</strong> de avaliação
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
                 <Heart className="w-5 h-5 fill-current" />
                 <span className="text-sm">Cancele quando quiser</span>
               </div>
@@ -110,7 +98,7 @@ export default function AssinaturaPage() {
         </div>
       </section>
 
-      {/* PROVA SOCIAL RÁPIDA */}
+      {/* GARANTIAS EM UMA LINHA */}
       <section className="py-6 bg-white border-b border-neutral-200">
         <TrustIndicators variant="compact" className="max-w-6xl mx-auto px-6" />
       </section>
@@ -256,51 +244,8 @@ export default function AssinaturaPage() {
         </div>
       </section>
 
-      {/* DEPOIMENTOS */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
-              O que dizem nossos assinantes
-            </h2>
-            <p className="text-lg text-neutral-600">
-              Mais de {SUBSCRIPTION_STATS.activeSubscribers.toLocaleString('pt-BR')} famílias confiam na Terravik
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {MOCK_TESTIMONIALS.slice(0, 3).map((testimonial) => (
-              <div 
-                key={testimonial.id}
-                className="bg-neutral-50 rounded-xl p-6 border border-neutral-200"
-              >
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-
-                <p className="text-neutral-700 mb-4 leading-relaxed">
-                  &quot;{testimonial.text}&quot;
-                </p>
-
-                <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
-                  <div>
-                    <div className="font-semibold text-neutral-900">{testimonial.name}</div>
-                    <div className="text-sm text-neutral-600">{testimonial.location}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-green-600">
-                      {testimonial.savings}
-                    </div>
-                    <div className="text-xs text-neutral-500">de economia</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Depoimentos: a seção saiu (H-06). Os textos eram inventados. Só
+          volta com depoimento real e autorizado de assinante. */}
 
       {/* FAQ */}
       <section className="py-20 px-6">

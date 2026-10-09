@@ -14,7 +14,7 @@ import {
   AlertCircle,
   HelpCircle,
 } from 'lucide-react'
-import { SOCIAL_LINKS } from '@/lib/utils/constants'
+import { linkWhatsapp } from '@/lib/utils/constants'
 import { cn } from '@/lib/utils/cn'
 
 /**
@@ -58,6 +58,8 @@ export function ContactPageClient() {
     message: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  // Só existe botão de WhatsApp com número real em CONTATO.whatsapp.
+  const whatsapp = linkWhatsapp()
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -148,10 +150,11 @@ export function ContactPageClient() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="grid sm:grid-cols-2 gap-3 mb-8"
+          className={`grid gap-3 mb-8 ${whatsapp ? 'sm:grid-cols-2' : ''}`}
         >
+          {whatsapp && (
           <a
-            href={SOCIAL_LINKS.whatsapp}
+            href={whatsapp}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex items-center gap-3 p-4 rounded-xl border border-border-subtle bg-bg-surface hover:border-forest/30 hover:shadow-card transition-all duration-300"
@@ -165,6 +168,7 @@ export function ContactPageClient() {
             </div>
             <ArrowRight className="w-4 h-4 text-txt-muted group-hover:text-forest group-hover:translate-x-0.5 transition-all" />
           </a>
+          )}
 
           <a
             href="mailto:contato@terravik.com.br"

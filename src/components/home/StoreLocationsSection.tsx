@@ -11,7 +11,11 @@ import Image from 'next/image'
  *
  * Carrossel automático infinito com logos das lojas
  * Busca lojas featured do banco de dados (Supabase)
- * Fallback para dados estáticos se o fetch falhar
+ *
+ * Não existe fallback estático: a lista que ficava aqui anunciava cinco
+ * marketplaces como ponto de venda sem confirmação de que o produto está à
+ * venda neles (H-06). Sem loja real cadastrada na tabela `stores`, a seção
+ * inteira (fileira de logos e link para o mapa) não renderiza.
  */
 
 interface Store {
@@ -55,16 +59,8 @@ function StoreLogo({ store }: { store: Store }) {
   )
 }
 
-const FALLBACK_STORES: Store[] = [
-  { id: '1', name: 'Amazon', slug: 'amazon', logo_url: null, website: 'https://www.amazon.com.br', is_featured: true },
-  { id: '2', name: 'Carrefour', slug: 'carrefour', logo_url: null, website: 'https://www.carrefour.com.br', is_featured: true },
-  { id: '3', name: 'MadeiraMadeira', slug: 'madeira-madeira', logo_url: null, website: 'https://www.madeiramadeira.com.br', is_featured: true },
-  { id: '4', name: 'Magazine Luiza', slug: 'magalu', logo_url: null, website: 'https://www.magazineluiza.com.br', is_featured: true },
-  { id: '5', name: 'Mercado Livre', slug: 'mercado-livre', logo_url: null, website: 'https://www.mercadolivre.com.br', is_featured: true },
-]
-
 export function StoreLocationsSection() {
-  const [stores, setStores] = useState<Store[]>(FALLBACK_STORES)
+  const [stores, setStores] = useState<Store[]>([])
   const [isPaused, setIsPaused] = useState(false)
 
   useEffect(() => {
@@ -73,16 +69,18 @@ export function StoreLocationsSection() {
         const res = await fetch('/api/stores')
         if (res.ok) {
           const data = await res.json()
-          if (data.length > 0) {
+          if (Array.isArray(data)) {
             setStores(data.filter((s: Store) => s.is_featured))
           }
         }
       } catch {
-        // Usar fallback
+        // Sem lojas, a seção não aparece.
       }
     }
     fetchStores()
   }, [])
+
+  if (stores.length === 0) return null
 
   // Duplicar logos para efeito infinito
   const duplicatedStores = [...stores, ...stores, ...stores]

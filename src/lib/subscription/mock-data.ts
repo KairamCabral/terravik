@@ -239,56 +239,6 @@ export const MOCK_SUBSCRIPTIONS: CustomerSubscription[] = [
 ];
 
 /**
- * Depoimentos de assinantes
- */
-export const MOCK_TESTIMONIALS = [
-  {
-    id: '1',
-    name: 'Roberto M.',
-    location: 'Florianópolis, SC',
-    photo: '/images/testimonials/roberto.jpg',
-    text: 'Nunca mais esqueci de cuidar do gramado. A assinatura da Terravik simplificou tudo e ainda economizo!',
-    savings: 'R$ 320/ano',
-    rating: 5,
-    loyaltyTier: 'gold' as const,
-    deliveries: 12
-  },
-  {
-    id: '2',
-    name: 'Ana Carolina S.',
-    location: 'Porto Alegre, RS',
-    photo: '/images/testimonials/ana.jpg',
-    text: 'O gramado nunca esteve tão bonito. Recebo exatamente quando preciso, sem preocupação.',
-    savings: 'R$ 180/ano',
-    rating: 5,
-    loyaltyTier: 'silver' as const,
-    deliveries: 6
-  },
-  {
-    id: '3',
-    name: 'Marcos T.',
-    location: 'Curitiba, PR',
-    photo: '/images/testimonials/marcos.jpg',
-    text: 'Tentei cancelar só pra testar e foi super fácil. Mas vale muito a pena, então continuei assinante!',
-    savings: 'R$ 450/ano',
-    rating: 5,
-    loyaltyTier: 'platinum' as const,
-    deliveries: 18
-  },
-  {
-    id: '4',
-    name: 'Patricia L.',
-    location: 'São Paulo, SP',
-    photo: '/images/testimonials/patricia.jpg',
-    text: 'Adoro o lembrete no WhatsApp de quando aplicar. É como ter um jardineiro pessoal!',
-    savings: 'R$ 240/ano',
-    rating: 5,
-    loyaltyTier: 'silver' as const,
-    deliveries: 7
-  }
-];
-
-/**
  * FAQ específico de assinaturas
  */
 export const SUBSCRIPTION_FAQ = [
@@ -403,14 +353,3 @@ export const SUBSCRIPTION_BENEFITS = [
     description: 'Cuidado contínuo = resultados consistentes',
   }
 ];
-
-/**
- * Stats para prova social
- */
-export const SUBSCRIPTION_STATS = {
-  activeSubscribers: 2847,
-  averageRating: 4.8,
-  totalReviews: 1423,
-  averageAnnualSavings: 285,
-  deliveriesCompleted: 18942
-};

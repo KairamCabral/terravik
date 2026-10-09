@@ -1,8 +1,7 @@
-import { 
+import {
   FreeShippingBar, 
   DiscountBar, 
   LaunchBar, 
-  SocialProofBar,
   RotatingAnnouncementBar 
 } from '@/components/layout'
 import { Container } from '@/components/ui'
@@ -84,29 +83,11 @@ export default function AnnouncementDemoPage() {
               </div>
             </div>
 
-            {/* Social Proof */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="font-inter text-2xl font-semibold text-neutral-900">
-                  4. Social Proof
-                </h2>
-                <span className="px-3 py-1 bg-grass/20 text-grass rounded-full text-sm font-semibold">
-                  FOMO + Validação
-                </span>
-              </div>
-              <p className="font-inter text-neutral-700">
-                <strong>Psicologia:</strong> Valida decisão através de números reais
-              </p>
-              <div className="rounded-xl overflow-hidden shadow-lg">
-                <SocialProofBar />
-              </div>
-            </div>
-
             {/* Rotating */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="font-inter text-2xl font-semibold text-neutral-900">
-                  5. Rotating ✨
+                  4. Rotating ✨
                 </h2>
                 <span className="px-3 py-1 bg-gradient-brand text-white rounded-full text-sm font-semibold">
                   Máxima Exposição
@@ -178,7 +159,6 @@ export default function AnnouncementDemoPage() {
                   <li>• Escassez (oferta limitada)</li>
                   <li>• Urgência (tempo/ação)</li>
                   <li>• Valor (benefício claro)</li>
-                  <li>• Prova social (números)</li>
                   <li>• CTA direto</li>
                 </ul>
               </div>

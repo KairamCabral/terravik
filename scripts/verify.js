@@ -283,16 +283,111 @@ console.log('\nSVGs (prologo XML exigido pelo next/image)')
 // Campo opcional `exceto: RegExp[]`, casado contra o CAMINHO do arquivo, para
 // onde a frase aparece legitimamente.
 //
-// A LISTA ENTRA COM A HISTORIA H-06. Ela esta vazia de proposito: a varredura
-// ja funciona, mas as frases so podem ser proibidas depois de retiradas do
-// site, senao o build reprova no dia em que a guarda liga.
+// A lista entrou com a historia H-06, depois de cada frase ser retirada do
+// site. E a lista do TERRAVIK: o que ja foi publicado aqui sem fonte.
 //
 // Comentario de codigo conta. Varre src/, content/ (se existir) e public/,
-// onde SVG carrega texto desenhado.
+// onde SVG carrega texto desenhado. NAO varre scripts/ nem docs/: esta lista
+// e as historias citam as frases sem afirma-las.
+//
+// As regras de numero solto (sem a palavra ao lado) deixam SVG de fora:
+// coordenada de path tem a mesma cara e reprovaria desenho inocente. As
+// regras com vocabulario ("... gramados", "... avaliacoes") valem em tudo.
 // ─────────────────────────────────────────────────────────────────
 console.log('\nAlegacoes sem prova')
 {
-  const ALEGACOES = []
+  const SO_SVG = [/\.svg$/i]
+
+  const ALEGACOES = [
+    {
+      nome: 'uma contagem de clientes sem fonte (2.847)',
+      frases: [
+        /2\.847\+?\s*(gramados|fam[ií]lias|alunos|avalia|jardins|assinantes|clientes)/i,
+      ],
+      prova:
+        'O numero 2.847 foi publicado como gramados, familias, alunos e\n' +
+        '         avaliacoes ao mesmo tempo, sem pedido, cadastro ou medicao que o\n' +
+        '         sustente. Contagem so entra lida de uma fonte real (banco, Shopify).',
+    },
+    {
+      nome: 'o numero 2.847 (ou 2847) solto',
+      frases: [/(?<![\d.,])2\.847(?!\d)/, /(?<![\d.,])2847(?![\d.,]\d)/],
+      exceto: SO_SVG,
+      prova:
+        'Mesma contagem inventada, agora como valor de constante ou rotulo.\n' +
+        '         Se for coincidencia legitima (preco, medida), ajuste a guarda.',
+    },
+    {
+      nome: '"50K+" de calculos ou gramados',
+      frases: [/50\s?K\s?\+/i, /50\s?mil\s?\+?\s+(gramados|c[aá]lculos|clientes|fam[ií]lias)/i],
+      // PENDENCIA CONHECIDA: FAQSection.tsx ainda afirma "mais de 50 mil
+      // gramados" (resposta e destaque da primeira pergunta). O arquivo estava
+      // fora do alcance da H-06. Retirada a frase, apague esta excecao.
+      exceto: [/home[\\/]FAQSection\.tsx$/],
+      prova:
+        'Nao ha contador de uso da calculadora nem base de 50 mil clientes.\n' +
+        '         Volume so entra lido do analytics ou do banco.',
+    },
+    {
+      nome: '"98%" de satisfacao ou recomendacao',
+      frases: [
+        /98\s?%\s*(de\s+)?(satisfa|recomend|dos\s+clientes|aprova)/i,
+        // A forma em que estava no codigo: { value: '98%', label: 'Satisfacao' }.
+        /['"`>]\s*98\s?%\s*['"`<]/,
+      ],
+      prova:
+        'Nunca houve pesquisa de satisfacao. Percentual so entra com a\n' +
+        '         pesquisa (amostra, data, pergunta) citada ao lado.',
+    },
+    {
+      nome: 'uma nota media de avaliacoes inventada',
+      frases: [
+        /4[.,][89]\s?\/\s?5/,
+        /1\.423\s*avalia/i,
+        /(?<![\d.,])1423(?![\d.,]\d)/,
+        /averageRating\s*:\s*4[.,]\d/,
+      ],
+      exceto: SO_SVG,
+      prova:
+        'O site nao tem sistema de avaliacoes de comprador (historia U-05).\n' +
+        '         Nota e contagem so entram calculadas de avaliacoes reais.',
+    },
+    {
+      nome: 'um telefone de exemplo',
+      frases: [
+        /5511999999999/,
+        /55X{6,}/,
+        /0800[\s.-]?123[\s.-]?4567/,
+        /wa\.me\/\d*X{3,}/i,
+      ],
+      prova:
+        'Numero de exemplo publicado manda o cliente para um desconhecido.\n' +
+        '         Telefone e WhatsApp vem de CONTATO, em src/lib/utils/constants.ts,\n' +
+        '         que fica vazio (e o botao some) ate o dono informar o numero real.',
+    },
+    {
+      nome: 'um marcador de exemplo esquecido',
+      frases: [/SEU_LINK_AQUI/, /X{8,}/],
+      // O comentario de gtag.ts explica por que o marcador G-XXXXXXXXXX do
+      // .env.example e recusado em tempo de execucao: cita, nao usa.
+      exceto: [/analytics[\\/]gtag\.ts$/],
+      prova:
+        'Marcador de preenchimento chegou ao site como se fosse dado. Link ou\n' +
+        '         identificador sem valor real nao e renderizado.',
+    },
+    {
+      nome: 'o valor do frete gratis escrito a mao',
+      frases: [/frete\s+gr[aá]tis\s+(acima|a\s+partir)\s+de\s+R\$\s?\d/i],
+      // PENDENCIA CONHECIDA: ProductsPageClient.tsx ainda traz o valor a mao
+      // (e diferente do config). O arquivo estava fora do alcance da H-06.
+      // Quando ele passar a usar fraseFreteGratis(), apague esta excecao.
+      exceto: [/produtos[\\/]ProductsPageClient\.tsx$/],
+      prova:
+        'O valor oficial esta em FREE_SHIPPING_CONFIG (src/lib/shipping/config.ts).\n' +
+        '         Use fraseFreteGratis() ou limiteFreteGratis(): numero digitado no\n' +
+        '         componente diverge do config no dia em que o valor muda.',
+    },
+  ]
 
   const arquivos = listarArquivos(
     ['src', 'content', 'public'],
@@ -320,7 +415,7 @@ console.log('\nAlegacoes sem prova')
   }
 
   if (ALEGACOES.length === 0) {
-    ok(`lista vazia (entra com H-06); ${arquivos.length} arquivo(s) no alcance da varredura`)
+    ok(`lista vazia; ${arquivos.length} arquivo(s) no alcance da varredura`)
   } else if (achados.length === 0) {
     ok(
       `nenhuma alegacao sem prova em ${arquivos.length} arquivo(s) ` +

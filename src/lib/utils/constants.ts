@@ -41,8 +41,50 @@ export const NAV_LINKS = [
 export const SOCIAL_LINKS = {
   instagram: 'https://instagram.com/terravik',
   facebook: 'https://facebook.com/terravik',
-  whatsapp: 'https://wa.me/55XXXXXXXXXXX',
 } as const
+
+/**
+ * Canais de atendimento que dependem de um dado REAL do dono da loja.
+ *
+ * Vazio por padrão, de propósito: enquanto o campo estiver vazio, o botão ou
+ * link correspondente NÃO é renderizado em lugar nenhum do site. Número de
+ * exemplo não entra aqui: um telefone inventado publicado manda o cliente
+ * para um desconhecido (e a guarda de alegações do prebuild reprova os
+ * marcadores de exemplo conhecidos).
+ *
+ * Formatos esperados:
+ * - whatsapp: só dígitos, com código do país e DDD, sem "+", espaço ou traço.
+ *   Forma: 55 + DDD (2 dígitos) + número (8 ou 9 dígitos).
+ * - whatsappGrupo: o link de convite inteiro, começando por
+ *   https://chat.whatsapp.com/
+ * - telefoneSac: do jeito que deve aparecer na página, com DDD ou prefixo 0800.
+ */
+export const CONTATO: {
+  whatsapp: string
+  whatsappGrupo: string
+  telefoneSac: string
+} = {
+  whatsapp: '',
+  whatsappGrupo: '',
+  telefoneSac: '',
+}
+
+/**
+ * Link do WhatsApp de atendimento, ou null enquanto CONTATO.whatsapp estiver
+ * vazio ou fora do formato. Quem chama só renderiza o botão se vier link.
+ */
+export function linkWhatsapp(mensagem?: string): string | null {
+  const numero = CONTATO.whatsapp.replace(/\D/g, '')
+  if (!/^55\d{10,11}$/.test(numero)) return null
+  const base = `https://wa.me/${numero}`
+  return mensagem ? `${base}?text=${encodeURIComponent(mensagem)}` : base
+}
+
+/** Link do grupo de ofertas, ou null enquanto não houver convite real. */
+export function linkGrupoWhatsapp(): string | null {
+  const link = CONTATO.whatsappGrupo.trim()
+  return /^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,}$/.test(link) ? link : null
+}
 
 export const REVALIDATE = {
   products: 60,       // 1 minuto

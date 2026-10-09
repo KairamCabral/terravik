@@ -21,6 +21,7 @@ import { useAuth } from '@/components/auth/AuthProvider'
 import { getUserOrders, type OrderDisplay } from '@/lib/services/orders'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
+import { linkWhatsapp } from '@/lib/utils/constants'
 
 /**
  * Meus Pedidos — Arquitetura Híbrida Inteligente
@@ -32,7 +33,6 @@ import Link from 'next/link'
  * DONO: Shopify (cache no Supabase via orders_sync)
  */
 
-const WHATSAPP_NUMBER = '5511999999999' // Atualizar com número real
 const WHATSAPP_MESSAGE = 'Olá! Preciso de ajuda com meu pedido na Terravik.'
 
 const FAQ_ITEMS = [
@@ -97,6 +97,9 @@ export default function MeusPedidosPage() {
   const [orders, setOrders] = useState<OrderDisplay[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null)
+  // null enquanto não houver número real em CONTATO.whatsapp: o botão some
+  // e o suporte do pedido aponta para /contato.
+  const suporteWhatsapp = linkWhatsapp(WHATSAPP_MESSAGE)
 
   useEffect(() => {
     if (user?.id) {
@@ -282,15 +285,25 @@ export default function MeusPedidosPage() {
                       </a>
                     )}
 
-                    <a
-                      href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`${WHATSAPP_MESSAGE}\n\nPedido: #${order.orderNumber}`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      Suporte
-                    </a>
+                    {suporteWhatsapp ? (
+                      <a
+                        href={linkWhatsapp(`${WHATSAPP_MESSAGE}\n\nPedido: #${order.orderNumber}`) ?? suporteWhatsapp}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Suporte
+                      </a>
+                    ) : (
+                      <Link
+                        href="/contato"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Suporte
+                      </Link>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -316,8 +329,9 @@ export default function MeusPedidosPage() {
 
         {/* Botões de Suporte */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+          {suporteWhatsapp && (
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`}
+            href={suporteWhatsapp}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-4 bg-green-50 border-2 border-green-200 rounded-xl hover:bg-green-100 transition-colors group"
@@ -328,6 +342,7 @@ export default function MeusPedidosPage() {
               <p className="text-xs text-neutral-500">Resposta rápida</p>
             </div>
           </a>
+          )}
 
           <Link
             href="/contato"

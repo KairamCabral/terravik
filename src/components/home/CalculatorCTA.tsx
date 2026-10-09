@@ -14,19 +14,13 @@ import { motion } from 'framer-motion'
  * - Sofisticação: tipografia grande, contraste, dourado sutil
  */
 
-const stats = [
-  { value: '50K+', label: 'Cálculos' },
-  { value: '98%', label: 'Satisfação' },
-  { value: '30s', label: 'Resultado' },
-]
-
 export function CalculatorCTA() {
   return (
     <section className="relative">
-      {/* Imagem de fundo fixa (parallax) — gramado */}
+      {/* Imagem de fundo: gramado. Rola com a página; fundo fixo força repintura a cada rolagem. */}
       <div className="absolute inset-0 overflow-hidden">
         <div
-          className="absolute inset-0 bg-fixed bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url('/images/grass/Gramado-Brasil-de-condominio-terravik.png')" }}
           aria-hidden="true"
         />
@@ -83,7 +77,6 @@ export function CalculatorCTA() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.24 }}
-            className="mb-12"
           >
             <Link
               href="/calculadora"
@@ -92,31 +85,6 @@ export function CalculatorCTA() {
               Descobrir minha dose
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
-          </motion.div>
-
-          {/* Stats — social proof compacto */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.32 }}
-            className="flex items-center justify-center gap-8 lg:gap-12"
-          >
-            {stats.map((stat, i) => (
-              <div key={stat.label} className="flex items-center gap-8 lg:gap-12">
-                {i > 0 && (
-                  <div className="w-px h-8 bg-white/20" />
-                )}
-                <div className="text-center">
-                  <p className="text-2xl font-heading font-semibold text-white">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-white/70 uppercase tracking-wide mt-0.5">
-                    {stat.label}
-                  </p>
-                </div>
-              </div>
-            ))}
           </motion.div>
         </div>
       </div>

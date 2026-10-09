@@ -11,19 +11,13 @@ import { ArrowRight, Sparkles, Target, Users, Calculator, Award, TrendingUp } fr
  * Técnicas de Psicologia do Design:
  * 1. Storytelling Visual — conta a história de forma narrativa
  * 2. Problema → Solução — identifica dor e resolve
- * 3. Social Proof — números que geram credibilidade
+ * 3. Sem números de prova social: só entram com fonte medida
  * 4. Emotional Connection — linguagem que conecta
  * 5. Visual Hierarchy — guia o olhar naturalmente
  * 6. Trust Signals — transparência e valores claros
  * 7. Call to Action natural — fluxo orgânico
  * 8. Minimalismo Premium — menos é mais
  */
-
-const stats = [
-  { number: '50K+', label: 'Gramados transformados' },
-  { number: '98%', label: 'Satisfação' },
-  { number: '3', label: 'Produtos, função clara' },
-]
 
 const values = [
   {
@@ -168,31 +162,6 @@ export function SobrePageClient() {
                 </div>
               </div>
             </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats — Social Proof */}
-      <section className="bg-forest text-white py-12 lg:py-16">
-        <div className="container-main">
-          <div className="grid sm:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {stats.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="text-center"
-              >
-                <div className="font-heading text-5xl lg:text-6xl font-bold mb-2">
-                  {stat.number}
-                </div>
-                <div className="text-sm text-white/70 uppercase tracking-wide">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>

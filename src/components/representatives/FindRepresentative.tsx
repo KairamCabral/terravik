@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { getRepresentativesByRegion } from '@/lib/locations/representatives'
+import { getRepresentatives, getRepresentativesByRegion } from '@/lib/locations/representatives'
 import type { Representative } from '@/types/location'
 import { Button } from '@/components/ui'
 import { Search, Phone, Mail, MapPin } from 'lucide-react'
@@ -18,6 +18,25 @@ export function FindRepresentative() {
       setResults(found)
       setSearched(true)
     }
+  }
+
+  // Sem representante cadastrado não há o que buscar: uma busca que nunca
+  // acha ninguém só frustra. Vai direto para a chamada do formulário.
+  if (getRepresentatives().length === 0) {
+    return (
+      <div>
+        <h2 className="mb-4 font-display text-2xl font-bold text-terravik-brown">
+          Encontrar Representante
+        </h2>
+        <p className="mb-6 text-terravik-brown/70">
+          Ainda não temos representantes cadastrados. Deixe seu contato no
+          formulário e a equipe Terravik retorna.
+        </p>
+        <Button variant="outline" size="sm" asChild>
+          <a href="#representante-form">Deixar contato</a>
+        </Button>
+      </div>
+    )
   }
 
   return (

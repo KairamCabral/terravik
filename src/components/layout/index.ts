@@ -8,6 +8,5 @@ export {
   FreeShippingBar,
   DiscountBar,
   LaunchBar,
-  SocialProofBar,
   RotatingAnnouncementBar
 } from './AnnouncementBar'

@@ -29,47 +29,9 @@ interface Loja {
   destaque?: boolean
 }
 
-const LOJAS_ONLINE: Loja[] = [
-  { id: '1', nome: 'Amazon', tipo: 'online', website: 'https://www.amazon.com.br', destaque: true },
-  { id: '2', nome: 'Mercado Livre', tipo: 'online', website: 'https://www.mercadolivre.com.br', destaque: true },
-  { id: '3', nome: 'Magazine Luiza', tipo: 'online', website: 'https://www.magazineluiza.com.br', destaque: true },
-  { id: '4', nome: 'Carrefour', tipo: 'online', website: 'https://www.carrefour.com.br' },
-  { id: '5', nome: 'MadeiraMadeira', tipo: 'online', website: 'https://www.madeiramadeira.com.br' },
-]
-
-const LOJAS_FISICAS: Loja[] = [
-  {
-    id: '101',
-    nome: 'Garden Center Terravik',
-    tipo: 'fisica',
-    endereco: 'Av. Paulista, 1000',
-    cidade: 'São Paulo',
-    estado: 'SP',
-    telefone: '(11) 99999-9999',
-    horario: 'Seg-Sáb: 8h-18h',
-    destaque: true,
-  },
-  {
-    id: '102',
-    nome: 'Agropecuária Verde Campo',
-    tipo: 'fisica',
-    endereco: 'Rua das Flores, 500',
-    cidade: 'Campinas',
-    estado: 'SP',
-    telefone: '(19) 98888-8888',
-    horario: 'Seg-Sex: 8h-17h',
-  },
-  {
-    id: '103',
-    nome: 'Casa & Jardim',
-    tipo: 'fisica',
-    endereco: 'Av. Brasil, 2000',
-    cidade: 'Rio de Janeiro',
-    estado: 'RJ',
-    telefone: '(21) 97777-7777',
-    horario: 'Seg-Sáb: 9h-19h',
-  },
-]
+// Sem lista estática: as lojas online e físicas que ficavam aqui eram de
+// exemplo (marketplaces sem confirmação, endereços e telefones inventados).
+// Loja só vem da tabela `stores`, via /api/stores (H-06).
 
 const ESTADOS = [
   'Todos',
@@ -166,8 +128,8 @@ function LojaAvatar({ loja }: { loja: Loja }) {
 
 export function OndeEncontrarContent() {
   const [mounted, setMounted] = useState(false)
-  const [lojasOnline, setLojasOnline] = useState<Loja[]>(LOJAS_ONLINE)
-  const [lojasFisicas, setLojasFisicas] = useState<Loja[]>(LOJAS_FISICAS)
+  const [lojasOnline, setLojasOnline] = useState<Loja[]>([])
+  const [lojasFisicas, setLojasFisicas] = useState<Loja[]>([])
   const [activeTab, setActiveTab] = useState<'online' | 'fisica'>('online')
   const [searchQuery, setSearchQuery] = useState('')
   const [estadoFilter, setEstadoFilter] = useState('Todos')
@@ -188,14 +150,16 @@ export function OndeEncontrarContent() {
         const online = lojas.filter((l) => l.tipo === 'online')
         const fisicas = lojas.filter((l) => l.tipo === 'fisica')
 
-        if (online.length > 0) setLojasOnline(online)
-        if (fisicas.length > 0) setLojasFisicas(fisicas)
+        setLojasOnline(online)
+        setLojasFisicas(fisicas)
       } catch {
-        // Manter fallback (LOJAS_ONLINE / LOJAS_FISICAS)
+        // Sem lojas: a página mostra o estado vazio.
       }
     }
     fetchStores()
   }, [])
+
+  const semLojas = lojasOnline.length === 0 && lojasFisicas.length === 0
 
   const lojasFiltradas =
     activeTab === 'online'
@@ -247,13 +211,32 @@ export function OndeEncontrarContent() {
             transition={{ delay: 0.1 }}
             className="text-xl text-forest-soft max-w-2xl mx-auto"
           >
-            Encontre os produtos Terravik nas melhores lojas do Brasil
+            Veja onde comprar os produtos Terravik
           </motion.p>
         </div>
       </section>
 
       {/* Main Content */}
       <section className="container-main py-12">
+        {semLojas ? (
+          <div className="mx-auto max-w-xl rounded-2xl border border-border-subtle bg-bg-surface p-8 text-center">
+            <Store className="w-12 h-12 text-txt-muted mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-txt-primary mb-2">
+              Ainda não há pontos de venda cadastrados
+            </h2>
+            <p className="text-txt-secondary mb-6">
+              Por enquanto, os produtos Terravik são vendidos aqui na loja oficial.
+            </p>
+            <a
+              href="/produtos"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-forest text-bg-primary rounded-xl font-medium hover:bg-forest-ink transition-colors"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              Ver produtos
+            </a>
+          </div>
+        ) : (
+        <>
         {/* Tabs */}
         <div className="flex justify-center mb-8">
           <div className="inline-flex bg-bg-surface rounded-xl p-1 shadow-sm border border-border-subtle">
@@ -390,13 +373,15 @@ export function OndeEncontrarContent() {
                   </a>
                 ) : (
                   <div className="flex gap-2">
-                    <a
-                      href={`tel:${loja.telefone?.replace(/\D/g, '')}`}
-                      className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-forest text-forest rounded-lg font-medium hover:bg-forest/5 transition-colors"
-                    >
-                      <Phone className="w-4 h-4" />
-                      Ligar
-                    </a>
+                    {loja.telefone && (
+                      <a
+                        href={`tel:${loja.telefone.replace(/\D/g, '')}`}
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-forest text-forest rounded-lg font-medium hover:bg-forest/5 transition-colors"
+                      >
+                        <Phone className="w-4 h-4" />
+                        Ligar
+                      </a>
+                    )}
                     <a
                       href={`https://www.google.com/maps/search/${encodeURIComponent(`${loja.nome} ${loja.endereco} ${loja.cidade} ${loja.estado}`)}`}
                       target="_blank"
@@ -422,6 +407,8 @@ export function OndeEncontrarContent() {
             </h3>
             <p className="text-txt-muted">Tente ajustar os filtros de busca</p>
           </div>
+        )}
+        </>
         )}
 
         {/* CTA Revendedor */}

@@ -1,4 +1,3 @@
-export { HeroSection } from './HeroSection'
 export { BannerSection } from './BannerSection'
 export { VideoSection } from './VideoSection'
 export { BenefitsSection } from './BenefitsSection'

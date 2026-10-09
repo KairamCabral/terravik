@@ -133,9 +133,6 @@ export function SubscriptionBenefits({
         transition={{ delay: 0.5 }}
         className="mt-8 text-center"
       >
-        <p className="text-neutral-600 mb-4">
-          Mais de {(2847).toLocaleString('pt-BR')} famílias já confiam na Terravik
-        </p>
         <div className="inline-flex items-center gap-2 text-sm text-neutral-500">
           <Check className="w-4 h-4 text-green-600" />
           <span>Cancele quando quiser</span>

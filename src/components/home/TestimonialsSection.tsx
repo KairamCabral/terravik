@@ -10,8 +10,11 @@ import { createClient } from '@/lib/supabase/client'
  * Testimonials — Design System 2026
  *
  * Cards brancos, borda hairline, aspas discretas.
- * Stats no final em fundo forest.
- * Dados carregados do Supabase (tabela photo_testimonials)
+ * Dados SOMENTE do Supabase (tabela photo_testimonials, cadastrada no admin).
+ *
+ * Não existe fallback estático: os quatro depoimentos que ficavam aqui, a
+ * contagem de gramados e a faixa de estatísticas eram inventados (H-06).
+ * Sem depoimento cadastrado, a seção inteira não renderiza.
  */
 
 interface Testimonial {
@@ -22,14 +25,6 @@ interface Testimonial {
   months: number
   image: string
 }
-
-// Fallback estático caso o Supabase não retorne dados
-const FALLBACK_TESTIMONIALS: Testimonial[] = [
-  { name: 'Carlos Silva', location: 'São Paulo, SP', rating: 5, text: 'Segui o plano da calculadora e em 3 semanas meu gramado mudou completamente. Nunca vi tão verde!', months: 6, image: '/images/grass/Depoimento-1.png' },
-  { name: 'Marina Oliveira', location: 'Campinas, SP', rating: 5, text: 'A calculadora é perfeita! Me ajudou a entender exatamente o que meu gramado precisava. Economizei dinheiro usando a dose certa.', months: 4, image: '/images/grass/Depoimento-2.png' },
-  { name: 'Roberto Mendes', location: 'Ribeirão Preto, SP', rating: 5, text: 'O Resistência Total salvou meu gramado no verão. Muito pisoteio e sol forte, mas ele aguenta.', months: 8, image: '/images/grass/Depoimento-3.png' },
-  { name: 'Juliana Costa', location: 'Sorocaba, SP', rating: 5, text: 'Comprei o kit para gramado novo e o resultado foi impressionante. As raízes pegaram rápido e o gramado cresceu uniforme.', months: 3, image: '/images/grass/Depoimento-4.png' },
-]
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -49,7 +44,7 @@ const itemVariants = {
 }
 
 export function TestimonialsSection() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(FALLBACK_TESTIMONIALS)
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,11 +70,13 @@ export function TestimonialsSection() {
           )
         }
       } catch {
-        // Fallback silencioso — usa dados estáticos
+        // Sem dados, a seção não aparece.
       }
     }
     fetchData()
   }, [])
+
+  if (testimonials.length === 0) return null
 
   return (
     <section className="bg-bg-primary section-spacing">
@@ -98,9 +95,6 @@ export function TestimonialsSection() {
           <h2 className="font-heading text-h2 text-txt-primary">
             O que dizem nossos clientes
           </h2>
-          <p className="mt-4 text-body text-txt-secondary">
-            Mais de 2.847 gramados transformados com Terravik
-          </p>
         </motion.div>
 
         {/* Cards */}
@@ -152,30 +146,6 @@ export function TestimonialsSection() {
                 </div>
               </div>
             </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-14 grid gap-px overflow-hidden rounded-lg bg-border-subtle md:grid-cols-3"
-        >
-          {[
-            { value: '2.847+', label: 'Gramados transformados' },
-            { value: '4.9/5', label: 'Avaliação média', accent: true },
-            { value: '98%', label: 'Recomendam Terravik' },
-          ].map((stat) => (
-            <div key={stat.label} className="bg-bg-dark p-10 text-center">
-              <p className={`font-heading text-4xl font-semibold ${stat.accent ? 'text-gold' : 'text-txt-on-dark'}`}>
-                {stat.value}
-              </p>
-              <p className="mt-2 text-xs uppercase tracking-wider text-txt-on-dark-muted">
-                {stat.label}
-              </p>
-            </div>
           ))}
         </motion.div>
       </div>

@@ -19,7 +19,6 @@ import {
   Truck,
   Award,
   Sparkles,
-  Users,
   Leaf,
   Target,
   Eye,
@@ -31,6 +30,7 @@ import { cn } from '@/lib/utils/cn'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { StarRating } from '@/components/product/StarRating'
 import { rotuloDaTag } from '@/lib/produtos/tags'
+import { fraseFreteGratis } from '@/lib/shipping/config'
 
 interface ProductPageClientProps {
   product: Product
@@ -82,6 +82,7 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
   }, [])
 
   const topReview = reviews.find((r) => r.verified && r.rating >= 4)
+  const freteGratis = fraseFreteGratis()
 
   return (
     <div className="bg-bg-primary">
@@ -133,10 +134,6 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
                   <span className="text-sm text-txt-muted">
                     ({rating.count} {rating.count !== 1 ? 'avaliações' : 'avaliação'})
                   </span>
-                  <span className="hidden items-center gap-1 text-xs text-forest sm:flex">
-                    <Users className="h-3 w-3" />
-                    2.847 famílias confiam
-                  </span>
                 </div>
               )}
 
@@ -156,10 +153,12 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
                     Esgotado
                   </p>
                 )}
-                <p className="flex items-center gap-1.5 text-xs text-txt-muted">
-                  <Truck className="h-3.5 w-3.5" />
-                  Frete grátis acima de R$ 149
-                </p>
+                {freteGratis && (
+                  <p className="flex items-center gap-1.5 text-xs text-txt-muted">
+                    <Truck className="h-3.5 w-3.5" />
+                    {freteGratis}
+                  </p>
+                )}
               </div>
 
               {/* ── Seção de Compra (prioridade, acima da dobra) ── */}
@@ -375,7 +374,8 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
           {/* ── FAQ ── */}
           <ProductFAQ handle={product.handle} />
 
-          {/* ── Reviews ── */}
+          {/* ── Reviews: a seção só existe com avaliação real ── */}
+          {reviews.length > 0 && (
           <div className="border-t border-border-subtle py-12 md:py-16">
             <div className="mb-8 flex items-end justify-between">
               <div>
@@ -401,6 +401,7 @@ export function ProductPageClient({ product, reviews, rating }: ProductPageClien
               totalCount={rating.count}
             />
           </div>
+          )}
 
           {/* ── CTA Final ── */}
           <div className="border-t border-border-subtle py-12 md:py-16">

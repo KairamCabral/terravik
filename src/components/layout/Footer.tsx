@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Instagram, Facebook, MessageCircle, Mail, MapPin, Leaf } from 'lucide-react'
-import { SOCIAL_LINKS } from '@/lib/utils/constants'
+import { SOCIAL_LINKS, linkWhatsapp, linkGrupoWhatsapp } from '@/lib/utils/constants'
 
 /**
  * Footer Premium — Design System 2026
@@ -37,10 +37,14 @@ export function Footer({ produtos = [] }: FooterProps) {
     ],
   }
 
+  const whatsapp = linkWhatsapp()
+  const grupo = linkGrupoWhatsapp()
+
   const socialIcons = [
     { icon: Instagram, href: SOCIAL_LINKS.instagram, label: 'Instagram' },
     { icon: Facebook, href: SOCIAL_LINKS.facebook, label: 'Facebook' },
-    { icon: MessageCircle, href: SOCIAL_LINKS.whatsapp, label: 'WhatsApp' },
+    // WhatsApp só entra com número real em CONTATO.whatsapp.
+    ...(whatsapp ? [{ icon: MessageCircle, href: whatsapp, label: 'WhatsApp' }] : []),
   ]
 
   return (
@@ -130,7 +134,8 @@ export function Footer({ produtos = [] }: FooterProps) {
           ))}
         </div>
 
-        {/* Grupo CTA */}
+        {/* Grupo CTA: só com convite real em CONTATO.whatsappGrupo */}
+        {grupo && (
         <div className="border-t border-white/10 py-8">
           <div className="mx-auto max-w-md text-center">
             <p className="text-sm font-semibold text-txt-on-dark">
@@ -141,7 +146,7 @@ export function Footer({ produtos = [] }: FooterProps) {
             </p>
             <div className="mt-4">
               <a
-                href="https://chat.whatsapp.com/SEU_LINK_AQUI"
+                href={grupo}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-forest border border-white/15 text-white text-sm font-semibold rounded-xl hover:bg-forest/80 transition-colors"
@@ -152,6 +157,7 @@ export function Footer({ produtos = [] }: FooterProps) {
             </div>
           </div>
         </div>
+        )}
 
         {/* Bottom Bar */}
         <div className="border-t border-white/10 py-6">

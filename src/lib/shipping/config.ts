@@ -9,6 +9,24 @@ export const FREE_SHIPPING_CONFIG: FreeShippingConfig = {
   regions: ['SP', 'RJ', 'MG', 'PR', 'SC', 'RS'], // Estados com frete grátis
 }
 
+/**
+ * Valor mínimo do frete grátis, pronto para texto: "R$ 150".
+ * Toda copy do site que cita o valor lê daqui. Número escrito à mão em
+ * componente diverge do config no dia em que o valor muda.
+ */
+export function limiteFreteGratis(): string {
+  return `R$ ${FREE_SHIPPING_CONFIG.threshold.toLocaleString('pt-BR')}`
+}
+
+/**
+ * Frase única de frete grátis, com o valor do config, ou null
+ * quando o frete grátis está desligado no config: quem chama não renderiza.
+ */
+export function fraseFreteGratis(): string | null {
+  if (!FREE_SHIPPING_CONFIG.enabled) return null
+  return `Frete grátis acima de ${limiteFreteGratis()}`
+}
+
 export const ORDER_BUMP_CONFIG: OrderBumpConfig = {
   enabled: true,
   maxItems: 2,

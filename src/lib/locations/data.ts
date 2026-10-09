@@ -16,56 +16,11 @@ const TYPE_LABELS: Record<string, string> = {
   loja_online: 'Loja Online',
 }
 
-/** Dados estáticos (fallback) */
-export const LOCATIONS: Location[] = [
-  {
-    id: 'loc-1',
-    name: 'Agropecuária Gramado Verde',
-    type: 'agropecuaria',
-    typeLabel: 'Agropecuária',
-    address: 'Rua das Flores, 1234',
-    city: 'Criciúma',
-    state: 'SC',
-    zipCode: '88801-000',
-    phone: '(48) 3433-1234',
-    whatsapp: '5548934331234',
-    latitude: -28.6775,
-    longitude: -49.3697,
-    products: ['P1', 'P2', 'P3'],
-  },
-  {
-    id: 'loc-2',
-    name: 'Garden Center Flores & Cia',
-    type: 'garden_center',
-    typeLabel: 'Garden Center',
-    address: 'Av. Centenário, 567',
-    city: 'Florianópolis',
-    state: 'SC',
-    zipCode: '88015-000',
-    phone: '(48) 3222-5678',
-    whatsapp: '5548932225678',
-    website: 'https://floresecompanhia.com.br',
-    latitude: -27.5935,
-    longitude: -48.5584,
-    products: ['P1', 'P2', 'P3'],
-  },
-  {
-    id: 'loc-5',
-    name: 'Loja Terravik Online',
-    type: 'loja_online',
-    typeLabel: 'Loja Online',
-    address: 'Entrega para todo Brasil',
-    city: 'Online',
-    state: 'Nacional',
-    zipCode: '00000-000',
-    phone: '0800 123 4567',
-    whatsapp: '5548999990000',
-    website: 'https://terravik.com.br/produtos',
-    latitude: -28.6775,
-    longitude: -49.3697,
-    products: ['P1', 'P2', 'P3'],
-  },
-]
+/**
+ * Sem fallback estático: as três lojas que estavam aqui eram de exemplo, com
+ * endereço e telefone inventados (H-06). Loja só vem da tabela `stores`.
+ */
+export const LOCATIONS: Location[] = []
 
 /** Busca lojas do banco via API */
 export async function getStoresFromDB(): Promise<Location[]> {

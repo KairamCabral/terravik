@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { Container, Button } from '@/components/ui'
+import { CONTATO } from '@/lib/utils/constants'
 import {
   Package,
   RefreshCw,
@@ -574,12 +575,14 @@ export default function TrocasDevolucoesPage() {
                         sac@terravik.com.br
                       </a>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Phone className="h-5 w-5 text-blue-600" />
-                      <span className="text-terravik-brown/80">
-                        0800 123 4567 (ligação gratuita)
-                      </span>
-                    </div>
+                    {CONTATO.telefoneSac && (
+                      <div className="flex items-center gap-3">
+                        <Phone className="h-5 w-5 text-blue-600" />
+                        <span className="text-terravik-brown/80">
+                          {CONTATO.telefoneSac}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-4">
                     <p className="text-xs text-terravik-brown/70">

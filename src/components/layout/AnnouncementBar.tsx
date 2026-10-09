@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils/cn'
 import { useCart } from '@/components/cart'
 import { useToast } from '@/components/ui'
 import { FIRST_PURCHASE_COUPON_CODE } from '@/lib/utils/constants'
+import { limiteFreteGratis } from '@/lib/shipping/config'
 
 const COUPON_TO_APPLY_KEY = 'terravik-coupon-to-apply'
 
@@ -25,7 +26,9 @@ const COUPON_TO_APPLY_KEY = 'terravik-coupon-to-apply'
  * tem o seu e ele fica parado enquanto a pessoa lê.
  */
 
-type AnnouncementVariant = 'freeShipping' | 'discount' | 'launch' | 'social'
+// A variante de prova social saiu: anunciava uma contagem de gramados sem
+// fonte. Só volta com número medido, e a guarda do prebuild cobra a prova.
+type AnnouncementVariant = 'freeShipping' | 'discount' | 'launch'
 
 interface AnnouncementBarProps {
   variant?: AnnouncementVariant
@@ -34,7 +37,7 @@ interface AnnouncementBarProps {
   porCaminho?: boolean
 }
 
-const VARIANTES: AnnouncementVariant[] = ['freeShipping', 'discount', 'launch', 'social']
+const VARIANTES: AnnouncementVariant[] = ['freeShipping', 'discount', 'launch']
 
 /**
  * Índice estável a partir do caminho. É a mesma string no servidor e no
@@ -65,7 +68,8 @@ const announcements: Record<
   freeShipping: {
     icon: Truck,
     text: 'FRETE GRÁTIS',
-    highlight: 'acima de R$ 150',
+    // Valor lido de FREE_SHIPPING_CONFIG, nunca escrito à mão.
+    highlight: `acima de ${limiteFreteGratis()}`,
     cta: 'Aproveite',
     link: '/produtos',
     gradient: 'from-forest to-forest-ink',
@@ -86,14 +90,6 @@ const announcements: Record<
     highlight: 'dose em 30s',
     cta: 'Testar',
     link: '/calculadora',
-    gradient: 'from-forest to-forest-ink',
-  },
-  social: {
-    icon: Sparkles,
-    text: '+2.847 gramados',
-    highlight: 'Seja o próximo',
-    cta: 'Ver soluções',
-    link: '/produtos',
     gradient: 'from-forest to-forest-ink',
   },
 }
@@ -227,10 +223,6 @@ export function DiscountBar() {
 
 export function LaunchBar() {
   return <AnnouncementBar variant="launch" />
-}
-
-export function SocialProofBar() {
-  return <AnnouncementBar variant="social" />
 }
 
 /**

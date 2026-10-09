@@ -45,24 +45,9 @@ export function AcademiaCTA() {
                 Aprenda a cuidar do seu gramado
               </h2>
               
-              <p className="text-lg text-white/80 mb-6 max-w-xl">
+              <p className="text-lg text-white/80 max-w-xl">
                 Cursos práticos e gamificados. Do iniciante ao especialista.
               </p>
-
-              {/* Stats inline */}
-              <div className="flex flex-wrap items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-1">
-                    {[1, 2, 3].map((i) => (
-                      <div
-                        key={i}
-                        className="w-7 h-7 rounded-full bg-gradient-to-br from-gold to-amber-400 border-2 border-white"
-                      />
-                    ))}
-                  </div>
-                  <span className="font-semibold text-white">2.847 alunos</span>
-                </div>
-              </div>
             </div>
 
             {/* Right: CTA Card */}
@@ -80,9 +65,6 @@ export function AcademiaCTA() {
                   <div className="inline-flex items-baseline gap-2 mb-2">
                     <span className="text-4xl font-bold text-forest">100%</span>
                     <span className="text-lg text-neutral-600">Grátis</span>
-                  </div>
-                  <div className="text-xs text-neutral-400 line-through">
-                    vs R$ 497 em cursos pagos
                   </div>
                 </div>
 
