@@ -17,6 +17,7 @@ export function RepresentativeForm() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [state, setState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
@@ -35,6 +36,10 @@ export function RepresentativeForm() {
     }
 
     setState('loading')
+    setErrorMessage('')
+
+    const semEnvio =
+      'Não conseguimos enviar seu cadastro agora. Escreva para contato@terravik.com.br.'
 
     // /api/contact exige mensagem com 10 caracteres ou mais, e aqui o campo é
     // opcional. Enviar o formulário cru fazia a API responder 400 para quem
@@ -53,9 +58,19 @@ export function RepresentativeForm() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
-          message: mensagem,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
           subject: 'Quero ser Representante',
+          // /api/contact só repassa nome, e-mail, telefone, assunto e
+          // mensagem. Cidade, estado e experiência vão dentro da mensagem,
+          // senão ficariam pelo caminho.
+          message: [
+            `Cidade: ${formData.city.trim()} / ${formData.state.trim()}`,
+            `Já trabalha com vendas: ${formData.experience}`,
+            '',
+            formData.message.trim() || '(sem mensagem)',
+          ].join('\n'),
         }),
       })
 
@@ -71,10 +86,13 @@ export function RepresentativeForm() {
           message: '',
         })
       } else {
+        const data = await response.json().catch(() => null)
         setState('error')
+        setErrorMessage(data?.errors?.[0] || data?.message || semEnvio)
       }
     } catch (error) {
       setState('error')
+      setErrorMessage(semEnvio)
     }
   }
 
@@ -180,6 +198,16 @@ export function RepresentativeForm() {
             className="w-full rounded-lg border-2 border-terravik-brown/20 px-4 py-3 focus:border-terravik-green focus:outline-none focus:ring-2 focus:ring-terravik-green/20"
           />
         </div>
+
+        {state === 'error' && errorMessage && (
+          <div
+            role="alert"
+            className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4"
+          >
+            <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-600" />
+            <p className="text-sm text-red-800">{errorMessage}</p>
+          </div>
+        )}
 
         <Button type="submit" fullWidth loading={state === 'loading'}>
           <Send className="h-5 w-5" />

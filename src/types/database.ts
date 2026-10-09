@@ -342,6 +342,9 @@ export type Database = {
         Row: {
           created_at: string | null
           currency: string | null
+          customer_email: string | null
+          delivered_at: string | null
+          fulfilled_at: string | null
           fulfillment_status: string | null
           id: string
           line_items: Json | null
@@ -351,11 +354,17 @@ export type Database = {
           status: string | null
           synced_at: string | null
           total_price: number | null
+          tracking_company: string | null
+          tracking_number: string | null
+          tracking_url: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string | null
           currency?: string | null
+          customer_email?: string | null
+          delivered_at?: string | null
+          fulfilled_at?: string | null
           fulfillment_status?: string | null
           id?: string
           line_items?: Json | null
@@ -365,11 +374,17 @@ export type Database = {
           status?: string | null
           synced_at?: string | null
           total_price?: number | null
+          tracking_company?: string | null
+          tracking_number?: string | null
+          tracking_url?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string | null
           currency?: string | null
+          customer_email?: string | null
+          delivered_at?: string | null
+          fulfilled_at?: string | null
           fulfillment_status?: string | null
           id?: string
           line_items?: Json | null
@@ -379,6 +394,9 @@ export type Database = {
           status?: string | null
           synced_at?: string | null
           total_price?: number | null
+          tracking_company?: string | null
+          tracking_number?: string | null
+          tracking_url?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -739,6 +757,18 @@ export type Database = {
           phone: string
           state: string
         }[]
+      }
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      vincular_pedidos_ao_perfil: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      vincular_pedidos_orfaos: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
     }
     Enums: {

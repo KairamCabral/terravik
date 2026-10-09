@@ -5,6 +5,7 @@ import { revalidateTag } from 'next/cache';
 import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { iguaisEmTempoConstante } from '@/lib/seguranca/comparar';
+import { dadosDeEnvio, emailDoPedido, itensDoPedido } from '@/lib/shopify/pedido';
 
 const SHOPIFY_WEBHOOK_SECRET = process.env.SHOPIFY_WEBHOOK_SECRET || '';
 
@@ -41,6 +42,10 @@ export async function POST(request: NextRequest) {
     switch (topic) {
       case 'orders/create':
       case 'orders/updated':
+      // orders/fulfilled traz o pedido inteiro com o array de fulfillments,
+      // igual a orders/updated depois do despacho. O mesmo handler serve.
+      case 'orders/fulfilled':
+      case 'orders/partially_fulfilled':
         await handleOrderWebhook(data);
         break;
 
@@ -85,49 +90,55 @@ export async function POST(request: NextRequest) {
 // Handler para webhooks de pedidos
 async function handleOrderWebhook(order: Record<string, unknown>) {
   const orderId = order.id as number;
-  const email = order.email as string;
+  const email = emailDoPedido(order);
   const totalPrice = order.total_price as string;
   const currency = order.currency as string;
   const financialStatus = order.financial_status as string;
   const fulfillmentStatus = order.fulfillment_status as string | null;
   const orderNumber = order.order_number as number | undefined;
-  const lineItems = order.line_items as Record<string, unknown>[];
   const createdAt = order.created_at as string;
+  const envio = dadosDeEnvio(order);
 
   console.log(`Processing order webhook: ${orderId}`);
 
-  // Buscar usuário pelo email
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('id')
-    .eq('email', email)
-    .single();
+  // Buscar usuário pelo email.
+  //
+  // Comprar sem ter conta no site é o caminho normal: o pedido entra sem dono,
+  // com customer_email, e é adotado quando a pessoa criar a conta (trigger
+  // trg_profiles_vincular_pedidos_novo, no banco).
+  const { data: profile } = email
+    ? await supabaseAdmin.from('profiles').select('id').eq('email', email).maybeSingle()
+    : { data: null };
 
-  // Upsert do pedido
-  await supabaseAdmin
+  // Upsert do pedido.
+  //
+  // user_id só entra quando o perfil foi encontrado: mandar null desfaria, no
+  // próximo orders/updated, o vínculo que o banco já tinha feito.
+  const { error: erroUpsert } = await supabaseAdmin
     .from('orders_sync')
     .upsert({
       shopify_order_id: orderId.toString(),
       shopify_order_number: orderNumber?.toString() ?? null,
-      user_id: profile?.id || null,
+      ...(profile?.id ? { user_id: profile.id } : {}),
+      customer_email: email,
       total_price: parseFloat(totalPrice),
       currency: currency,
       status: financialStatus,
       fulfillment_status: fulfillmentStatus,
-      line_items: lineItems.map((item) => ({
-        id: String(item.id ?? ''),
-        title: String(item.title ?? ''),
-        quantity: Number(item.quantity ?? 0),
-        price: String(item.price ?? '0'),
-        sku: String(item.sku ?? ''),
-        variant_id: String(item.variant_id ?? ''),
-        product_id: String(item.product_id ?? ''),
-      })) as unknown as import('@/types/database').Json,
+      line_items: itensDoPedido(order.line_items),
       shopify_created_at: createdAt,
       synced_at: new Date().toISOString(),
+      // Rastreio, despacho e entrega: só as chaves que vieram no payload.
+      ...envio,
     }, {
       onConflict: 'shopify_order_id',
     });
+
+  // Erro aqui precisa virar 500: a Shopify reenvia o webhook, e sem isso um
+  // rastreio que o banco recusou sumiria com resposta 200.
+  if (erroUpsert) {
+    throw new Error(`orders_sync upsert: ${erroUpsert.message}`);
+  }
 
   // Se for primeira compra, dar achievement
   if (profile?.id) {
@@ -232,7 +243,8 @@ async function grantAchievement(userId: string, achievementCode: string) {
       type: 'achievement',
       title: 'Nova conquista desbloqueada!',
       message: `Você ganhou a conquista e ${achievement.xp_reward} XP!`,
-      action_url: '/minha-conta/conquistas',
+      // /minha-conta/conquistas não existe neste projeto. A rota é esta.
+      action_url: '/academia/conquistas',
     });
 }
 
