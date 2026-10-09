@@ -1,135 +1,348 @@
 #!/usr/bin/env node
 
 /**
- * Script de Verificação Pré-Deploy
- * Valida se o projeto está pronto para produção
+ * Verificacao PRE-BUILD. Roda sozinha, via `prebuild`, em todo `npm run build`.
+ *
+ * Este script era `npm run verify`, manual, e exigia arquivos que ja nao
+ * existem (src/lib/calculator/engine.ts, public/robots.txt, que e gerado no
+ * postbuild e nem e versionado). Saia com codigo 1 e ninguem via, porque
+ * ninguem o chamava. Guarda que depende de alguem lembrar de invoca-la nao e
+ * guarda.
+ *
+ * O que ele olha e CONFIGURACAO e FONTE. O que saiu do forno e assunto do
+ * scripts/verificar-build.js, no postbuild.
+ *
+ * Sem dependencia externa: so `fs` e `path`.
  */
 
 const fs = require('fs')
 const path = require('path')
+const { carregarEnvLocal, motivoDoMock } = require('./lib/env')
 
-console.log('🔍 Verificando projeto Terravik Store...\n')
+const RAIZ = path.resolve(__dirname, '..')
+process.chdir(RAIZ)
 
 let errors = 0
 let warnings = 0
 
-// Verificar arquivos obrigatórios
-const requiredFiles = [
-  'src/app/layout.tsx',
-  'src/app/page.tsx',
-  'src/components/cart/CartProvider.tsx',
-  'src/lib/shopify/client.ts',
-  'src/lib/calculator/engine.ts',
-  'next.config.mjs',
-  'tailwind.config.ts',
-  'tsconfig.json',
-  'package.json',
-  'public/robots.txt',
-  'public/manifest.json',
-  '.env.local.example',
-]
+const err = (m) => {
+  console.log(`  ERRO   ${m}`)
+  errors++
+}
+const warn = (m) => {
+  console.log(`  aviso  ${m}`)
+  warnings++
+}
+const ok = (m) => console.log(`  ok     ${m}`)
 
-console.log('📁 Verificando arquivos obrigatórios...')
-requiredFiles.forEach((file) => {
-  if (fs.existsSync(file)) {
-    console.log(`  ✅ ${file}`)
-  } else {
-    console.log(`  ❌ ${file} - FALTANDO`)
-    errors++
-  }
-})
-
-// Verificar .env.local
-console.log('\n🔐 Verificando variáveis de ambiente...')
-if (fs.existsSync('.env.local')) {
-  const env = fs.readFileSync('.env.local', 'utf-8')
-  
-  const requiredEnvVars = [
-    'NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN',
-    'NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN',
-    'NEXT_PUBLIC_SITE_URL',
-  ]
-
-  requiredEnvVars.forEach((varName) => {
-    if (env.includes(varName) && !env.includes(`${varName}=sua-loja`) && !env.includes(`${varName}=seu_token`)) {
-      console.log(`  ✅ ${varName}`)
-    } else {
-      console.log(`  ⚠️  ${varName} - não configurado ou usando placeholder`)
-      warnings++
+/** Todos os arquivos sob `dirs` cujo nome casa com `filtro`. */
+function listarArquivos(dirs, filtro) {
+  const pendentes = dirs.filter((d) => fs.existsSync(d))
+  const achados = []
+  while (pendentes.length > 0) {
+    const dir = pendentes.pop()
+    for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
+      const caminho = path.join(dir, entrada.name)
+      if (entrada.isDirectory()) pendentes.push(caminho)
+      else if (filtro.test(entrada.name)) achados.push(caminho)
     }
+  }
+  return achados.sort()
+}
+
+console.log('\nVerificacao pre-build: Terravik Store\n')
+
+// .env.local nao e lido por `node`. O ambiente real ganha do arquivo.
+carregarEnvLocal(RAIZ)
+
+// VERCEL_ENV, e nao NODE_ENV: `next build` roda com NODE_ENV=production
+// sempre, inclusive na maquina de quem desenvolve, entao NODE_ENV nao
+// distingue producao de build local.
+const emProducao = process.env.VERCEL_ENV === 'production'
+
+// ─────────────────────────────────────────────────────────────────
+// CATALOGO MOCK
+//
+// A pergunta e feita com as MESMAS tres condicoes do runtime
+// (shouldUseMock, em src/lib/shopify/client.ts). Sao variaveis NEXT_PUBLIC_*,
+// inlinadas no bundle na hora do build: um token esquecido produz build verde
+// que prerenderiza os produtos de exemplo e devolve 404 em todo produto real.
+//
+// Fora de producao o mock e modo de trabalho normal deste projeto, e so
+// avisa. Em producao e erro, e a unica saida e declarar o desvio com
+// ALLOW_MOCK_BUILD=1, que grita no log para nao virar permanente por
+// esquecimento.
+// ─────────────────────────────────────────────────────────────────
+console.log('Catalogo')
+{
+  const motivo = motivoDoMock()
+  const valvula = process.env.ALLOW_MOCK_BUILD === '1'
+
+  if (!motivo) {
+    ok('credenciais da Shopify presentes, catalogo real')
+    if (valvula) {
+      warn(
+        'ALLOW_MOCK_BUILD=1 ainda esta definido e nao faz mais nada.\n' +
+          '         A Shopify esta configurada. Remova a variavel para o ambiente\n' +
+          '         nao carregar um desvio que ja terminou.'
+      )
+    }
+  } else if (emProducao && !valvula) {
+    err(
+      `Build de PRODUCAO com catalogo mock. Motivo: ${motivo}.\n` +
+        '         O site subiria com os produtos de exemplo de\n' +
+        '         src/lib/shopify/mock-data.ts e 404 em todo produto real, com\n' +
+        '         build verde. Configure as credenciais da Shopify no ambiente\n' +
+        '         de producao da Vercel.\n' +
+        '         Para publicar em mock de proposito: ALLOW_MOCK_BUILD=1.'
+    )
+  } else if (emProducao) {
+    warn(
+      `PRODUCAO com catalogo mock (${motivo}), liberado por ALLOW_MOCK_BUILD=1.\n` +
+        '         O site publico esta servindo produtos de exemplo. No dia em que\n' +
+        '         a Shopify for ligada, apague ALLOW_MOCK_BUILD na Vercel.'
+    )
+  } else {
+    warn(
+      `Catalogo mock (${motivo}).\n` +
+        '         Normal em build local e preview. Em producao\n' +
+        '         (VERCEL_ENV=production) seria erro sem ALLOW_MOCK_BUILD=1.'
+    )
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ANALYTICS
+//
+// O codigo le NEXT_PUBLIC_GA_MEASUREMENT_ID (ou NEXT_PUBLIC_GA_ID) e, quando
+// o valor nao serve, o componente devolve null sem erro: o site vai ao ar
+// sem medir nada e ninguem fica sabendo.
+//
+// A regra de validade e a MESMA de src/lib/analytics/gtag.ts. Mudou la, muda
+// aqui.
+//
+// Escopo estreito de proposito: so exige ID no build que serve o site
+// publico (producao COM indexacao ligada). Preview e desenvolvimento seguem
+// sem medir, que e o certo.
+// ─────────────────────────────────────────────────────────────────
+console.log('\nAnalytics')
+{
+  const indexa = process.env.NEXT_PUBLIC_ALLOW_INDEXING === 'true'
+  const id = (
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+    process.env.NEXT_PUBLIC_GA_ID ||
+    ''
+  ).trim()
+  const valido = /^G-[A-Z0-9]{4,}$/i.test(id) && !/X{4,}/i.test(id)
+  const valvula = process.env.ALLOW_SEM_ANALYTICS === '1'
+
+  if (valido) {
+    ok(`GA4 configurado (${id})`)
+    if (valvula) {
+      warn(
+        'ALLOW_SEM_ANALYTICS=1 ainda esta definido e nao faz mais nada.\n' +
+          '         O GA4 esta configurado. Remova a variavel.'
+      )
+    }
+  } else if (emProducao && indexa && !valvula) {
+    const motivo = id
+      ? `O valor "${id}" nao tem a forma de um ID de fluxo do GA4.\n` +
+        '         Esperado: G- seguido de letras e numeros. O marcador\n' +
+        '         G-XXXXXXXXXX do .env.example e recusado de proposito.'
+      : 'Nenhuma das duas variaveis esta definida:\n' +
+        '         NEXT_PUBLIC_GA_MEASUREMENT_ID (preferida) ou NEXT_PUBLIC_GA_ID.'
+    err(
+      'Build do SITE PUBLICO sem Google Analytics.\n' +
+        `         ${motivo}\n` +
+        '         O ID fica em Administrador > Fluxos de dados, e comeca com "G-".\n' +
+        '         Para publicar antes de criar a propriedade: ALLOW_SEM_ANALYTICS=1.'
+    )
+  } else if (emProducao && indexa) {
+    warn(
+      'Producao SEM analytics, liberado por ALLOW_SEM_ANALYTICS=1.\n' +
+        '         Enquanto durar, nao ha medicao de primeira mao do site.'
+    )
+  } else {
+    ok('sem GA4 valido (so e exigido em producao com indexacao ligada)')
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ARQUIVOS
+//
+// So o que o build realmente precisa e que e versionado. Sairam da lista
+// antiga: src/lib/calculator/engine.ts (nao existe), public/robots.txt
+// (gerado no postbuild), .env.local.example e a conferencia de dependencias
+// (o proprio build acusa pacote faltando).
+// ─────────────────────────────────────────────────────────────────
+console.log('\nArquivos')
+{
+  const obrigatorios = [
+    'src/app/layout.tsx',
+    'src/app/page.tsx',
+    'src/lib/shopify/client.ts',
+    'src/lib/shopify/mock-data.ts',
+    'next.config.mjs',
+    'next-sitemap.config.js',
+    'tailwind.config.ts',
+    'tsconfig.json',
+    'public/manifest.json',
+  ]
+  const faltando = obrigatorios.filter((f) => !fs.existsSync(f))
+  if (faltando.length === 0) ok(`${obrigatorios.length} arquivos obrigatorios presentes`)
+  else faltando.forEach((f) => err(`${f} FALTANDO`))
+  ;[
+    ['public/images/og/default.jpg', 'imagem Open Graph padrao'],
+    ['public/apple-touch-icon.png', 'apple touch icon'],
+    ['public/favicon.svg', 'favicon'],
+  ].forEach(([p, rotulo]) => {
+    if (!fs.existsSync(p)) warn(`${rotulo} ausente (${p})`)
   })
-} else {
-  console.log('  ⚠️  .env.local não encontrado (site usará mock data)')
-  warnings++
 }
 
-// Verificar build
-console.log('\n🔨 Verificando build...')
-if (fs.existsSync('.next')) {
-  console.log('  ✅ Build exists (.next/)')
-} else {
-  console.log('  ⚠️  Build não encontrado. Rode: npm run build')
-  warnings++
+// ─────────────────────────────────────────────────────────────────
+// COMPONENTE CLIENTE NAO IMPORTA O CATALOGO MOCK
+//
+// Arquivo que roda no NAVEGADOR lendo dados de exemplo serve esses dados em
+// producao, com build verde, porque nenhuma decisao de servidor o alcanca.
+// O catalogo se resolve no servidor e desce por prop (historia C-06).
+//
+// Pega o padrao direto: arquivo cuja primeira instrucao e 'use client' e que
+// tem `from '...shopify/mock-data'`. NAO pega o caso transitivo (client que
+// importa uma lib que importa o mock, como src/lib/shopify/mock-cart.ts):
+// e limitacao conhecida, cobrir isso exigiria seguir o grafo de imports.
+//
+// Servidor pode importar o mock a vontade: la ele e fallback legitimo.
+// ─────────────────────────────────────────────────────────────────
+console.log('\nCatalogo mock em componente cliente')
+{
+  const suspeitos = listarArquivos(['src'], /\.(tsx?|jsx?|mjs)$/).filter((caminho) => {
+    const fonte = fs.readFileSync(caminho, 'utf8')
+
+    // A diretiva so vale como primeira instrucao: comentario antes dela pode.
+    const semCabecalho = fonte
+      .replace(/^﻿/, '')
+      .replace(/^(?:\s+|\/\*[\s\S]*?\*\/|\/\/[^\n]*)+/, '')
+    if (!/^['"]use client['"]/.test(semCabecalho)) return false
+
+    // Import de verdade, e nao mencao em comentario: a forma
+    // `from '...shopify/mock-data'` so aparece em declaracao de import/export.
+    return /\bfrom\s+['"][^'"\n]*shopify\/mock-data(?:\.[jt]sx?)?['"]/.test(fonte)
+  })
+
+  if (suspeitos.length === 0) {
+    ok('nenhum componente cliente importa mock-data')
+  } else {
+    suspeitos.forEach((f) =>
+      err(
+        `${f} e 'use client' e importa o catalogo mock.\n` +
+          '         Componente cliente serviria dados de exemplo em producao, com\n' +
+          '         build verde. Resolva o catalogo no servidor e passe por prop.'
+      )
+    )
+  }
 }
 
-// Verificar imagens
-console.log('\n🖼️  Verificando imagens...')
-const imageChecks = [
-  { path: 'public/favicon.ico', label: 'Favicon' },
-  { path: 'public/apple-touch-icon.png', label: 'Apple Touch Icon' },
-  { path: 'public/images/og/default.jpg', label: 'Open Graph Default' },
-]
+// ─────────────────────────────────────────────────────────────────
+// SVG PRECISA DO PROLOGO XML
+//
+// O otimizador de imagem do Next 14 reconhece SVG por uma unica assinatura
+// de bytes: '<?xml'. Arquivo que comeca direto em '<svg' nao e reconhecido, e
+// /_next/image responde 400 "The requested resource isn't a valid image". O
+// arquivo serve normal pela URL direta e so falha atraves do next/image, sem
+// quebrar o build.
+// ─────────────────────────────────────────────────────────────────
+console.log('\nSVGs (prologo XML exigido pelo next/image)')
+{
+  const svgs = listarArquivos(['public'], /\.svg$/i)
+  const semProlog = svgs.filter(
+    (f) => !fs.readFileSync(f, 'utf8').replace(/^﻿/, '').trimStart().startsWith('<?xml')
+  )
 
-imageChecks.forEach(({ path: imgPath, label }) => {
-  if (fs.existsSync(imgPath)) {
-    console.log(`  ✅ ${label}`)
+  if (semProlog.length === 0) {
+    ok(`${svgs.length} SVG(s) com prologo`)
   } else {
-    console.log(`  ⚠️  ${label} - não encontrado (opcional mas recomendado)`)
-    warnings++
+    semProlog.forEach((f) =>
+      err(
+        `${f} nao comeca com <?xml: /_next/image devolve 400.\n` +
+          '         Acrescente <?xml version="1.0" encoding="UTF-8"?> na primeira linha.'
+      )
+    )
   }
-})
+}
 
-// Verificar package.json
-console.log('\n📦 Verificando dependências...')
-const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'))
+// ─────────────────────────────────────────────────────────────────
+// ALEGACOES SEM PROVA
+//
+// Frase de venda que o site nao consegue provar e publicidade enganosa (CDC,
+// art. 37), e e exatamente o tipo de texto que alguem escreve de novo sem
+// conferir. Cada item diz o que procurar e qual e a prova que falta:
+//
+//   { nome: 'rotulo curto', frases: [/regex/i, ...], prova: 'por que nao vale' }
+//
+// Campo opcional `exceto: RegExp[]`, casado contra o CAMINHO do arquivo, para
+// onde a frase aparece legitimamente.
+//
+// A LISTA ENTRA COM A HISTORIA H-06. Ela esta vazia de proposito: a varredura
+// ja funciona, mas as frases so podem ser proibidas depois de retiradas do
+// site, senao o build reprova no dia em que a guarda liga.
+//
+// Comentario de codigo conta. Varre src/, content/ (se existir) e public/,
+// onde SVG carrega texto desenhado.
+// ─────────────────────────────────────────────────────────────────
+console.log('\nAlegacoes sem prova')
+{
+  const ALEGACOES = []
 
-const requiredDeps = [
-  'next',
-  'react',
-  'react-dom',
-  'framer-motion',
-  'lucide-react',
-  'tailwindcss',
-]
+  const arquivos = listarArquivos(
+    ['src', 'content', 'public'],
+    /\.(tsx?|jsx?|mdx?|json|svg)$/i
+  )
+  const achados = []
 
-requiredDeps.forEach((dep) => {
-  if (pkg.dependencies?.[dep] || pkg.devDependencies?.[dep]) {
-    console.log(`  ✅ ${dep}`)
+  if (ALEGACOES.length > 0) {
+    for (const caminho of arquivos) {
+      const aplicaveis = ALEGACOES.filter(
+        (a) => !(a.exceto || []).some((re) => re.test(caminho))
+      )
+      if (aplicaveis.length === 0) continue
+
+      fs.readFileSync(caminho, 'utf8')
+        .split('\n')
+        .forEach((linha, i) => {
+          for (const alegacao of aplicaveis) {
+            if (alegacao.frases.some((re) => re.test(linha))) {
+              achados.push({ onde: `${caminho}:${i + 1}`, alegacao })
+            }
+          }
+        })
+    }
+  }
+
+  if (ALEGACOES.length === 0) {
+    ok(`lista vazia (entra com H-06); ${arquivos.length} arquivo(s) no alcance da varredura`)
+  } else if (achados.length === 0) {
+    ok(
+      `nenhuma alegacao sem prova em ${arquivos.length} arquivo(s) ` +
+        `(${ALEGACOES.map((a) => a.nome).join(', ')})`
+    )
   } else {
-    console.log(`  ❌ ${dep} - FALTANDO`)
-    errors++
+    achados.forEach(({ onde, alegacao }) =>
+      err(
+        `${onde} afirma ${alegacao.nome}.\n` +
+          `         ${alegacao.prova}\n` +
+          '         Se a prova aparecer, ajuste esta guarda junto, com ela no comentario.'
+      )
+    )
   }
-})
+}
 
-// Resumo final
-console.log('\n' + '='.repeat(50))
-console.log('📊 RESUMO DA VERIFICAÇÃO\n')
-
-if (errors === 0 && warnings === 0) {
-  console.log('  🎉 PERFEITO! Projeto pronto para deploy!')
-  console.log('\n  Próximos passos:')
-  console.log('  1. Configure .env.local com credenciais reais')
-  console.log('  2. Rode: npm run build')
-  console.log('  3. Deploy: vercel --prod')
-} else if (errors === 0) {
-  console.log(`  ⚠️  ${warnings} avisos encontrados`)
-  console.log('\n  Projeto funcional, mas recomenda-se resolver os avisos.')
-  console.log('  Para deploy básico, pode prosseguir.')
-} else {
-  console.log(`  ❌ ${errors} erros críticos encontrados`)
-  console.log(`  ⚠️  ${warnings} avisos`)
-  console.log('\n  Corrija os erros antes de fazer deploy!')
+// ─────────────────────────────────────────────────────────────────
+console.log('\n' + '─'.repeat(64))
+if (errors > 0) {
+  console.log(`\n  ${errors} erro(s), ${warnings} aviso(s). BUILD ABORTADO.\n`)
   process.exit(1)
 }
-
-console.log('='.repeat(50) + '\n')
+console.log(
+  warnings > 0 ? `\n  Sem erros. ${warnings} aviso(s).\n` : '\n  Tudo certo.\n'
+)
