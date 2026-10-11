@@ -16,7 +16,7 @@ interface ContactData {
 }
 
 const NAO_ENVIADA =
-  'Não conseguimos enviar sua mensagem agora. Escreva para contato@terravik.com.br ou fale com a gente pelo WhatsApp.'
+  'Não conseguimos enviar sua mensagem agora. Tente de novo em alguns minutos ou escreva para contato@terravik.com.br.'
 
 export async function POST(request: NextRequest) {
   try {
