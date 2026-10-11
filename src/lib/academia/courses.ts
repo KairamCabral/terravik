@@ -442,7 +442,7 @@ Por quê? Isso estimula as raízes a crescerem mais profundas em busca de água,
 
 ## 🎯 Dicas Práticas
 
-### Gramado Novo (Primeiros 30 dias)
+### Gramado Recém-Plantado (Primeiros 30 dias)
 - Regue TODO DIA (leve)
 - Solo deve estar sempre úmido
 - Não deixe encharcar
@@ -577,7 +577,7 @@ Por quê? Isso estimula as raízes a crescerem mais profundas em busca de água,
               type: 'text',
               content: `# NPK: A Tríade da Nutrição
 
-Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**, **11-52-00**? Esses são os valores de NPK!
+Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**, **21-00-00**? Esses são os valores de NPK!
 
 ## O Que é NPK?
 
@@ -654,34 +654,30 @@ Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**,
 
 ## 🎯 Produtos Terravik Explicados
 
-### Gramado Novo (11-52-00)
-- **Alto P** para enraizamento
-- Ideal para plantio e reforma
-- **Quando usar:** Nas primeiras 4-6 semanas após plantar
+### 1. Raiz Forte (firmar raiz)
+- **Fósforo e cálcio** para construir raiz e estrutura
+- Feito para ser incorporado à terra: o fósforo quase não se move no solo
+- **Quando usar:** Uso pontual, no plantio, na reforma ou quando o gramado estiver muito falhado. Não precisa repetir todo mês
 
-### Nutrição Completa (20-05-20)
-- **Alto N** para cor verde
-- **Alto K** para resistência
-- **Quando usar:** Manutenção mensal em gramados estabelecidos
+### 2. Verde Rápido (devolver cor)
+- **Nitrogênio com reforço de enxofre** (21-00-00 + 24S), a dupla que forma clorofila
+- **Quando usar:** Quando o gramado estiver amarelado ou sem cor. Se precisar, repita a cada 30 a 45 dias até o verde voltar
 
-### Verde Rápido (30-00-10)
-- **Altíssimo N** para resultado visual rápido
-- **Quando usar:** Quando gramado está amarelado ou antes de eventos
+### 3. Resistência Total (recuperar vigor)
+- **Nutrição completa com potássio** para a grama resistir à seca, ao sol e ao pisoteio
+- **Quando usar:** Para manter o gramado forte o ano inteiro
 
-### Recupera Gramado (15-15-15)
-- **Balanceado** para recuperação geral
-- **Quando usar:** Após danos, estresse ou períodos de negligência
+Os três vêm em saco de 1,6 kg com um dosador de 100 ml dentro da embalagem.
 
 ---
 
-## 📅 Calendário de Adubação
+## 📅 Quando Usar Cada Um
 
-| Estação | Produto Principal | Frequência |
+| Situação do gramado | Produto | Uso |
 |---------|------------------|------------|
-| **Primavera** | Nutrição Completa | A cada 30 dias |
-| **Verão** | Nutrição Completa | A cada 30-45 dias |
-| **Outono** | Rico em K | A cada 45 dias |
-| **Inverno** | Não adubar ou 1x só | - |
+| **Plantio, reforma ou muitas falhas** | Raiz Forte | Pontual |
+| **Amarelado ou sem cor** | Verde Rápido | Se precisar, a cada 30 a 45 dias até o verde voltar |
+| **Manter força o ano inteiro** | Resistência Total | Siga o rótulo |
 
 ---
 
@@ -689,7 +685,7 @@ Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**,
 
 1. **NUNCA adube em gramado seco** - Sempre regue antes ou após
 2. **Menos é mais** - Excesso queima mais que falta
-3. **Distribua uniformemente** - Use espalhador ou faça cruzado
+3. **Distribua uniformemente** - Espalhe por igual, sem deixar montinhos
 4. **Leia instruções** - Dosagem varia por produto
 5. **Evite em dias muito quentes** - Prefira dias nublados/frescos`
             },
@@ -698,7 +694,7 @@ Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**,
               content: {
                 type: 'tip',
                 title: 'Dica Terravik',
-                text: 'O "Gramado Novo" (11-52-00) tem ALTO FÓSFORO para enraizamento. Já o "Nutrição Completa" (20-05-20) é para manutenção com ênfase em cor verde e resistência.',
+                text: 'O "Raiz Forte" entrega FÓSFORO e cálcio para firmar a raiz. Já o "Resistência Total" é a nutrição completa com potássio, para o gramado resistir à seca, ao sol e ao pisoteio.',
               },
             },
           ],
@@ -722,7 +718,7 @@ Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**,
               {
                 id: 'q2',
                 type: 'multiple-choice',
-                question: 'Por que o produto "Gramado Novo" tem alto teor de Fósforo (P)?',
+                question: 'Por que o produto "Raiz Forte" entrega Fósforo (P)?',
                 options: [
                   { id: 'a', text: 'Para deixar mais verde' },
                   { id: 'b', text: 'Para promover enraizamento profundo' },
@@ -767,10 +763,10 @@ Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**,
             {
               icon: '⚖️',
               title: 'Use balança',
-              description: 'Pese o adubo para aplicar a dosagem exata. "No olho" geralmente resulta em excesso.',
+              description: 'Meça o adubo para aplicar a dosagem exata. "No olho" geralmente resulta em excesso. Os produtos Terravik trazem um dosador de 100 ml na embalagem.',
             },
           ],
-          relatedProducts: ['gramado-novo', 'nutricao-completa', 'verde-rapido', 'recupera-gramado'],
+          relatedProducts: ['raiz-forte', 'verde-rapido', 'resistencia-total'],
         },
       },
     ],
@@ -825,10 +821,10 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
 - Solo não está encharcado
 
 **Solução:**
-1. Aplicar **Verde Rápido (30-00-10)** ou **Nutrição Completa (20-05-20)**
-2. Regar após aplicação
-3. Resultado visível em 7-10 dias
-4. Repetir mensalmente
+1. Aplicar **Verde Rápido** (nitrogênio com reforço de enxofre)
+2. Regar imediatamente após a aplicação
+3. A cor volta em poucas semanas
+4. Se precisar, repetir a cada 30 a 45 dias até o verde voltar
 
 ---
 
@@ -949,7 +945,7 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
    - Encharcado → Pare de regar
 
 2. **Adube:** Se faz 1+ mês sem adubar
-   - Use **Verde Rápido** ou **Nutrição Completa**
+   - Use **Verde Rápido**
 
 3. **Observe por 1 semana:**
    - Melhorou? Continue o tratamento
@@ -1024,7 +1020,7 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
               description: 'Problemas súbitos geralmente são água/rega. Gradual = falta de nutrientes.',
             },
           ],
-          relatedProducts: ['verde-rapido', 'nutricao-completa', 'recupera-gramado'],
+          relatedProducts: ['verde-rapido', 'resistencia-total'],
         },
       },
     ],

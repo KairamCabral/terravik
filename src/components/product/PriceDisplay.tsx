@@ -12,11 +12,14 @@ interface PriceDisplayProps {
   discountPercent: number
   purchaseMode: 'one-time' | 'subscription'
   quantity: number
+  /** Linha pequena abaixo do preço (ex.: custo por m² tratado). */
+  nota?: string
 }
 
 export function PriceDisplay({
   basePrice,
   compareAtPrice,
+  nota,
   subscriptionPrice,
   discountPercent,
   purchaseMode,
@@ -134,6 +137,8 @@ export function PriceDisplay({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {nota && <p className="text-sm font-medium text-forest">{nota}</p>}
 
       {/* Quantidade */}
       {quantity > 1 && (

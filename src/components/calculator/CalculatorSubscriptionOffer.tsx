@@ -39,7 +39,15 @@ interface CalculatorSubscriptionOfferProps {
     variantId: string;
     image?: string;
   };
-  recommendedQuantity: number;      // Quantidade calculada
+  recommendedQuantity: number;      // Quantidade de sacos calculada
+  /**
+   * false quando o rótulo não sustenta entrega recorrente: uso pontual (Raiz
+   * Forte) ou intervalo de reaplicação desconhecido (Resistência Total).
+   * Nesses casos a oferta é só de compra única.
+   */
+  allowSubscription?: boolean;
+  /** Frase do rótulo sobre repetição, mostrada quando não há assinatura. */
+  usageNote?: string;
   lawnCondition?: 'poor' | 'fair' | 'good' | 'excellent';
   
   // Callbacks
@@ -51,6 +59,8 @@ export function CalculatorSubscriptionOffer({
   calculatedArea,
   recommendedProduct,
   recommendedQuantity,
+  allowSubscription = true,
+  usageNote,
   lawnCondition = 'fair',
   onAddToCart,
   onClose,
@@ -59,7 +69,9 @@ export function CalculatorSubscriptionOffer({
   const { addItem, openCart } = useCart();
   
   // Estados
-  const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscription'>('subscription');
+  const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscription'>(
+    allowSubscription ? 'subscription' : 'one-time'
+  );
   const [frequency, setFrequency] = useState<FrequencyDays>(() => 
     getRecommendedFrequency(lawnCondition)
   );
@@ -147,13 +159,17 @@ export function CalculatorSubscriptionOffer({
               {recommendedProduct.name}
             </h4>
             <p className="text-sm text-neutral-500">
-              {recommendedQuantity} {recommendedQuantity > 1 ? 'unidades' : 'unidade'} • 
+              {recommendedQuantity} {recommendedQuantity > 1 ? 'sacos' : 'saco'} de 1,6 kg • 
               Cobre {calculatedArea}m²
             </p>
+            {!allowSubscription && usageNote && (
+              <p className="mt-1 text-sm text-neutral-600">{usageNote}</p>
+            )}
           </div>
         </div>
 
         {/* ===== TOGGLE COMPRA/ASSINATURA ===== */}
+        {allowSubscription && (
         <div className="space-y-3">
           <p className="text-sm font-medium text-neutral-700">
             Como você quer receber?
@@ -227,6 +243,7 @@ export function CalculatorSubscriptionOffer({
             </button>
           </div>
         </div>
+        )}
 
         {/* ===== SELETOR DE FREQUÊNCIA ===== */}
         <AnimatePresence>
@@ -313,7 +330,7 @@ export function CalculatorSubscriptionOffer({
 
         {/* ===== AVISO DE PERDA (se compra única) ===== */}
         <AnimatePresence>
-          {purchaseMode === 'one-time' && (
+          {purchaseMode === 'one-time' && allowSubscription && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

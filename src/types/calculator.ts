@@ -40,17 +40,40 @@ export interface CalculatorInput {
 
 export type ProductId = 'P1' | 'P2' | 'P3'
 
+/**
+ * Como o rótulo manda repetir o produto.
+ * - pontual: aplica uma vez (plantio, reforma, gramado muito falhado).
+ * - se_precisar: o rótulo dá um intervalo, e só enquanto o problema durar.
+ * - desconhecida: o rótulo lido não diz. O plano não inventa intervalo.
+ */
+export type FrequencyKind = 'pontual' | 'se_precisar' | 'desconhecida'
+
 export interface CatalogProduct {
   id: ProductId
   name: string
   fullName: string
   base: string
-  doseMin: number
-  doseMax: number
-  doseDefault: number
-  frequencyWeeksMin: number
-  frequencyWeeksMax: number
-  packs: number[] // gramas disponíveis
+  /** Peso líquido do saco, em gramas. Hoje só existe um tamanho. */
+  packGrams: number
+  /** Área que um saco cobre, segundo o rótulo ("rende até X m²"). */
+  yieldM2: number
+  /**
+   * Dose do rótulo em g/m², arredondada como o rótulo permite escrever.
+   * É o TETO: nenhuma recomendação passa disso.
+   */
+  doseLabel: number
+  /** true quando a dose do rótulo é aproximada ("cerca de 17 g/m²"). */
+  doseApprox: boolean
+  /** Área que 1 dosador raso (100 ml) cobre, em m². */
+  scoopM2: number
+  /** true quando scoopM2 foi deduzido por proporção e não lido do rótulo. */
+  scoopDeduced: boolean
+  frequencyKind: FrequencyKind
+  /** Intervalo de repetição em dias, só quando o rótulo informa. */
+  repeatDaysMin: number | null
+  repeatDaysMax: number | null
+  /** Frase pronta sobre repetição, na linguagem do rótulo. */
+  frequencyText: string
   description: string
   whenToUse: string
   applicationSteps: string[]
@@ -62,19 +85,33 @@ export interface CatalogProduct {
 export interface PackRecommendation {
   size_g: number
   qty: number
-  label: string // "1× 900g"
+  label: string // "2 sacos de 1,6 kg"
 }
 
 export interface ProductPlan {
   product_id: ProductId
   name: string
+  /** Dose do rótulo em g/m². Nunca é maior que a do rótulo. */
   dose_g_m2: number
+  dose_display: string // "50 g" ou "cerca de 17 g"
+  /** true quando a dose do rótulo é aproximada: a tela escreve "cerca de". */
+  dose_approx: boolean
   need_g: number
   need_display: string // "1.500 g" ou "1,5 kg"
+  /** Quantos dosadores rasos (100 ml) a área pede. */
+  dosadores: number
+  dosadores_display: string // "cerca de 25 dosadores rasos"
+  /** "1 dosador raso cobre cerca de 2 m²" */
+  scoop_display: string
   packs: PackRecommendation[]
-  packs_display: string // "2× 900g"
+  packs_display: string // "2 sacos de 1,6 kg"
+  /** Total de sacos: é a quantidade que vai para o carrinho. */
+  packs_qty: number
+  frequency_kind: FrequencyKind
+  /** 0 quando não há repetição automática (uso pontual ou intervalo desconhecido). */
   frequency_days: number
-  frequency_display: string // "a cada 6–8 semanas"
+  frequency_days_max: number
+  frequency_display: string // frase completa, na linguagem do rótulo
   notes: string[]
   whenToUse: string
   applicationSteps: string[]

@@ -7,44 +7,55 @@ import {
   RecommendedProduct 
 } from './types';
 import { calculateSubscriptionPrice, calculateAnnualSavings, getDeliveriesPerYear } from './pricing';
+import type { Product } from '@/types/product';
 
 /**
- * Produtos disponíveis (mock - em produção virá do Shopify)
+ * Papel de cada produto na recomendação.
+ *
+ * Só o que é do rótulo fica aqui (docs/produtos-fatos-do-rotulo.md): o handle
+ * e quantos m² um saco de 1,6 kg rende. Nome, variante e preço vêm do
+ * catálogo, entregue por quem chama.
  */
-const AVAILABLE_PRODUCTS = [
-  {
-    productId: 'prod_nutricao',
-    variantId: 'var_nutricao_5kg',
-    name: 'Terravik Nutrição Completa 5kg',
-    basePrice: 89.90,
-    coverage: 100, // m² por unidade
-    type: 'maintenance'
-  },
-  {
-    productId: 'prod_gramado_novo',
-    variantId: 'var_gramado_novo_5kg',
-    name: 'Terravik Gramado Novo 5kg',
-    basePrice: 94.90,
-    coverage: 100,
-    type: 'establishment'
-  },
-  {
-    productId: 'prod_verde_rapido',
-    variantId: 'var_verde_rapido_3kg',
-    name: 'Terravik Verde Rápido 3kg',
-    basePrice: 69.90,
-    coverage: 60,
-    type: 'recovery'
-  },
-  {
-    productId: 'prod_resistencia',
-    variantId: 'var_resistencia_5kg',
-    name: 'Terravik Resistência Total 5kg',
-    basePrice: 84.90,
-    coverage: 100,
-    type: 'protection'
+const PAPEIS = [
+  // Raiz Forte: plantio, reforma, falhas. 1,6 kg rende até 32 m².
+  { handle: 'raiz-forte', type: 'establishment', coverage: 32 },
+  // Verde Rápido: gramado amarelado. 1,6 kg rende até 96 m².
+  { handle: 'verde-rapido', type: 'recovery', coverage: 96 },
+  // Resistência Total: gramado forte o ano inteiro. 1,6 kg rende até 64 m².
+  { handle: 'resistencia-total', type: 'maintenance', coverage: 64 },
+] as const;
+
+type TipoDeProduto = (typeof PAPEIS)[number]['type'];
+
+interface ProdutoDisponivel {
+  productId: string;
+  variantId: string;
+  name: string;
+  basePrice: number;
+  coverage: number; // m² por saco
+  type: TipoDeProduto;
+}
+
+/** Cruza os papéis com o catálogo. Produto que o catálogo não tem fica de fora. */
+function produtosDisponiveis(catalogo: Product[]): ProdutoDisponivel[] {
+  const lista: ProdutoDisponivel[] = [];
+  for (const papel of PAPEIS) {
+    const produto = catalogo.find((p) => p.handle === papel.handle);
+    const variante = produto?.variants.find((v) => v.available) ?? produto?.variants[0];
+    if (!produto || !variante) continue;
+    // Produto de variante única na Shopify chega como "Default Title".
+    const peso = variante.title && variante.title !== 'Default Title' ? ` ${variante.title}` : '';
+    lista.push({
+      productId: produto.id,
+      variantId: variante.id,
+      name: `Terravik ${produto.title}${peso}`,
+      basePrice: variante.price,
+      coverage: papel.coverage,
+      type: papel.type,
+    });
   }
-];
+  return lista;
+}
 
 /**
  * Algoritmo de recomendação inteligente baseado nos dados do gramado
@@ -54,7 +65,8 @@ const AVAILABLE_PRODUCTS = [
  * - Explicação transparente do raciocínio
  * - Confidence score visível para honestidade
  */
-export function generateRecommendation(lawnData: LawnData): SmartRecommendation {
+export function generateRecommendation(lawnData: LawnData, catalogo: Product[]): SmartRecommendation {
+  const AVAILABLE_PRODUCTS = produtosDisponiveis(catalogo);
   let recommendedFrequency: SubscriptionFrequency = 45; // default equilibrado
   let confidence: 'high' | 'medium' | 'low' = 'medium';
   let reasoning = '';
@@ -66,15 +78,14 @@ export function generateRecommendation(lawnData: LawnData): SmartRecommendation 
     reasoning = 'Gramados novos precisam de nutrição mais frequente (a cada 30 dias) para estabelecer raízes fortes e se desenvolver saudavelmente.';
     confidence = 'high';
     
-    // Produto principal: Gramado Novo
-    const product = AVAILABLE_PRODUCTS.find(p => p.type === 'establishment')!;
-    const quantity = Math.ceil(lawnData.area / product.coverage);
-    recommendedProducts.push({
+    // Produto principal: Raiz Forte
+    const product = AVAILABLE_PRODUCTS.find(p => p.type === 'establishment');
+    if (product) recommendedProducts.push({
       productId: product.productId,
       variantId: product.variantId,
       name: product.name,
-      quantity,
-      reason: 'Rico em fósforo, ideal para desenvolvimento de raízes',
+      quantity: Math.ceil(lawnData.area / product.coverage),
+      reason: 'Fósforo e cálcio para firmar a raiz. Uso pontual, no plantio: não precisa repetir todo mês',
       priority: 'essential',
       basePrice: product.basePrice
     });
@@ -85,26 +96,25 @@ export function generateRecommendation(lawnData: LawnData): SmartRecommendation 
     confidence = 'high';
     
     // Produto principal: Verde Rápido
-    const product = AVAILABLE_PRODUCTS.find(p => p.type === 'recovery')!;
-    const quantity = Math.ceil(lawnData.area / product.coverage);
-    recommendedProducts.push({
+    const product = AVAILABLE_PRODUCTS.find(p => p.type === 'recovery');
+    if (product) recommendedProducts.push({
       productId: product.productId,
       variantId: product.variantId,
       name: product.name,
-      quantity,
-      reason: 'Fórmula de ação rápida para recuperação acelerada',
+      quantity: Math.ceil(lawnData.area / product.coverage),
+      reason: 'Nitrogênio com reforço de enxofre para devolver a cor ao gramado amarelado',
       priority: 'essential',
       basePrice: product.basePrice
     });
     
-    // Produto secundário: Nutrição Completa (para manutenção após recuperação)
-    const maintenance = AVAILABLE_PRODUCTS.find(p => p.type === 'maintenance')!;
-    recommendedProducts.push({
+    // Produto secundário: Resistência Total (para depois da recuperação)
+    const maintenance = AVAILABLE_PRODUCTS.find(p => p.type === 'maintenance');
+    if (maintenance) recommendedProducts.push({
       productId: maintenance.productId,
       variantId: maintenance.variantId,
       name: maintenance.name,
       quantity: Math.ceil(lawnData.area / maintenance.coverage),
-      reason: 'Para manutenção após recuperação inicial',
+      reason: 'Nutrição completa com potássio, para depois que a cor voltar',
       priority: 'recommended',
       basePrice: maintenance.basePrice
     });
@@ -127,15 +137,14 @@ export function generateRecommendation(lawnData: LawnData): SmartRecommendation 
       confidence = 'medium';
     }
     
-    // Produto principal: Nutrição Completa
-    const product = AVAILABLE_PRODUCTS.find(p => p.type === 'maintenance')!;
-    const quantity = Math.ceil(lawnData.area / product.coverage);
-    recommendedProducts.push({
+    // Produto principal: Resistência Total
+    const product = AVAILABLE_PRODUCTS.find(p => p.type === 'maintenance');
+    if (product) recommendedProducts.push({
       productId: product.productId,
       variantId: product.variantId,
       name: product.name,
-      quantity,
-      reason: 'Fórmula balanceada para manutenção regular',
+      quantity: Math.ceil(lawnData.area / product.coverage),
+      reason: 'Nutrição completa com potássio para a grama resistir à seca, ao sol e ao pisoteio',
       priority: 'essential',
       basePrice: product.basePrice
     });
@@ -203,11 +212,12 @@ export function generateRecommendation(lawnData: LawnData): SmartRecommendation 
 /**
  * Gera produtos recomendados baseado apenas na área (simplificado)
  */
-export function getProductsForArea(area: number, grassType?: string): RecommendedProduct[] {
+export function getProductsForArea(area: number, catalogo: Product[]): RecommendedProduct[] {
   const products: RecommendedProduct[] = [];
   
-  // Produto principal baseado na área
-  const mainProduct = AVAILABLE_PRODUCTS.find(p => p.type === 'maintenance')!;
+  // Produto principal baseado na área: Resistência Total
+  const mainProduct = produtosDisponiveis(catalogo).find(p => p.type === 'maintenance');
+  if (!mainProduct) return products;
   const quantity = Math.ceil(area / mainProduct.coverage);
   
   products.push({
@@ -215,24 +225,13 @@ export function getProductsForArea(area: number, grassType?: string): Recommende
     variantId: mainProduct.variantId,
     name: mainProduct.name,
     quantity,
-    reason: 'Nutrição completa para manutenção regular',
+    reason: 'Nutrição completa com potássio para a grama resistir à seca, ao sol e ao pisoteio',
     priority: 'essential',
     basePrice: mainProduct.basePrice
   });
 
-  // Se área grande, sugerir também proteção
-  if (area > 300) {
-    const protection = AVAILABLE_PRODUCTS.find(p => p.type === 'protection')!;
-    products.push({
-      productId: protection.productId,
-      variantId: protection.variantId,
-      name: protection.name,
-      quantity: Math.ceil(area / protection.coverage),
-      reason: 'Aumenta resistência em áreas grandes com mais desafios',
-      priority: 'recommended',
-      basePrice: protection.basePrice
-    });
-  }
+  // O antigo produto de "proteção" para áreas grandes é o mesmo Resistência
+  // Total que já entrou acima: não há segundo produto a sugerir.
 
   return products;
 }

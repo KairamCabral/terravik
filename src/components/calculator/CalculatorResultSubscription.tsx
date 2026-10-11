@@ -16,10 +16,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { useCalculator } from '@/hooks/useCalculator';
-import {
-  TrustIndicators,
-  SmartRecommendation,
-} from '@/components/subscription';
+import { TrustIndicators } from '@/components/subscription';
 import { Button, Badge } from '@/components/ui';
 import { ProductPlanCard } from './ProductPlanCard';
 import { CalendarBlock } from './CalendarBlock';
@@ -30,7 +27,6 @@ import {
 import { OBJECTIVE_LABELS, CLIMATE_LABELS } from '@/lib/calculator/constants';
 import { produtoDaCalculadora } from '@/lib/calculator/produtos';
 import { useCatalogo } from '@/contexts/CatalogoContext';
-import type { LawnData } from '@/lib/subscription/types';
 
 interface CalculatorResultSubscriptionProps {
   calculator: ReturnType<typeof useCalculator>;
@@ -41,37 +37,11 @@ interface CalculatorResultSubscriptionProps {
   }) => void;
 }
 
-// Mapear answers/result da calculadora para LawnData (SmartRecommendation)
-function toLawnData(calculator: ReturnType<typeof useCalculator>): LawnData | null {
-  const { result, answers } = calculator;
-  if (!result) return null;
-  const sol = answers.sol;
-  const pisoteio = answers.pisoteio;
-  const nivel = answers.nivel;
-  const currentCondition: LawnData['currentCondition'] = answers.implantando
-    ? 'new'
-    : nivel === 'fraco_amarelado' || nivel === 'ralo_falhas'
-      ? 'recovering'
-      : 'established';
-  const sunlight: LawnData['sunlight'] =
-    sol === 'sol_pleno' ? 'full-sun' : sol === 'meia_sombra' ? 'partial-shade' : 'full-shade';
-  const traffic: LawnData['traffic'] =
-    pisoteio === 'baixo' ? 'low' : pisoteio === 'medio' ? 'medium' : 'high';
-  return {
-    area: result.area_m2,
-    grassType: 'são-carlos',
-    currentCondition,
-    sunlight,
-    traffic,
-  };
-}
-
 export function CalculatorResultSubscription({
   calculator,
   onAddToCart,
 }: CalculatorResultSubscriptionProps) {
   const { result, reset } = calculator;
-  const lawnData = toLawnData(calculator);
   const catalogo = useCatalogo();
   
   if (!result) {
@@ -176,7 +146,10 @@ export function CalculatorResultSubscription({
               variantId: variant.id,
               image: mockProduct.featuredImage?.url,
             }}
-            recommendedQuantity={mainProduct.packs.reduce((sum, p) => sum + p.qty, 0) || 1}
+            recommendedQuantity={Math.max(1, mainProduct.packs_qty)}
+            // Entrega recorrente só para o produto que o rótulo manda repetir.
+            allowSubscription={mainProduct.frequency_kind === 'se_precisar'}
+            usageNote={mainProduct.frequency_display}
             lawnCondition={lawnCondition}
             onAddToCart={() => {
               console.log('Produto adicionado ao carrinho via calculadora');
@@ -185,19 +158,13 @@ export function CalculatorResultSubscription({
         );
       })()}
       
-      {/* ====================================================================
-          RECOMENDAÇÃO INTELIGENTE (se houver dados do gramado)
-          ==================================================================== */}
-      {lawnData && (
-        <SmartRecommendation
-          lawnData={lawnData}
-          onAccept={(recommendation) => {
-            console.log('Recomendação aceita:', recommendation);
-          }}
-          onCustomize={() => {}}
-        />
-      )}
-      
+      {/* O bloco SmartRecommendation saiu daqui. Ele monta um plano anual próprio
+          (src/lib/subscription/recommendations.ts) com produtos e embalagens que
+          não existem e com intervalo fixo para todos os produtos, o que
+          contradiz o rótulo: Raiz Forte é uso pontual e o intervalo do
+          Resistência Total é desconhecido. Volta quando aquela lista usar os
+          fatos de docs/produtos-fatos-do-rotulo.md. */}
+
       {/* ====================================================================
           CALENDÁRIO DE APLICAÇÃO
           ==================================================================== */}

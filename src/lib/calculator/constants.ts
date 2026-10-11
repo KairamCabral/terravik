@@ -1,9 +1,44 @@
 /**
- * Constantes e Catálogo de Produtos — Calculadora Terravik
- * Fonte da verdade para P1, P2, P3
+ * Constantes e Catálogo de Produtos da Calculadora Terravik.
+ *
+ * Tudo o que está em CATALOG foi lido do rótulo das embalagens. A fonte é
+ * docs/produtos-fatos-do-rotulo.md. O que não está lá não pode ser afirmado
+ * aqui: nada de composição, dose, prazo ou número inventado.
  */
 
 import type { CatalogProduct, CalculatorInput, WizardStep } from '@/types/calculator'
+
+// ============================================================
+// EMBALAGEM E DOSADOR
+// ============================================================
+
+/** Único tamanho que existe: saco de 1,6 kg (peso líquido). */
+export const PACK_GRAMS = 1600
+
+/** Texto do tamanho, como aparece no site. */
+export const PACK_LABEL = '1,6 kg'
+
+/**
+ * Como usar, igual nos rótulos lidos. O verso do Resistência Total não foi
+ * fornecido: para ele os passos vêm da frente ("Simples assim: espalhe e
+ * regue") e do texto comum da linha. Confirmar quando o verso chegar.
+ */
+const COMO_USAR: string[] = [
+  'Pegue o dosador que vem dentro da embalagem e separe a quantidade de dosadores do seu plano.',
+  'Espalhe os grânulos por igual no gramado, sem deixar montinhos.',
+  'Regue imediatamente após a aplicação: a água dissolve os grânulos e leva a nutrição até a raiz. Nunca pule essa etapa.',
+]
+
+/** Limitações e cuidados do rótulo. */
+const CUIDADOS: string[] = [
+  'Espalhe por igual: grânulos acumulados podem queimar a grama.',
+  'Não exceda a dose recomendada: o excesso queima a grama.',
+  'Aplique com a grama seca, de manhã ou no fim da tarde. Evite o sol forte do meio-dia.',
+  'Evite aplicar com vento forte.',
+  "Evite aplicar sobre piso molhado ou onde possa escorrer para ralos e corpos d'água.",
+  'Mantenha crianças e animais afastados durante a aplicação. Depois de aplicar, regue e aguarde secar antes de liberar o acesso.',
+  'Em caso de contato com olhos ou pele, lave abundantemente com água. Em caso de ingestão, procure orientação médica.',
+]
 
 // ============================================================
 // CATÁLOGO DE PRODUTOS
@@ -12,74 +47,74 @@ import type { CatalogProduct, CalculatorInput, WizardStep } from '@/types/calcul
 export const CATALOG: Record<'P1' | 'P2' | 'P3', CatalogProduct> = {
   P1: {
     id: 'P1',
-    name: 'Gramado Novo',
-    fullName: 'Gramado Novo (MAP 11-52-00)',
-    base: 'MAP 11-52-00 (granulado)',
-    doseMin: 8,
-    doseMax: 12,
-    doseDefault: 10,
-    frequencyWeeksMin: 0,
-    frequencyWeeksMax: 0,
-    packs: [400, 900],
-    description: 'Para enraizar, firmar e pegar mais rápido.',
-    whenToUse: 'No plantio (antes ou junto do tapete/semente).',
-    applicationSteps: [
-      'Espalhe de forma uniforme na área.',
-      'Siga a dose por m² do seu plano.',
-      'Regue após aplicar para ativar.',
-    ],
+    name: 'Raiz Forte',
+    fullName: 'Raiz Forte (superfosfato simples granulado)',
+    base: 'Superfosfato simples granulado (fósforo e cálcio)',
+    packGrams: PACK_GRAMS,
+    yieldM2: 32, // rótulo: 1,6 kg rende até 32 m²
+    doseLabel: 50, // 1600 g / 32 m²
+    doseApprox: false,
+    scoopM2: 2, // rótulo: 1 dosador raso cobre cerca de 2 m²
+    scoopDeduced: false,
+    frequencyKind: 'pontual',
+    repeatDaysMin: null,
+    repeatDaysMax: null,
+    frequencyText:
+      'Uso pontual: no plantio, na reforma ou quando o gramado estiver muito falhado. Não precisa repetir todo mês.',
+    description: 'A base do plantio: prepara o solo e firma a raiz para o gramado crescer forte.',
+    whenToUse: 'No plantio, na reforma ou quando o gramado estiver muito falhado.',
+    applicationSteps: COMO_USAR,
     warnings: [
-      'Evite aplicar no sol forte do meio-dia.',
-      'Se chover muito forte logo após, o plano pode sugerir reforço leve.',
+      'O fósforo quase não se move no solo. Por isso o Raiz Forte é feito para ser incorporado à terra, na zona das raízes.',
+      ...CUIDADOS,
     ],
   },
   P2: {
     id: 'P2',
     name: 'Verde Rápido',
-    fullName: 'Verde Rápido (Sulfato de Amônio 21-0-0 + 24S)',
-    base: 'Sulfato de Amônio 21-0-0 + 24S (granulado)',
-    doseMin: 15,
-    doseMax: 20,
-    doseDefault: 18,
-    frequencyWeeksMin: 4,
-    frequencyWeeksMax: 6,
-    packs: [2700],
-    description: 'Para recuperar o verde e acelerar o crescimento.',
-    whenToUse:
-      '2–4 semanas após a implantação ou quando o gramado estiver fraco/amarelado.',
-    applicationSteps: [
-      'Espalhe de forma uniforme na área.',
-      'Use o dosador e siga a dose por m².',
-      'Regue após aplicar.',
-    ],
-    warnings: [
-      'Se estiver muito seco e sem irrigação, use dose menor.',
-      'Não aplique antes de chuva forte.',
-    ],
+    fullName: 'Verde Rápido (sulfato de amônio granulado, 21-00-00 + 24S)',
+    base: 'Sulfato de amônio granulado, 21-00-00 + 24S',
+    packGrams: PACK_GRAMS,
+    yieldM2: 96, // rótulo: 1,6 kg rende até 96 m²
+    doseLabel: 17, // 1600 g / 96 m² = 16,7. O rótulo permite dizer "cerca de 17 g"
+    doseApprox: true,
+    scoopM2: 6, // rótulo: 1 dosador raso cobre cerca de 6 m²
+    scoopDeduced: false,
+    frequencyKind: 'se_precisar',
+    repeatDaysMin: 30,
+    repeatDaysMax: 45,
+    frequencyText: 'Se precisar, repita a cada 30 a 45 dias, até o verde voltar.',
+    description: 'Recupera o gramado amarelado e devolve a cor.',
+    whenToUse: 'Quando o gramado estiver amarelado ou sem cor.',
+    applicationSteps: COMO_USAR,
+    warnings: CUIDADOS,
   },
   P3: {
     id: 'P3',
     name: 'Resistência Total',
-    fullName: 'Resistência Total (NPK 19-4-19)',
-    base: 'NPK 19-4-19 (granulado) — Tecnologia Grânulo Único',
-    doseMin: 15,
-    doseMax: 25,
-    doseDefault: 20,
-    frequencyWeeksMin: 6,
-    frequencyWeeksMax: 8,
-    packs: [400, 900],
-    description: 'Para calor intenso, pisoteio e uso frequente do gramado.',
-    whenToUse:
-      'Em períodos de calor, estresse, uso intenso e recuperação estrutural.',
-    applicationSteps: [
-      'Espalhe de forma uniforme na área.',
-      'Siga a dose por m² do seu plano.',
-      'Regue após aplicar.',
-    ],
-    warnings: [
-      'No frio, reduza a dose ou pause (crescimento lento).',
-      'Constância vale mais do que exagerar na dose.',
-    ],
+    fullName: 'Resistência Total (nutrição completa com potássio)',
+    // Composição e garantias desconhecidas: só temos a frente da embalagem.
+    base: 'Nutrição completa com potássio',
+    packGrams: PACK_GRAMS,
+    yieldM2: 64, // rótulo: 1,6 kg rende até 64 m²
+    doseLabel: 25, // 1600 g / 64 m²
+    doseApprox: false,
+    // DEDUÇÃO: a frente da embalagem não diz a cobertura do dosador. Por
+    // proporção com os outros dois (o saco equivale a 16 dosadores rasos),
+    // dá cerca de 4 m². Falta confirmar no verso da embalagem.
+    scoopM2: 4,
+    scoopDeduced: true,
+    // Frequência DESCONHECIDA: o verso não foi fornecido. O plano não afirma
+    // intervalo nem agenda repetição. Preencher quando o verso chegar.
+    frequencyKind: 'desconhecida',
+    repeatDaysMin: null,
+    repeatDaysMax: null,
+    frequencyText: 'Para repetir, siga o intervalo indicado no rótulo da embalagem.',
+    description:
+      'Nutrição completa com potássio, que deixa a grama resistente à seca, ao sol e ao pisoteio.',
+    whenToUse: 'Quando o gramado precisa de força para aguentar seca, sol e pisoteio.',
+    applicationSteps: COMO_USAR,
+    warnings: CUIDADOS,
   },
 }
 

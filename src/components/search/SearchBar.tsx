@@ -224,7 +224,7 @@ export function SearchBar() {
             <div className="mt-3 rounded-lg bg-bg-surface-2 p-4">
               <p className="mb-2 text-xs font-medium text-txt-secondary">Sugestões:</p>
               <div className="flex flex-wrap gap-2">
-                {['Gramado Novo', 'Verde Rápido', 'Fertilizante', 'Adubar'].map((term) => (
+                {['Raiz Forte', 'Verde Rápido', 'Fertilizante', 'Adubar'].map((term) => (
                   <button
                     key={term}
                     onClick={() => setQuery(term)}

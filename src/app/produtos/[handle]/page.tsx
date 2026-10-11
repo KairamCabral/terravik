@@ -9,11 +9,13 @@ import {
   productSchema,
   breadcrumbSchema,
   jsonLd,
+  faqSchema,
 } from '@/lib/seo/metadata'
 import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { getMockProductByHandle, MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
-import { getProductReviews, getProductRating } from '@/lib/reviews/data'
 import { ProductPageClient } from './ProductPageClient'
+import { ProductLp } from '@/components/product/lp/ProductLp'
+import { conteudoDaLp, custoPorM2, PESO_DO_SACO } from '@/lib/produtos/lp'
 import { REVALIDATE } from '@/lib/utils/constants'
 
 interface Props {
@@ -75,8 +77,28 @@ export default async function ProductPage({ params }: Props) {
     notFound()
   }
 
-  const reviews = getProductReviews(params.handle)
-  const rating = getProductRating(params.handle)
+  // Conteúdo da página, lido do rótulo (src/lib/produtos/lp.ts). Produto que
+  // ainda não tem conteúdo cadastrado mostra só a área de compra.
+  const conteudo = conteudoDaLp(product.handle)
+  const fatos = conteudo
+    ? [
+        'Fórmula concentrada',
+        `Rende até ${conteudo.rendimento.m2PorSaco} m²`,
+        'Dosador incluso',
+      ]
+    : []
+
+  // Custo por m² tratado, calculado do preço e do rendimento do rótulo. Só nos
+  // produtos em que o argumento do rendimento se aplica (ver `compararDose`).
+  const custo =
+    conteudo && conteudo.compararDose ? custoPorM2(product.price, conteudo.rendimento) : null
+  const notaDoPreco =
+    custo !== null
+      ? `Saco de ${PESO_DO_SACO} · cerca de ${custo.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        })} por m² tratado`
+      : undefined
 
   return (
     <>
@@ -100,7 +122,25 @@ export default async function ProductPage({ params }: Props) {
         }}
       />
 
-      <ProductPageClient product={product} reviews={reviews} rating={rating} />
+      {/* JSON-LD: as mesmas perguntas que aparecem na tela */}
+      {conteudo && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: jsonLd(
+              faqSchema(conteudo.perguntas.map((p) => ({ question: p.pergunta, answer: p.resposta })))
+            ),
+          }}
+        />
+      )}
+
+      <ProductPageClient
+        product={product}
+        paraQuem={conteudo?.paraQuem}
+        fatos={fatos}
+        notaDoPreco={notaDoPreco}
+      />
+      {conteudo && <ProductLp product={product} conteudo={conteudo} />}
     </>
   )
 }

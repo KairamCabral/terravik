@@ -43,26 +43,26 @@ export const FAQ_HOME: PerguntaFrequente[] = [
     id: 'produtos',
     pergunta: 'Por que só 3 produtos? Não falta algo?',
     resposta:
-      'Ao contrário. A maioria das marcas tem 15+ produtos porque vendem ingredientes separados. Nós formulamos produtos completos: um para cada fase do gramado. Menos escolha = menos erro = melhor resultado.',
+      'Não falta. São três produtos, um para cada momento do gramado: Raiz Forte para firmar a raiz, Verde Rápido para devolver a cor e Resistência Total para recuperar o vigor. Menos escolha = menos erro = melhor resultado.',
   },
   {
     id: 'frequencia',
     pergunta: 'Vou precisar aplicar todo mês?',
     resposta:
-      'Não. Nossos fertilizantes são de liberação lenta. Verde Rápido dura 4-6 semanas. Resistência Total dura 6-8 semanas. Você aplica menos vezes e ainda economiza tempo e dinheiro comparado a produtos líquidos semanais.',
+      'Depende do produto. Raiz Forte é de uso pontual: no plantio, na reforma ou quando o gramado estiver muito falhado, e não precisa repetir todo mês. Verde Rápido é de recuperação: use quando o gramado estiver amarelado e, se precisar, repita a cada 30 a 45 dias até o verde voltar.',
     acao: { texto: 'Ver frequência recomendada', href: '/calculadora' },
   },
   {
     id: 'seguranca',
     pergunta: 'É seguro para crianças e pets?',
     resposta:
-      'Totalmente. São fertilizantes granulados de liberação controlada, não são pesticidas. Após regar (1-2h), o produto já está absorvido pelo solo e o gramado pode ser usado normalmente. Usamos as mesmas fórmulas de campos de golfe profissionais.',
+      'São fertilizantes granulados, não são pesticidas. Mantenha crianças e animais afastados durante a aplicação. Depois de aplicar, regue e aguarde secar antes de liberar o acesso. Guarde o produto fora do alcance de crianças e animais.',
   },
   {
     id: 'aplicacao',
     pergunta: 'É difícil aplicar? Preciso de equipamento especial?',
     resposta:
-      'É simples como regar. Distribua os grânulos uniformemente (pode ser a lanço, com espalhador ou até com a mão), depois regue. Não precisa dissolver, misturar ou calcular proporções. O produto já vem na concentração certa.',
+      'É simples: espalhe e regue. Cada saco traz um dosador de 100 ml. Calcule quantos dosadores sua área precisa, espalhe os grânulos por igual, sem deixar montinhos, e regue imediatamente após a aplicação. Não precisa dissolver nem misturar.',
   },
   {
     id: 'frete',
@@ -74,12 +74,12 @@ export const FAQ_HOME: PerguntaFrequente[] = [
     id: 'combinar',
     pergunta: 'Posso usar 2 produtos ao mesmo tempo?',
     resposta:
-      'Não na mesma aplicação. Se sua calculadora recomenda mais de um produto, aplique com intervalo mínimo de 7 dias. Isso evita sobrecarga de nutrientes e garante absorção ideal de cada fórmula.',
+      'Cada produto tem seu momento na linha do tempo do gramado: Raiz Forte para firmar a raiz, Verde Rápido para devolver a cor e Resistência Total para recuperar o vigor. Se a calculadora recomendar mais de um, siga o plano que ela monta e não exceda a dose de cada um.',
   },
   {
     id: 'dose',
     pergunta: 'E se eu aplicar dose errada?',
     resposta:
-      'A calculadora já considera margem de segurança. Se aplicar menos, terá menos resultado (não há risco). Se aplicar até 2x a dose, regue bastante para diluir. Nossa fórmula é segura mesmo com pequenos excessos.',
+      'Se aplicar menos, terá menos resultado. Não exceda a dose recomendada: o excesso queima a grama, assim como grânulos acumulados em montinhos. Use o dosador que vem na embalagem, espalhe por igual e regue logo depois.',
   },
 ]

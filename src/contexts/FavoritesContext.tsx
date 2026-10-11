@@ -44,7 +44,13 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         const stored = localStorage.getItem(FAVORITES_STORAGE_KEY)
         if (stored) {
           const data: FavoritesData = JSON.parse(stored)
-          setFavorites(data.productIds || [])
+          // O produto "Gramado Novo" passou a se chamar "Raiz Forte": quem
+          // tinha favoritado com o endereço antigo continua com o favorito.
+          setFavorites(
+            Array.from(
+              new Set((data.productIds || []).map((id) => (id === 'gramado-novo' ? 'raiz-forte' : id)))
+            )
+          )
         }
       } catch (error) {
         console.error('[Favorites] Error loading from localStorage:', error)

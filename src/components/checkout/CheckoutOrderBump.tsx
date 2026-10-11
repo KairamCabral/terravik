@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Check, Sparkles } from 'lucide-react'
 import { getSmartBumpProduct } from '@/lib/shipping/order-bump'
+import { useCatalogoLeve } from '@/hooks/useCatalogoLeve'
 import { useCart } from '@/components/cart/CartProvider'
 import { formatPrice } from '@/lib/subscription/pricing'
 
@@ -16,10 +17,12 @@ export function CheckoutOrderBump({ cartProductIds }: CheckoutOrderBumpProps) {
   const { addItem, isLoading } = useCart()
   const [isAdded, setIsAdded] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  // Nome, variante, preço e foto do "leve junto" vêm do catálogo.
+  const catalogo = useCatalogoLeve()
 
   const product = useMemo(
-    () => getSmartBumpProduct(cartProductIds),
-    [cartProductIds]
+    () => getSmartBumpProduct(cartProductIds, catalogo),
+    [cartProductIds, catalogo]
   )
 
   const handleAdd = async () => {
@@ -48,7 +51,7 @@ export function CheckoutOrderBump({ cartProductIds }: CheckoutOrderBumpProps) {
       <div className="flex items-center justify-center gap-2 px-4 py-2 bg-gold/10">
         <Sparkles className="w-3.5 h-3.5 text-gold" />
         <span className="text-xs font-semibold text-gold">
-          Clientes que compraram seus itens também levaram
+          Combina com o que está no seu carrinho
         </span>
       </div>
 
@@ -67,7 +70,9 @@ export function CheckoutOrderBump({ cartProductIds }: CheckoutOrderBumpProps) {
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-txt-primary leading-tight">
             {product.title}
-            <span className="text-txt-muted font-normal"> · {product.variantTitle}</span>
+            {product.variantTitle && (
+              <span className="text-txt-muted font-normal"> · {product.variantTitle}</span>
+            )}
           </p>
           <p className="text-xs text-txt-muted mt-0.5 line-clamp-1">{product.pitch}</p>
           <div className="flex items-center gap-2 mt-1">
