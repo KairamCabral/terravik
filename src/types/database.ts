@@ -238,6 +238,48 @@ export type Database = {
         }
         Relationships: []
       }
+      email_log: {
+        Row: {
+          assunto: string
+          atualizado_em: string
+          criado_em: string
+          destinatario: string
+          erro: string | null
+          id: string
+          referencia: string | null
+          resend_id: string | null
+          status: string
+          tipo: string
+          user_id: string | null
+        }
+        Insert: {
+          assunto: string
+          atualizado_em?: string
+          criado_em?: string
+          destinatario: string
+          erro?: string | null
+          id?: string
+          referencia?: string | null
+          resend_id?: string | null
+          status?: string
+          tipo: string
+          user_id?: string | null
+        }
+        Update: {
+          assunto?: string
+          atualizado_em?: string
+          criado_em?: string
+          destinatario?: string
+          erro?: string | null
+          id?: string
+          referencia?: string | null
+          resend_id?: string | null
+          status?: string
+          tipo?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       lessons: {
         Row: {
           content: Json

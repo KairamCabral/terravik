@@ -20,6 +20,7 @@ import {
   Search,
   Menu,
   Palette,
+  Mail,
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -31,6 +32,7 @@ const ADMIN_MENU = [
   { label: 'Clientes', href: '/admin/clientes', icon: Users },
   { label: 'Assinaturas', href: '/admin/assinaturas', icon: RefreshCw },
   { label: 'Métricas', href: '/admin/metricas', icon: BarChart3 },
+  { label: 'E-mails', href: '/admin/emails', icon: Mail },
   { label: 'Configurações', href: '/admin/configuracoes', icon: Settings },
 ];
 
