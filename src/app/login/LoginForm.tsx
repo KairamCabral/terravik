@@ -25,7 +25,9 @@ export function LoginForm() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState(
-    callbackError === 'callback' ? 'Houve um erro ao processar sua solicitação. Tente novamente.' : ''
+    callbackError === 'callback' || callbackError === 'link'
+      ? 'Este link expirou ou já foi usado. Entre com sua senha ou peça um novo link em "Esqueci minha senha".'
+      : ''
   )
   const [isLoading, setIsLoading] = useState(false)
 
