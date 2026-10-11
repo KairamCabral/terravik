@@ -13,14 +13,22 @@ import {
 } from 'lucide-react'
 import type { Product } from '@/types/product'
 import {
+  A_CONTA,
+  ARGUMENTO,
   ARMAZENAMENTO,
+  CHAMADA_FINAL,
   COMO_USAR,
   CUIDADOS,
+  DOSADOR_INCLUSO,
   GRANULO_UNIFORME,
   LINHA_DO_TEMPO,
+  LP_POR_HANDLE,
   PESO_DO_SACO,
+  custoPorM2,
+  gramasPorM2,
   type ConteudoDaLp,
 } from '@/lib/produtos/lp'
+import { formatCurrency } from '@/lib/utils/formatters'
 import { cn } from '@/lib/utils/cn'
 import { CalculadoraDeArea } from './CalculadoraDeArea'
 
@@ -66,6 +74,10 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
   const granulo = product.images.find((i) => i.url.endsWith('/granulo.webp'))
   const { rendimento } = conteudo
   const video = conteudo.destaque.video
+  const gramas = gramasPorM2(rendimento)
+  // O custo por m² só entra onde o argumento do rendimento se aplica.
+  const custo =
+    variante && conteudo.compararDose ? custoPorM2(variante.price, rendimento) : null
 
   return (
     <div className="bg-bg-primary">
@@ -120,7 +132,49 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </div>
       </section>
 
-      {/* ═══ 3. O PORQUÊ ═══ */}
+      {/* ═══ 3. FÓRMULA CONCENTRADA: o argumento ═══ */}
+      <section className="border-b border-border-subtle bg-bg-surface">
+        <div className="container-main py-14 md:py-20">
+          <div className="grid items-center gap-10 lg:grid-cols-[1.1fr,0.9fr] lg:gap-16">
+            <div>
+              <Sobretitulo>{ARGUMENTO.sobretitulo}</Sobretitulo>
+              <h2 className="font-heading text-3xl font-bold leading-tight text-txt-primary md:text-4xl">
+                {ARGUMENTO.titulo}
+              </h2>
+              <div className="mt-5 space-y-4">
+                {ARGUMENTO.paragrafos.map((p) => (
+                  <p key={p} className="text-base leading-relaxed text-txt-secondary">
+                    {p}
+                  </p>
+                ))}
+              </div>
+              <p className="mt-5 rounded-2xl border-l-4 border-gold bg-bg-primary p-5 text-base leading-relaxed text-txt-primary">
+                <strong className="font-semibold">{product.title}:</strong> {conteudo.trabalho}
+              </p>
+            </div>
+
+            <div className="rounded-3xl bg-forest p-8 text-center text-white">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-soft">
+                O resultado
+              </p>
+              <p className="mt-3 font-heading text-6xl font-bold leading-none md:text-7xl">
+                {gramas}
+                <span className="ml-1 text-2xl font-semibold md:text-3xl">g/m²</span>
+              </p>
+              <p className="mt-4 text-base leading-relaxed text-white/85">
+                Cerca de {gramas} gramas por metro quadrado já fazem o trabalho.
+                {conteudo.compararDose && ` ${ARGUMENTO.comparacao}`}
+              </p>
+              <p className="mt-5 border-t border-white/20 pt-5 text-sm text-white/85">
+                Um saco de {PESO_DO_SACO} trata até{' '}
+                <strong className="font-semibold text-white">{rendimento.m2PorSaco} m²</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ 4. O PORQUÊ ═══ */}
       <section className="container-main py-14 md:py-20">
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
@@ -178,7 +232,7 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </div>
       </section>
 
-      {/* ═══ 4. O QUE ENTREGA ═══ */}
+      {/* ═══ 5. O QUE ENTREGA ═══ */}
       <section className="border-y border-border-subtle bg-bg-surface">
         <div className="container-main py-14 md:py-16">
           <div className="mx-auto max-w-2xl text-center">
@@ -209,19 +263,28 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </div>
       </section>
 
-      {/* ═══ 5. QUANTO EU PRECISO ═══ */}
+      {/* ═══ 6. A CONTA E QUANTO EU PRECISO ═══ */}
       <section className="container-main py-14 md:py-20">
         <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
-            <Sobretitulo>Rendimento</Sobretitulo>
+            <Sobretitulo>{A_CONTA.sobretitulo}</Sobretitulo>
             <h2 className="font-heading text-3xl font-bold leading-tight text-txt-primary md:text-4xl">
-              Um saco rende até {rendimento.m2PorSaco} m²
+              {A_CONTA.titulo}
             </h2>
-            <p className="mt-4 text-base leading-relaxed text-txt-secondary">
-              Cada saco de {PESO_DO_SACO} traz um dosador de 100 ml dentro da embalagem.{' '}
-              {rendimento.dosadorEstimado
-                ? `Um dosador raso cobre cerca de ${rendimento.m2PorDosador} m².`
-                : `Um dosador raso cobre cerca de ${rendimento.m2PorDosador} m²: é só contar.`}
+            <p className="mt-4 text-base leading-relaxed text-txt-secondary">{A_CONTA.texto}</p>
+            <p className="mt-4 rounded-2xl bg-forest/5 p-5 text-base leading-relaxed text-txt-primary">
+              <strong className="font-semibold">Pense assim:</strong> você não está comprando{' '}
+              {PESO_DO_SACO} de adubo. Está comprando até {rendimento.m2PorSaco} m² de gramado
+              tratado
+              {custo !== null && (
+                <>
+                  , por cerca de{' '}
+                  <strong className="font-semibold text-forest">
+                    {formatCurrency(custo, product.currency)} por m²
+                  </strong>
+                </>
+              )}
+              .
             </p>
 
             <dl className="mt-6 grid grid-cols-3 gap-3">
@@ -253,8 +316,8 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
                 />
               </div>
               <p className="text-sm leading-relaxed text-txt-secondary">
-                <strong className="font-semibold text-txt-primary">Dosador incluso.</strong> Sem
-                balança e sem adivinhação: a medida certa vem junto com o produto.
+                <strong className="font-semibold text-txt-primary">{DOSADOR_INCLUSO.titulo}.</strong>{' '}
+                {DOSADOR_INCLUSO.texto} Um dosador raso cobre cerca de {rendimento.m2PorDosador} m².
               </p>
             </div>
           </div>
@@ -284,7 +347,7 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </div>
       </section>
 
-      {/* ═══ 6. COMO USAR ═══ */}
+      {/* ═══ 7. COMO USAR ═══ */}
       <section className="bg-bg-surface-2">
         <div className="container-main py-14 md:py-16">
           <div className="mx-auto max-w-2xl text-center">
@@ -319,12 +382,12 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </div>
       </section>
 
-      {/* ═══ 7. LINHA DO TEMPO DO GRAMADO ═══ */}
+      {/* ═══ 8. LINHA DO TEMPO DO GRAMADO ═══ */}
       <section className="container-main py-14 md:py-20">
         <div className="mx-auto max-w-2xl text-center">
           <Sobretitulo>Linha do tempo do seu gramado</Sobretitulo>
           <h2 className="font-heading text-3xl font-bold text-txt-primary md:text-4xl">
-            Três produtos, um para cada momento
+            Um saco para cada momento do gramado
           </h2>
         </div>
         <ol className="mt-10 grid gap-4 md:grid-cols-3">
@@ -345,6 +408,16 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
                 <span className={cn('mt-1 block text-sm', atual ? 'text-white/85' : 'text-txt-secondary')}>
                   {item.papel}
                 </span>
+                {LP_POR_HANDLE[item.handle] && (
+                  <span
+                    className={cn(
+                      'mt-3 inline-block rounded-full px-3 py-1 text-xs font-semibold',
+                      atual ? 'bg-white/15 text-white' : 'bg-bg-surface-2 text-txt-primary'
+                    )}
+                  >
+                    Rende até {LP_POR_HANDLE[item.handle].rendimento.m2PorSaco} m²
+                  </span>
+                )}
                 <span
                   className={cn(
                     'mt-4 inline-flex items-center gap-1 text-sm font-semibold',
@@ -382,7 +455,7 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </ol>
       </section>
 
-      {/* ═══ 8. FICHA TÉCNICA E CUIDADOS ═══ */}
+      {/* ═══ 9. FICHA TÉCNICA E CUIDADOS ═══ */}
       <section className="border-y border-border-subtle bg-bg-surface">
         <div className="container-main py-14 md:py-16">
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
@@ -454,7 +527,7 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </div>
       </section>
 
-      {/* ═══ 9. PERGUNTAS FREQUENTES ═══ */}
+      {/* ═══ 10. PERGUNTAS FREQUENTES ═══ */}
       <section className="container-main py-14 md:py-20">
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
@@ -483,7 +556,7 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
         </div>
       </section>
 
-      {/* ═══ 10. CHAMADA FINAL ═══ */}
+      {/* ═══ 11. CHAMADA FINAL ═══ */}
       <section className="bg-forest text-white">
         <div className="container-main py-14 md:py-16">
           <div className="grid items-center gap-8 md:grid-cols-[auto,1fr,auto]">
@@ -499,7 +572,7 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
               </div>
             )}
             <div className="text-center md:text-left">
-              <h2 className="font-heading text-3xl font-bold md:text-4xl">{conteudo.destaque.titulo}</h2>
+              <h2 className="font-heading text-3xl font-bold md:text-4xl">{CHAMADA_FINAL}</h2>
               <p className="mt-2 text-white/85">
                 {product.title}, saco de {PESO_DO_SACO}, rende até {rendimento.m2PorSaco} m², com dosador
                 incluso.

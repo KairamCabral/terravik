@@ -4,9 +4,11 @@
  * Os dados vêm do rótulo das embalagens (public/images/produtos): nome, peso
  * líquido, rendimento e composição. Hoje só existe o saco de 1,6 kg.
  *
- * PREÇOS: são os que o site já exibia no menor tamanho, mantidos até o dono
- * confirmar o valor do saco de 1,6 kg. Não há preço "de": preço riscado sem
- * histórico de venda é oferta enganosa.
+ * PREÇOS: informados pelo dono em 11/10/2026 para o saco de 1,6 kg. Não há
+ * preço "de": preço riscado sem histórico de venda é oferta enganosa.
+ *
+ * FOTOS: frente, lateral e grânulo. As fotos do VERSO foram retiradas a pedido
+ * do dono (a arte do verso está sendo refeita).
  */
 
 import type { Product, ProductImage } from '@/types/product'
@@ -58,12 +60,11 @@ export const MOCK_PRODUCTS: Product[] = [
     images: [
       RAIZ_FORTE_FRENTE,
       foto('raiz-forte', 'lateral', 'Raiz Forte Terravik, embalagem vista de lado', 923, 1365),
-      foto('raiz-forte', 'verso', 'Raiz Forte Terravik, verso da embalagem com modo de usar e garantias', 942, 1400),
       foto('raiz-forte', 'granulo', 'Grânulos do fertilizante Raiz Forte', 1200, 788),
     ],
-    variants: [variante('mock-p1-1600g', 89.9, '7898932340008', RAIZ_FORTE_FRENTE)],
-    price: 89.9,
-    maxPrice: 89.9,
+    variants: [variante('mock-p1-1600g', 169.9, '7898932340008', RAIZ_FORTE_FRENTE)],
+    price: 169.9,
+    maxPrice: 169.9,
     compareAtPrice: 0,
     currency: 'BRL',
   },
@@ -87,12 +88,11 @@ export const MOCK_PRODUCTS: Product[] = [
     images: [
       VERDE_RAPIDO_FRENTE,
       foto('verde-rapido', 'lateral', 'Verde Rápido Terravik, embalagem vista de lado', 963, 1191),
-      foto('verde-rapido', 'verso', 'Verde Rápido Terravik, verso da embalagem com modo de usar e garantias', 921, 1400),
       foto('verde-rapido', 'granulo', 'Grânulos do fertilizante Verde Rápido', 1200, 805),
     ],
-    variants: [variante('mock-p2-1600g', 64.9, '7898932340015', VERDE_RAPIDO_FRENTE)],
-    price: 64.9,
-    maxPrice: 64.9,
+    variants: [variante('mock-p2-1600g', 129.9, '7898932340015', VERDE_RAPIDO_FRENTE)],
+    price: 129.9,
+    maxPrice: 129.9,
     compareAtPrice: 0,
     currency: 'BRL',
   },
@@ -118,9 +118,9 @@ export const MOCK_PRODUCTS: Product[] = [
       foto('resistencia-total', 'lateral', 'Resistência Total Terravik, embalagem vista de lado', 1025, 1195),
       foto('resistencia-total', 'granulo', 'Grânulos do fertilizante Resistência Total', 1200, 804),
     ],
-    variants: [variante('mock-p3-1600g', 71.2, null, RESISTENCIA_TOTAL_FRENTE)],
-    price: 71.2,
-    maxPrice: 71.2,
+    variants: [variante('mock-p3-1600g', 149.9, null, RESISTENCIA_TOTAL_FRENTE)],
+    price: 149.9,
+    maxPrice: 149.9,
     compareAtPrice: 0,
     currency: 'BRL',
   },

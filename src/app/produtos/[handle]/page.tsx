@@ -15,7 +15,7 @@ import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { getMockProductByHandle, MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 import { ProductPageClient } from './ProductPageClient'
 import { ProductLp } from '@/components/product/lp/ProductLp'
-import { conteudoDaLp, PESO_DO_SACO } from '@/lib/produtos/lp'
+import { conteudoDaLp, custoPorM2, PESO_DO_SACO } from '@/lib/produtos/lp'
 import { REVALIDATE } from '@/lib/utils/constants'
 
 interface Props {
@@ -82,11 +82,23 @@ export default async function ProductPage({ params }: Props) {
   const conteudo = conteudoDaLp(product.handle)
   const fatos = conteudo
     ? [
-        `Saco de ${PESO_DO_SACO}`,
+        'Fórmula concentrada',
         `Rende até ${conteudo.rendimento.m2PorSaco} m²`,
         'Dosador incluso',
       ]
     : []
+
+  // Custo por m² tratado, calculado do preço e do rendimento do rótulo. Só nos
+  // produtos em que o argumento do rendimento se aplica (ver `compararDose`).
+  const custo =
+    conteudo && conteudo.compararDose ? custoPorM2(product.price, conteudo.rendimento) : null
+  const notaDoPreco =
+    custo !== null
+      ? `Saco de ${PESO_DO_SACO} · cerca de ${custo.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        })} por m² tratado`
+      : undefined
 
   return (
     <>
@@ -122,7 +134,12 @@ export default async function ProductPage({ params }: Props) {
         />
       )}
 
-      <ProductPageClient product={product} paraQuem={conteudo?.paraQuem} fatos={fatos} />
+      <ProductPageClient
+        product={product}
+        paraQuem={conteudo?.paraQuem}
+        fatos={fatos}
+        notaDoPreco={notaDoPreco}
+      />
       {conteudo && <ProductLp product={product} conteudo={conteudo} />}
     </>
   )

@@ -22,9 +22,11 @@ interface ProductPageClientProps {
   paraQuem?: string
   /** Fatos curtos do rótulo, em selos ("Rende até 32 m²", "Dosador incluso"). */
   fatos?: string[]
+  /** Linha abaixo do preço ("≈ R$ 1,35 por m² tratado"). */
+  notaDoPreco?: string
 }
 
-export function ProductPageClient({ product, paraQuem, fatos = [] }: ProductPageClientProps) {
+export function ProductPageClient({ product, paraQuem, fatos = [], notaDoPreco }: ProductPageClientProps) {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
     product.variants[0]
   )
@@ -157,6 +159,7 @@ export function ProductPageClient({ product, paraQuem, fatos = [] }: ProductPage
                   selectedVariant={selectedVariant}
                   onVariantChange={trocarVariante}
                   barraFixaVisivel={showStickyCTA}
+                  notaDoPreco={notaDoPreco}
                 />
               </div>
             </div>

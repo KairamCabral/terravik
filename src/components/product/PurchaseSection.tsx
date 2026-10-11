@@ -27,6 +27,8 @@ interface PurchaseSectionProps {
   freteSlot?: React.ReactNode;
   /** Mostra a barra fixa de compra no celular. */
   barraFixaVisivel?: boolean;
+  /** Linha pequena abaixo do preço (ex.: custo por m² tratado). */
+  notaDoPreco?: string;
 }
 
 export function PurchaseSection({ 
@@ -35,6 +37,7 @@ export function PurchaseSection({
   onVariantChange,
   freteSlot,
   barraFixaVisivel = false,
+  notaDoPreco,
 }: PurchaseSectionProps) {
   // Estado do modo de compra (compra única como padrão)
   const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscription'>('one-time');
@@ -81,6 +84,7 @@ export function PurchaseSection({
       <PriceDisplay
         basePrice={basePrice}
         compareAtPrice={compareAtPrice}
+        nota={notaDoPreco}
         subscriptionPrice={subscriptionPrice}
         discountPercent={discountPercent}
         purchaseMode={purchaseMode}

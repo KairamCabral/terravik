@@ -63,6 +63,17 @@ export interface ConteudoDaLp {
     diferencial?: string
   }
   beneficios: Array<{ titulo: string; texto: string }>
+  /**
+   * O trabalho específico do grânulo deste produto, para o argumento da
+   * fórmula concentrada ("cada grânulo tem um trabalho específico").
+   */
+  trabalho: string
+  /**
+   * true quando a dose por m² é baixa o bastante para sustentar a comparação
+   * com fórmulas comuns e a resposta à objeção de preço. O Raiz Forte, de
+   * dose mais alta, fica de fora.
+   */
+  compararDose: boolean
   rendimento: {
     /** Área que um saco de 1,6 kg cobre, em m². */
     m2PorSaco: number
@@ -84,6 +95,56 @@ export interface ConteudoDaLp {
 
 /** Peso líquido do saco, igual nos três produtos. */
 export const PESO_DO_SACO = '1,6 kg'
+const GRAMAS_DO_SACO = 1600
+
+/**
+ * Argumento da fórmula concentrada (texto do dono, arquivo
+ * terravik-copy-formula-concentrada.md). Os números que acompanham este texto
+ * nas telas são CALCULADOS a partir do rendimento e do preço de cada produto:
+ * mudou o rendimento ou o preço, a frase acompanha.
+ */
+export const ARGUMENTO = {
+  sobretitulo: 'Fórmula concentrada',
+  titulo: 'Você não paga pelo saco. Paga pelo que ele faz no seu gramado.',
+  paragrafos: [
+    'A maioria dos fertilizantes de jardim usa misturas genéricas, com nutrientes diluídos. Para ter resultado, você precisa aplicar mais produto em cada metro quadrado.',
+    'A Terravik faz o caminho contrário: cada grânulo tem um trabalho específico.',
+  ],
+  /** Só aparece nos produtos com `compararDose`. Comparação sem citar marca. */
+  comparacao: 'Fórmulas comuns costumam pedir 30 g/m² ou mais.',
+} as const
+
+export const A_CONTA = {
+  sobretitulo: 'A conta que ninguém faz',
+  titulo: 'Preço por saco engana. Compare o preço por metro quadrado.',
+  texto:
+    'Um fertilizante mais barato na prateleira pode sair mais caro no gramado, porque você precisa usar mais. Com a dose certa, você aplica a quantidade exata, sem sobra parada na garagem e sem desperdício.',
+} as const
+
+export const DOSADOR_INCLUSO = {
+  titulo: 'A dose certa, sem adivinhar',
+  texto:
+    'Excesso de fertilizante queima a grama. Pouco produto não dá resultado. É por isso que todo saco Terravik vem com dosador: você mede, espalha e pronto. Sem balança e sem cálculo.',
+} as const
+
+export const CHAMADA_FINAL = 'Seu gramado não precisa de mais adubo. Precisa do adubo certo.'
+
+const OBJECAO_DE_PRECO: PerguntaDaLp = {
+  pergunta: 'Por que custa mais que o adubo do mercado?',
+  resposta:
+    'Porque rende mais. Você aplica menos produto por m² e trata uma área grande com um único saco. O que importa é o preço por metro quadrado tratado, não o preço da embalagem.',
+}
+
+/** Gramas por m², derivadas do rendimento do saco. */
+export function gramasPorM2(rendimento: { m2PorSaco: number }): number {
+  return Math.round(GRAMAS_DO_SACO / rendimento.m2PorSaco)
+}
+
+/** Custo por m² tratado, em reais. null sem preço. */
+export function custoPorM2(preco: number, rendimento: { m2PorSaco: number }): number | null {
+  if (!Number.isFinite(preco) || preco <= 0 || rendimento.m2PorSaco <= 0) return null
+  return preco / rendimento.m2PorSaco
+}
 
 /** Atributos da Tecnologia Grânulo Uniforme, impressos nas três embalagens. */
 export const GRANULO_UNIFORME = {
@@ -186,6 +247,8 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
         texto: 'No plantio, na reforma ou quando o gramado estiver muito falhado. Não precisa repetir todo mês.',
       },
     ],
+    trabalho: 'Fósforo e cálcio. É o que a grama nova usa para formar raiz e estrutura.',
+    compararDose: false,
     rendimento: { m2PorSaco: 32, m2PorDosador: 2 },
     quandoUsar: {
       titulo: 'Uso pontual',
@@ -256,6 +319,9 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
         texto: 'Recupera o gramado amarelado. Se precisar, repita a cada 30 a 45 dias até o verde voltar.',
       },
     ],
+    trabalho:
+      '21% de nitrogênio e 24% de enxofre. É o que a grama usa para produzir verde, sem enchimento.',
+    compararDose: true,
     rendimento: { m2PorSaco: 96, m2PorDosador: 6 },
     quandoUsar: {
       titulo: 'Recuperação',
@@ -286,6 +352,7 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
         resposta:
           'O saco de 1,6 kg rende até 96 m². Um dosador raso cobre cerca de 6 m². O dosador vem dentro da embalagem.',
       },
+      OBJECAO_DE_PRECO,
       {
         pergunta: 'O Verde Rápido é uma tinta para grama?',
         resposta:
@@ -330,6 +397,9 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
     // O rótulo lido (frente) dá o rendimento. A cobertura do dosador é
     // DEDUÇÃO: nos outros dois produtos o saco equivale a 16 dosadores rasos.
     // Confirmar no verso da embalagem da Resistência Total.
+    trabalho:
+      'Nutrição completa com potássio, o nutriente que a grama usa para aguentar sol, pisoteio e seca.',
+    compararDose: true,
     rendimento: { m2PorSaco: 64, m2PorDosador: 4, dosadorEstimado: true },
     quandoUsar: {
       titulo: 'Manutenção',
@@ -347,6 +417,7 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
         pergunta: 'Quanto rende um saco?',
         resposta: 'O saco de 1,6 kg rende até 64 m². O dosador vem dentro da embalagem.',
       },
+      OBJECAO_DE_PRECO,
       ...PERGUNTAS_COMUNS,
     ],
   },
