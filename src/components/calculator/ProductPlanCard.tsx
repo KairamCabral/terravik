@@ -32,6 +32,10 @@ const productColors: Record<string, { bg: string; border: string; badge: string 
   },
 }
 
+function capitalizar(texto: string): string {
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+}
+
 export function ProductPlanCard({ plan }: ProductPlanCardProps) {
   const catalog = CATALOG[plan.product_id]
   const colors = productColors[plan.product_id]
@@ -55,7 +59,8 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
         return
       }
 
-      await addItem(variant.id, 1, undefined, 'calculadora')
+      // A quantidade é a de sacos que a área pede, não 1 fixo.
+      await addItem(variant.id, Math.max(1, plan.packs_qty), undefined, 'calculadora')
       setShowSuccess(true)
       setTimeout(() => {
         setShowSuccess(false)
@@ -100,7 +105,15 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
             Dose por m²
           </p>
           <p className="font-display text-4xl font-bold text-terravik-green md:text-5xl">
-            {plan.dose_g_m2}g
+            {plan.dose_approx && (
+              <span className="mr-2 font-sans text-base font-medium text-terravik-brown/70">
+                cerca de
+              </span>
+            )}
+            {plan.dose_g_m2} g
+          </p>
+          <p className="mt-2 text-sm text-terravik-brown/70">
+            {plan.scoop_display}.
           </p>
         </div>
         <div>
@@ -109,6 +122,10 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
           </p>
           <p className="font-display text-4xl font-bold text-terravik-brown md:text-5xl">
             {plan.need_display}
+          </p>
+          <p className="mt-2 text-sm text-terravik-brown/70">
+            {capitalizar(plan.dosadores_display)} no total. Você precisa de{' '}
+            {plan.packs_display}.
           </p>
         </div>
       </div>
@@ -122,13 +139,13 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
       </div>
 
       {/* Frequência */}
-      {plan.frequency_days > 0 && (
+      {plan.frequency_display && (
         <div className="border-b border-terravik-brown/5 bg-white p-6 md:p-7">
           <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-terravik-brown/60">
             Frequência
           </h4>
           <p className="text-sm text-terravik-brown md:text-base">
-            Reaplicar {plan.frequency_display}
+            {plan.frequency_display}
           </p>
         </div>
       )}
@@ -154,7 +171,7 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
       {plan.notes.length > 0 && (
         <div className="border-b border-terravik-brown/5 bg-white p-6 md:p-7">
           <h4 className="mb-4 text-xs font-bold uppercase tracking-wide text-terravik-brown/60">
-            Notas importantes
+            Cuidados
           </h4>
           <ul className="space-y-2">
             {plan.notes.map((note, index) => (
@@ -181,7 +198,7 @@ export function ProductPlanCard({ plan }: ProductPlanCardProps) {
           ) : (
             <>
               <ShoppingCart className="h-5 w-5" />
-              Adicionar {plan.name} ao Carrinho
+              Adicionar {plan.packs_display} ao carrinho
             </>
           )}
         </Button>

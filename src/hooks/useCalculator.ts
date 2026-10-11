@@ -82,7 +82,7 @@ export function useCalculator() {
   useEffect(() => {
     if (state.result) {
       try {
-        localStorage.setItem('terravik-calculator-result', JSON.stringify(state.result))
+        localStorage.setItem('terravik-calculator-result-v2', JSON.stringify(state.result))
       } catch {
         // Ignorar erro (storage cheio, etc)
       }

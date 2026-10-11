@@ -5,22 +5,25 @@ interface CalendarBlockProps {
   plan: ProductPlan[]
 }
 
+const DIA_MS = 24 * 60 * 60 * 1000
+
+function dataDaqui(dias: number): string {
+  return new Date(Date.now() + dias * DIA_MS).toLocaleDateString('pt-BR', {
+    day: 'numeric',
+    month: 'long',
+  })
+}
+
 export function CalendarBlock({ plan }: CalendarBlockProps) {
-  // Produto com maior frequência (excluindo P1 que é aplicação única)
-  const nextProduct = plan
-    .filter((p) => p.frequency_days > 0)
-    .sort((a, b) => a.frequency_days - b.frequency_days)[0]
+  const primeiro = plan[0]
+  const demais = plan.slice(1)
 
-  const todayProducts = plan.map((p) => p.name).join(', ')
-
-  // Data da próxima aplicação (exemplo)
-  const nextDate = nextProduct
-    ? new Date(Date.now() + nextProduct.frequency_days * 24 * 60 * 60 * 1000)
-        .toLocaleDateString('pt-BR', {
-          day: 'numeric',
-          month: 'long',
-        })
-    : null
+  // Só entra aqui quem o rótulo manda repetir, e com o intervalo do rótulo.
+  // Uso pontual (Raiz Forte) e intervalo desconhecido (Resistência Total)
+  // ficam de fora: o plano não agenda o que o rótulo não diz.
+  const repetiveis = plan.filter(
+    (p) => p.frequency_kind === 'se_precisar' && p.frequency_days > 0
+  )
 
   return (
     <div className="rounded-2xl border-2 border-terravik-brown/10 bg-white p-6">
@@ -40,30 +43,42 @@ export function CalendarBlock({ plan }: CalendarBlockProps) {
 
       <div className="space-y-3">
         {/* Hoje */}
-        <div className="flex items-start gap-3 rounded-xl bg-terravik-green/5 p-4">
-          <Clock className="mt-1 h-5 w-5 flex-shrink-0 text-terravik-green" />
-          <div>
-            <p className="font-medium text-terravik-brown">Hoje</p>
-            <p className="text-sm text-terravik-brown/70">
-              Aplicar {todayProducts}
-            </p>
-          </div>
-        </div>
-
-        {/* Próxima aplicação */}
-        {nextProduct && nextDate && (
-          <div className="flex items-start gap-3 rounded-xl border border-terravik-brown/10 p-4">
-            <Calendar className="mt-1 h-5 w-5 flex-shrink-0 text-terravik-brown/60" />
+        {primeiro && (
+          <div className="flex items-start gap-3 rounded-xl bg-terravik-green/5 p-4">
+            <Clock className="mt-1 h-5 w-5 flex-shrink-0 text-terravik-green" />
             <div>
-              <p className="font-medium text-terravik-brown">
-                Próxima aplicação
-              </p>
+              <p className="font-medium text-terravik-brown">Hoje</p>
               <p className="text-sm text-terravik-brown/70">
-                Aproximadamente em {nextDate} — {nextProduct.name}
+                Aplicar {primeiro.name}
+                {demais.length > 0 &&
+                  `. Depois, um produto por vez, na ordem da embalagem: ${demais
+                    .map((p) => p.name)
+                    .join(', ')}. Não some as doses no mesmo dia.`}
               </p>
             </div>
           </div>
         )}
+
+        {/* Repetição, só a que o rótulo informa */}
+        {repetiveis.map((p) => (
+          <div
+            key={p.product_id}
+            className="flex items-start gap-3 rounded-xl border border-terravik-brown/10 p-4"
+          >
+            <Calendar className="mt-1 h-5 w-5 flex-shrink-0 text-terravik-brown/60" />
+            <div>
+              <p className="font-medium text-terravik-brown">
+                {p.name}: repetir só se precisar
+              </p>
+              <p className="text-sm text-terravik-brown/70">
+                {p.frequency_display}
+                {/* A data só vale para o produto aplicado hoje. */}
+                {p === primeiro &&
+                  ` Aplicando hoje, a janela vai de ${dataDaqui(p.frequency_days)} a ${dataDaqui(p.frequency_days_max)}.`}
+              </p>
+            </div>
+          </div>
+        ))}
 
         {/* Lembrete */}
         <div className="flex items-start gap-3 rounded-xl bg-blue-50 p-4">
@@ -71,7 +86,8 @@ export function CalendarBlock({ plan }: CalendarBlockProps) {
           <div>
             <p className="font-medium text-blue-900">Lembrete</p>
             <p className="text-sm text-blue-800">
-              Sempre regue após aplicar para ativar o fertilizante.
+              Regue imediatamente após aplicar: a água dissolve os grânulos e
+              leva a nutrição até a raiz.
             </p>
           </div>
         </div>

@@ -1,18 +1,24 @@
 /**
- * Motor de Cálculo — Calculadora/Quiz Terravik
+ * Motor de Cálculo da Calculadora Terravik.
  *
  * Funções puras, sem side effects.
- * Implementa a spec de Calculadora_Quiz.md
+ *
+ * REGRA CENTRAL: a dose é a do rótulo, e nada passa dela. O rótulo diz "não
+ * exceda a dose recomendada, o excesso queima a grama". As respostas do quiz
+ * (clima, sol, rega, pisoteio, estado do gramado) escolhem QUAIS produtos
+ * entram no plano e quais avisos aparecem. Elas não mexem mais na dose:
+ * o rótulo traz um valor só por produto, e não dá base para faixa nenhuma.
  */
 
 import type {
   CalculatorInput,
   CalculatorResult,
+  CatalogProduct,
   ProductPlan,
   ProductId,
   PackRecommendation,
 } from '@/types/calculator'
-import { CATALOG, DEFAULTS } from './constants'
+import { CATALOG, PACK_LABEL } from './constants'
 
 // ============================================================
 // 1) DECISÃO: quais produtos entram no plano
@@ -54,192 +60,109 @@ export function selectProducts(input: CalculatorInput): ProductId[] {
       break
   }
 
-  // Remover duplicatas
+  // Remover duplicatas. A ordem P1, P2, P3 é a da linha do tempo da embalagem.
   return [...new Set(products)]
 }
 
 // ============================================================
-// 2) CÁLCULO DE DOSE (g/m²) por produto
+// 2) DOSE (g/m²): a do rótulo, sempre
 // ============================================================
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value))
+/**
+ * Dose em g/m². Devolve a dose do rótulo, que é o teto.
+ * Não recebe as respostas do quiz de propósito: o contexto do gramado não
+ * altera a dose.
+ */
+export function calculateDose(productId: ProductId): number {
+  return CATALOG[productId].doseLabel
 }
 
-export function calculateDoseP1(input: CalculatorInput): number {
-  let dose = CATALOG.P1.doseDefault // 10
-
-  if (input.nivel === 'ralo_falhas') dose += 1
-  if (input.clima_hoje === 'quente_chovendo') dose += 1
-  if (input.irrigacao === 'quase_nao') dose -= 1
-  if (input.clima_hoje === 'frio') dose -= 1
-
-  return clamp(dose, CATALOG.P1.doseMin, CATALOG.P1.doseMax)
-}
-
-export function calculateDoseP2(input: CalculatorInput): number {
-  let dose = CATALOG.P2.doseDefault // 18
-
-  if (input.nivel === 'fraco_amarelado' || input.nivel === 'ralo_falhas') {
-    dose += 2
-  }
-  if (input.clima_hoje === 'quente_chovendo') dose += 1
-  if (input.clima_hoje === 'quente_seco' && input.irrigacao === 'quase_nao') {
-    dose -= 2
-  }
-  if (input.sol === 'meia_sombra' || input.sol === 'sombra') dose -= 1
-  if (input.clima_hoje === 'frio') dose -= 2
-
-  return clamp(dose, CATALOG.P2.doseMin, CATALOG.P2.doseMax)
-}
-
-export function calculateDoseP3(input: CalculatorInput): number {
-  let dose = CATALOG.P3.doseDefault // 20
-
-  if (input.pisoteio === 'alto') dose += 3
-  if (input.clima_hoje === 'quente_seco' && input.irrigacao !== 'quase_nao') {
-    dose += 2
-  }
-  if (input.irrigacao === 'quase_nao') dose -= 3
-  if (input.sol === 'sombra') dose -= 3
-  if (input.clima_hoje === 'frio') dose -= 5
-
-  return clamp(dose, CATALOG.P3.doseMin, CATALOG.P3.doseMax)
-}
-
-export function calculateDose(
-  productId: ProductId,
-  input: CalculatorInput
-): number {
-  switch (productId) {
-    case 'P1':
-      return calculateDoseP1(input)
-    case 'P2':
-      return calculateDoseP2(input)
-    case 'P3':
-      return calculateDoseP3(input)
-  }
+/**
+ * Gramas que a área pede, pela conta do rótulo: o saco inteiro cobre
+ * `yieldM2`. Usa o rendimento e não a dose arredondada, para o Verde Rápido
+ * (16,7 g/m², escrito "cerca de 17") não passar do rótulo em área grande.
+ */
+export function calculateNeedGrams(area_m2: number, product: CatalogProduct): number {
+  return Math.round((area_m2 * product.packGrams) / product.yieldM2)
 }
 
 // ============================================================
-// 3) RECOMENDAÇÃO DE EMBALAGENS (menor sobra)
+// 3) DOSADORES (a linguagem do rótulo)
 // ============================================================
 
+/**
+ * Dosadores rasos que a área pede, em passos de meio dosador e arredondando
+ * para BAIXO: na dúvida, o plano fica aquém do rótulo, nunca além.
+ */
+export function calculateScoops(area_m2: number, product: CatalogProduct): number {
+  return Math.floor((area_m2 / product.scoopM2) * 2 + 1e-9) / 2
+}
+
+export function formatScoops(scoops: number): string {
+  if (scoops < 0.5) return 'menos de meio dosador raso'
+  if (scoops === 0.5) return 'cerca de meio dosador raso'
+  const inteiros = Math.floor(scoops)
+  const meio = scoops - inteiros >= 0.5
+  const base = `${inteiros.toLocaleString('pt-BR')} ${inteiros === 1 ? 'dosador raso' : 'dosadores rasos'}`
+  return `cerca de ${base}${meio ? ' e meio' : ''}`
+}
+
+// ============================================================
+// 4) SACOS: um tamanho só
+// ============================================================
+
+/** Quantos sacos a área precisa: o menor número inteiro que cobre a área. */
 export function recommendPacks(
-  needGrams: number,
-  availablePacks: number[]
+  area_m2: number,
+  product: CatalogProduct
 ): PackRecommendation[] {
-  // Ordenar packs do maior para o menor
-  const sortedPacks = [...availablePacks].sort((a, b) => b - a)
-
-  // Para caso simples (1 tamanho, ex: P2 só tem 2700g)
-  if (sortedPacks.length === 1) {
-    const packSize = sortedPacks[0]
-    const qty = Math.ceil(needGrams / packSize)
-    return [
-      {
-        size_g: packSize,
-        qty,
-        label: `${qty}× ${formatPackSize(packSize)}`,
-      },
-    ]
-  }
-
-  // Para 2 tamanhos (400g e 900g): busca menor sobra
-  type Combo = { packs: PackRecommendation[]; total: number; waste: number }
-  let bestCombo: Combo | null = null
-
-  const largest = sortedPacks[0]
-  const smallest = sortedPacks[1]
-  const maxLarge = Math.ceil(needGrams / smallest) // upper bound
-
-  for (let nLarge = 0; nLarge <= maxLarge; nLarge++) {
-    const remaining = needGrams - nLarge * largest
-    if (remaining <= 0) {
-      // Só com large
-      const total = nLarge * largest
-      const waste = total - needGrams
-      const combo: Combo = {
-        packs: [
-          {
-            size_g: largest,
-            qty: nLarge,
-            label: `${nLarge}× ${formatPackSize(largest)}`,
-          },
-        ],
-        total,
-        waste,
-      }
-      if (!bestCombo || waste < bestCombo.waste) {
-        bestCombo = combo
-      }
-      continue
-    }
-
-    const nSmall = Math.ceil(remaining / smallest)
-    const total = nLarge * largest + nSmall * smallest
-    const waste = total - needGrams
-
-    const packs: PackRecommendation[] = []
-    if (nLarge > 0) {
-      packs.push({
-        size_g: largest,
-        qty: nLarge,
-        label: `${nLarge}× ${formatPackSize(largest)}`,
-      })
-    }
-    if (nSmall > 0) {
-      packs.push({
-        size_g: smallest,
-        qty: nSmall,
-        label: `${nSmall}× ${formatPackSize(smallest)}`,
-      })
-    }
-
-    const combo: Combo = { packs, total, waste }
-
-    if (
-      !bestCombo ||
-      waste < bestCombo.waste ||
-      (waste === bestCombo.waste &&
-        packs.reduce((s, p) => s + p.qty, 0) <
-          bestCombo.packs.reduce((s, p) => s + p.qty, 0))
-    ) {
-      bestCombo = combo
-    }
-  }
-
-  return bestCombo?.packs || []
+  const qty = Math.max(1, Math.ceil(area_m2 / product.yieldM2 - 1e-9))
+  return [
+    {
+      size_g: product.packGrams,
+      qty,
+      label: `${qty} ${qty === 1 ? 'saco' : 'sacos'} de ${PACK_LABEL}`,
+    },
+  ]
 }
 
 // ============================================================
-// 4) ALERTAS CONDICIONAIS
+// 5) ALERTAS CONDICIONAIS
 // ============================================================
 
-export function generateAlerts(input: CalculatorInput): string[] {
+export function generateAlerts(
+  input: CalculatorInput,
+  productIds: ProductId[] = selectProducts(input)
+): string[] {
   const alerts: string[] = []
+
+  if (productIds.length > 1) {
+    alerts.push(
+      'Aplique um produto por vez, na ordem da linha do tempo da embalagem. Não some as doses no mesmo dia.'
+    )
+  }
 
   if (input.irrigacao === 'quase_nao') {
     alerts.push(
-      'Sem irrigação, o produto não ativa direito. Recomendamos dose menor e aplicação antes de uma rega.'
+      'O fertilizante só funciona com água. Aplique apenas quando puder regar logo em seguida.'
+    )
+  }
+
+  if (input.clima_hoje === 'quente_seco') {
+    alerts.push(
+      'No calor, aplique de manhã ou no fim da tarde. Evite o sol forte do meio-dia.'
     )
   }
 
   if (input.clima_hoje === 'frio') {
     alerts.push(
-      'No frio o gramado cresce menos. Você pode reduzir dose ou pausar o plano até o crescimento voltar.'
+      'No frio o gramado cresce menos, e o resultado pode demorar mais para aparecer.'
     )
   }
 
-  if (input.clima_hoje === 'quente_seco' && input.irrigacao === 'quase_nao') {
+  if (input.pisoteio === 'alto' && !productIds.includes('P3')) {
     alerts.push(
-      'Evite dose alta com o gramado seco. Primeiro regue e aplique com dose reduzida.'
-    )
-  }
-
-  if (input.pisoteio === 'alto') {
-    alerts.push(
-      'Seu gramado tem uso intenso. A linha Resistência Total tende a dar o melhor retorno com constância.'
+      'Seu gramado tem uso intenso. O Resistência Total é o produto da linha para aguentar seca, sol e pisoteio.'
     )
   }
 
@@ -247,60 +170,48 @@ export function generateAlerts(input: CalculatorInput): string[] {
 }
 
 // ============================================================
-// 5) MOTOR PRINCIPAL — gera o plano completo
+// 6) MOTOR PRINCIPAL: gera o plano completo
 // ============================================================
 
 export function generatePlan(input: CalculatorInput): CalculatorResult {
   const productIds = selectProducts(input)
-  const alerts = generateAlerts(input)
+  const alerts = generateAlerts(input, productIds)
 
   const plan: ProductPlan[] = productIds.map((pid) => {
     const catalog = CATALOG[pid]
-    const dose = calculateDose(pid, input)
-    const needGrams = Math.round(input.area_m2 * dose)
-    const packs = recommendPacks(needGrams, catalog.packs)
-
-    const frequencyDays = Math.round(
-      ((catalog.frequencyWeeksMin + catalog.frequencyWeeksMax) / 2) * 7
-    )
-
-    // Notas específicas do produto
-    const notes: string[] = [
-      'Aplique com o gramado seco e regue depois.',
-      'Evite aplicar no sol forte do meio-dia.',
-    ]
-
-    if (pid === 'P2' && input.irrigacao === 'quase_nao') {
-      notes.push('Se o gramado estiver sem irrigação e muito seco, use dose menor.')
-    }
-
-    if (pid === 'P3') {
-      notes.push(
-        'Para resistência de verdade, a constância vale mais do que exagerar na dose.'
-      )
-    }
+    const needGrams = calculateNeedGrams(input.area_m2, catalog)
+    const packs = recommendPacks(input.area_m2, catalog)
+    const scoops = calculateScoops(input.area_m2, catalog)
 
     return {
       product_id: pid,
       name: catalog.name,
-      dose_g_m2: dose,
+      dose_g_m2: catalog.doseLabel,
+      dose_display: `${catalog.doseApprox ? 'cerca de ' : ''}${catalog.doseLabel} g`,
+      dose_approx: catalog.doseApprox,
       need_g: needGrams,
       need_display: formatGrams(needGrams),
+      dosadores: scoops,
+      dosadores_display: formatScoops(scoops),
+      scoop_display: `1 dosador raso cobre cerca de ${catalog.scoopM2} m²`,
       packs,
       packs_display: packs.map((p) => p.label).join(' + '),
-      frequency_days: frequencyDays,
-      frequency_display: `a cada ${catalog.frequencyWeeksMin}–${catalog.frequencyWeeksMax} semanas`,
-      notes,
+      packs_qty: packs.reduce((sum, p) => sum + p.qty, 0),
+      frequency_kind: catalog.frequencyKind,
+      // Só agenda repetição quando o rótulo dá o intervalo.
+      frequency_days: catalog.repeatDaysMin ?? 0,
+      frequency_days_max: catalog.repeatDaysMax ?? 0,
+      frequency_display: catalog.frequencyText,
+      notes: catalog.warnings,
       whenToUse: catalog.whenToUse,
       applicationSteps: catalog.applicationSteps,
     }
   })
 
-  const nextSteps = ['Aplicar hoje']
-  if (plan.some((p) => p.frequency_days > 0 && p.product_id !== 'P1')) {
-    const nextPlan = plan.find((p) => p.product_id !== 'P1')
-    if (nextPlan) {
-      nextSteps.push(`Reaplicar em ${nextPlan.frequency_display}`)
+  const nextSteps = [`Começar por ${plan[0]?.name ?? 'seu produto'}`]
+  for (const p of plan) {
+    if (p.frequency_kind === 'se_precisar') {
+      nextSteps.push(`${p.name}: ${lowerFirst(p.frequency_display)}`)
     }
   }
 
@@ -322,16 +233,13 @@ export function generatePlan(input: CalculatorInput): CalculatorResult {
 
 function formatGrams(grams: number): string {
   if (grams >= 1000) {
-    const kg = grams / 1000
-    return `${kg.toFixed(1).replace('.', ',')} kg`
+    // Até duas casas, sem zeros sobrando: 1250 g vira "1,25 kg", não "1,3 kg".
+    const kg = (grams / 1000).toFixed(2).replace(/\.?0+$/, '')
+    return `${kg.replace('.', ',')} kg`
   }
   return `${grams} g`
 }
 
-function formatPackSize(grams: number): string {
-  if (grams >= 1000) {
-    const kg = grams / 1000
-    return `${kg.toString().replace('.', ',')}kg`
-  }
-  return `${grams}g`
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1)
 }

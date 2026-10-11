@@ -35,4 +35,4 @@ export const CURADORIA_DA_COMPRA_RAPIDA: CuradoriaDaCompraRapida[] = [
   { handle: 'resistencia-total', badge: null, pitch: 'Resistência à seca, ao sol e ao pisoteio' },
 ]
 
-export const CALCULATOR_RESULT_KEY = 'terravik-calculator-result'
+export const CALCULATOR_RESULT_KEY = 'terravik-calculator-result-v2'

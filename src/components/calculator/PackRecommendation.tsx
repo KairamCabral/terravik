@@ -14,10 +14,10 @@ export function PackRecommendation({ plan }: PackRecommendationProps) {
         </div>
         <div>
           <h3 className="font-display text-xl font-bold text-terravik-brown">
-            Embalagens ideais para sua área
+            Quantos sacos sua área precisa
           </h3>
           <p className="text-sm text-terravik-brown/60">
-            Calculado para evitar sobra ou falta
+            Saco de 1,6 kg, com dosador dentro da embalagem
           </p>
         </div>
       </div>
@@ -33,7 +33,7 @@ export function PackRecommendation({ plan }: PackRecommendationProps) {
                 {product.name}
               </h4>
               <span className="text-sm text-terravik-brown/60">
-                {product.need_display}
+                {product.need_display} ({product.dosadores_display})
               </span>
             </div>
             <p className="font-display text-lg font-bold text-terravik-green">
@@ -44,7 +44,8 @@ export function PackRecommendation({ plan }: PackRecommendationProps) {
       </div>
 
       <p className="mt-4 text-sm text-terravik-brown/60">
-        💡 Se você tem mais área ou quer fazer 2 aplicações, aumente 1 unidade.
+        💡 A conta cobre uma aplicação na área informada. Não use o que sobrar
+        para reforçar a dose: o excesso queima a grama.
       </p>
     </div>
   )
