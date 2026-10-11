@@ -5,8 +5,9 @@
  * folha de estilo nem classe do Tailwind. As cores repetem a paleta de
  * src/design-system/colors.ts.
  *
- * O cabeçalho é texto, não imagem: muito cliente bloqueia imagem por padrão,
- * e um e-mail de recuperação de senha precisa ser reconhecível assim mesmo.
+ * O cabeçalho leva a logo. Com imagem bloqueada, o texto alternativo
+ * "Terravik" aparece no lugar, já estilizado: o e-mail continua reconhecível.
+ * A logo é servida pelo próprio site (public/images/email), em endereço fixo.
  *
  * Quem monta os parágrafos é responsável por escapar o que veio do usuário
  * (escaparHtml). O título e o texto do botão são escapados aqui.
@@ -26,11 +27,15 @@ export const CORES = {
   borda: '#E6E0D4',
 } as const
 
-const NOME_DA_MARCA = 'Terravik'
 const ASSINATURA = 'Terravik, fertilizantes para gramado'
 
 function urlDoSite(): string {
   return (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.terravik.com.br').replace(/\/$/, '')
+}
+
+function urlDaLogo(): string {
+  // Sempre o site público: em localhost a imagem não abriria na caixa de entrada.
+  return 'https://www.terravik.com.br/images/email/logo-terravik.png'
 }
 
 export interface Corpo {
@@ -44,6 +49,8 @@ export interface Corpo {
   rodape?: string
   /** Frase de prévia que o cliente de e-mail mostra ao lado do assunto. */
   previa?: string
+  /** Linha final, fora do cartão: por que a pessoa recebeu este e-mail. */
+  motivo?: string
 }
 
 export function montarHtml(corpo: Corpo): string {
@@ -83,6 +90,10 @@ export function montarHtml(corpo: Corpo): string {
 
   const site = urlDoSite()
 
+  const motivo = corpo.motivo
+    ? `<p style="margin:8px 0 0;color:${CORES.textoSecundario};font-size:11px;line-height:1.6;">${escaparHtml(corpo.motivo)}</p>`
+    : ''
+
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -96,8 +107,11 @@ export function montarHtml(corpo: Corpo): string {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${CORES.creme};padding:32px 16px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:${CORES.superficie};border:1px solid ${CORES.borda};border-radius:16px;overflow:hidden;">
-        <tr><td style="background:${CORES.forest};padding:20px 28px;border-bottom:3px solid ${CORES.gold};">
-          <span style="color:#ffffff;font-size:18px;font-weight:700;letter-spacing:2px;">TERRAVIK</span>
+        <tr><td style="background:${CORES.superficie};padding:24px 28px 20px;border-bottom:3px solid ${CORES.gold};">
+          <a href="${site}" style="text-decoration:none;">
+            <img src="${urlDaLogo()}" width="220" height="54" alt="Terravik"
+                 style="display:block;border:0;outline:none;width:220px;height:auto;max-width:100%;color:${CORES.forest};font-size:22px;font-weight:700;letter-spacing:2px;">
+          </a>
         </td></tr>
         <tr><td style="padding:28px 28px 24px;">
           <h1 style="margin:0 0 12px;color:${CORES.forest};font-size:22px;line-height:1.3;font-weight:700;">${escaparHtml(corpo.titulo)}</h1>
@@ -111,6 +125,7 @@ export function montarHtml(corpo: Corpo): string {
         ${ASSINATURA}<br>
         <a href="${site}" style="color:${CORES.forest};">${site.replace(/^https?:\/\//, '')}</a>
       </p>
+      ${motivo}
     </td></tr>
   </table>
 </body>
@@ -134,6 +149,7 @@ export function montarTexto(corpo: Corpo): string {
   const partes = [corpo.titulo, '', ...corpo.paragrafos.map(semHtml)]
   if (corpo.acao) partes.push('', `${corpo.acao.texto}: ${corpo.acao.url}`)
   if (corpo.aviso) partes.push('', semHtml(corpo.aviso))
-  partes.push('', NOME_DA_MARCA, urlDoSite())
+  partes.push('', ASSINATURA, urlDoSite())
+  if (corpo.motivo) partes.push('', corpo.motivo)
   return partes.join('\n')
 }

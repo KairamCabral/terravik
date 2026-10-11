@@ -67,18 +67,16 @@ export async function POST(request: NextRequest) {
     return erro('Payload sem e-mail, token_hash ou email_action_type.', 400)
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!supabaseUrl) {
-    console.error('[auth-hook] NEXT_PUBLIC_SUPABASE_URL ausente no servidor.')
-    return erro('Servidor sem NEXT_PUBLIC_SUPABASE_URL.', 500)
-  }
-
   const nome =
     typeof corpo.user?.user_metadata?.full_name === 'string'
       ? (corpo.user.user_metadata.full_name as string)
       : undefined
 
-  const redirectTo = dados.redirect_to || dados.site_url || process.env.NEXT_PUBLIC_SITE_URL || ''
+  // Endereço público do site: é para onde o botão do e-mail aponta quando o
+  // pedido não trouxe um redirect_to utilizável.
+  const siteUrl =
+    dados.site_url || process.env.NEXT_PUBLIC_SITE_URL || 'https://www.terravik.com.br'
+  const redirectTo = dados.redirect_to || siteUrl
 
   /**
    * Troca de e-mail com "Secure email change" ligado: o Supabase manda os
@@ -107,7 +105,7 @@ export async function POST(request: NextRequest) {
         tokenHash: envio.tokenHash,
         token: envio.token,
         redirectTo,
-        supabaseUrl,
+        siteUrl,
       })
 
       await enviarEmail({

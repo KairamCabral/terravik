@@ -19,8 +19,10 @@ export interface DadosDoEmailAuth {
   tokenHash: string
   /** Código de 6 dígitos, usado na confirmação de identidade. */
   token?: string
+  /** URL para onde o site pediu que a pessoa voltasse (já validada pelo Supabase). */
   redirectTo: string
-  supabaseUrl: string
+  /** Endereço público do site, usado quando redirectTo não serve. */
+  siteUrl: string
 }
 
 export interface EmailPronto {
@@ -30,20 +32,32 @@ export interface EmailPronto {
 }
 
 /**
- * O link que o botão abre.
+ * O link que o botão abre: /auth/confirm do próprio site, com o token_hash.
  *
- * O parâmetro se chama `token`, mas carrega o `token_hash`: é o que o
- * endpoint /auth/v1/verify espera. Trocar o nome ou o valor quebra o botão.
- * O Supabase valida, e só então redireciona para `redirect_to` com o código
- * que o /auth/callback do site troca por sessão.
+ * A rota confere o token com verifyOtp e abre a sessão no servidor, então o
+ * link funciona em qualquer aparelho. O caminho antigo, pelo /auth/v1/verify
+ * do Supabase, só funcionava no mesmo navegador que fez o pedido.
+ *
+ * A origem vem de `redirectTo`, que o Supabase já conferiu contra a lista de
+ * Redirect URLs (é o que faz o link de um pedido feito em localhost voltar
+ * para localhost). Sem redirectTo utilizável, vale o endereço do site.
  */
-export function linkDeVerificacao(d: DadosDoEmailAuth): string {
-  const params = new URLSearchParams({
-    token: d.tokenHash,
-    type: d.acao,
-    redirect_to: d.redirectTo,
-  })
-  return `${d.supabaseUrl.replace(/\/$/, '')}/auth/v1/verify?${params.toString()}`
+export function linkDeConfirmacao(d: DadosDoEmailAuth): string {
+  let origem = d.siteUrl.replace(/\/$/, '')
+  try {
+    const url = new URL(d.redirectTo)
+    if (url.protocol === 'https:' || url.hostname === 'localhost') origem = url.origin
+  } catch {
+    // redirectTo vazio ou inválido: fica o endereço do site
+  }
+
+  const params = new URLSearchParams({ token_hash: d.tokenHash, type: tipoDoLink(d.acao) })
+  return `${origem}/auth/confirm?${params.toString()}`
+}
+
+/** O Supabase tem três nomes para a troca de e-mail; o verifyOtp aceita um. */
+function tipoDoLink(acao: string): string {
+  return acao.startsWith('email_change') ? 'email_change' : acao
 }
 
 function saudacao(d: DadosDoEmailAuth): string {
@@ -51,16 +65,14 @@ function saudacao(d: DadosDoEmailAuth): string {
   return primeiro ? `Olá, ${escaparHtml(primeiro)}.` : 'Olá.'
 }
 
-const AVISO_IGNORAR =
-  'Se não foi você quem pediu, pode ignorar este e-mail: nada muda enquanto o link não for aberto.'
-
-const VALIDADE = 'O link vale por tempo limitado e só funciona uma vez.'
+const VALIDADE = 'Por segurança, o link só pode ser usado uma vez e expira em pouco tempo.'
 
 interface Receita {
   assunto: string
   titulo: string
   paragrafos: string[]
-  textoDoBotao: string
+  /** Sem botão quando a ação se resolve com um código, não com um link. */
+  textoDoBotao?: string
   aviso?: string
   previa: string
 }
@@ -72,38 +84,40 @@ function receita(d: DadosDoEmailAuth): Receita {
   switch (d.acao) {
     case 'recovery':
       return {
-        assunto: 'Redefinir sua senha na Terravik',
-        titulo: 'Vamos redefinir sua senha',
+        assunto: 'Redefina sua senha da Terravik',
+        titulo: 'Redefinição de senha',
         paragrafos: [
-          `${oi} Recebemos um pedido para trocar a senha da conta ${conta}.`,
-          `Clique no botão abaixo para escolher uma senha nova. ${VALIDADE}`,
-          'Abra o link no mesmo navegador em que você fez o pedido.',
+          `${oi} Recebemos um pedido para redefinir a senha da conta ${conta}.`,
+          `Para criar uma nova senha, clique no botão abaixo. ${VALIDADE}`,
         ],
         textoDoBotao: 'Criar nova senha',
-        aviso: AVISO_IGNORAR,
-        previa: 'Use o link para escolher uma senha nova.',
+        aviso: 'Não pediu a troca? Ignore este e-mail. Sua senha atual continua valendo.',
+        previa: 'Use o link para criar uma nova senha.',
       }
 
     case 'signup':
       return {
-        assunto: 'Confirme seu e-mail na Terravik',
-        titulo: 'Falta só confirmar o e-mail',
+        assunto: 'Confirme seu e-mail para ativar sua conta Terravik',
+        titulo: 'Confirme seu e-mail',
         paragrafos: [
-          `${oi} Que bom ter você por aqui.`,
-          'Confirme este endereço para ativar sua conta. Com ela você acompanha seus pedidos, salva favoritos e acessa os cursos sobre gramado.',
+          `${oi} Sua conta na Terravik foi criada.`,
+          'Para ativá-la, confirme que este endereço é seu. Com a conta ativa você acompanha seus pedidos, salva seus produtos favoritos e acessa os cursos sobre cuidados com o gramado.',
         ],
-        textoDoBotao: 'Confirmar meu e-mail',
-        aviso: 'Se você não criou conta na Terravik, pode ignorar este e-mail.',
-        previa: 'Confirme seu e-mail para ativar a conta.',
+        textoDoBotao: 'Confirmar e-mail',
+        aviso: 'Não criou esta conta? Ignore este e-mail e nada será ativado.',
+        previa: 'Falta um clique para ativar sua conta.',
       }
 
     case 'magiclink':
       return {
         assunto: 'Seu link de acesso à Terravik',
-        titulo: 'Entrar sem senha',
-        paragrafos: [`${oi} Use o botão abaixo para entrar na sua conta. ${VALIDADE}`],
+        titulo: 'Acesso à sua conta',
+        paragrafos: [
+          `${oi} Clique no botão abaixo para entrar na conta ${conta}, sem precisar de senha.`,
+          VALIDADE,
+        ],
         textoDoBotao: 'Entrar na minha conta',
-        aviso: AVISO_IGNORAR,
+        aviso: 'Não pediu este acesso? Ignore este e-mail. Ninguém entra na sua conta sem o link.',
         previa: 'Seu link para entrar na conta.',
       }
 
@@ -111,51 +125,55 @@ function receita(d: DadosDoEmailAuth): Receita {
     case 'email_change_new':
     case 'email_change_current':
       return {
-        assunto: 'Confirme a troca de e-mail na Terravik',
-        titulo: 'Confirme a troca de e-mail',
+        assunto: 'Confirme a troca de e-mail da sua conta Terravik',
+        titulo: 'Troca de e-mail',
         paragrafos: [
-          `${oi} Recebemos um pedido para trocar o e-mail da sua conta Terravik. Este endereço, ${conta}, faz parte da troca.`,
-          'Confirme para concluir. Até lá, o endereço atual continua valendo.',
+          `${oi} Recebemos um pedido para trocar o e-mail da sua conta Terravik. O endereço ${conta} faz parte dessa troca.`,
+          `Clique no botão abaixo para confirmar. Até a confirmação, o e-mail atual da conta continua valendo. ${VALIDADE}`,
         ],
-        textoDoBotao: 'Confirmar a troca',
-        aviso: AVISO_IGNORAR,
+        textoDoBotao: 'Confirmar troca de e-mail',
+        aviso:
+          'Não pediu a troca? Ignore este e-mail e, por precaução, redefina sua senha pelo site.',
         previa: 'Confirme a troca de e-mail da sua conta.',
       }
 
     case 'invite':
       return {
-        assunto: 'Você foi convidado para a Terravik',
-        titulo: 'Seu convite chegou',
+        assunto: 'Seu acesso à Terravik está pronto',
+        titulo: 'Você recebeu um convite',
         paragrafos: [
-          `${oi} Criamos um acesso para ${conta}.`,
-          'Use o botão abaixo para definir sua senha e entrar.',
+          `${oi} Criamos um acesso à Terravik para ${conta}.`,
+          `Clique no botão abaixo para definir sua senha e entrar. ${VALIDADE}`,
         ],
-        textoDoBotao: 'Aceitar o convite',
+        textoDoBotao: 'Definir senha e entrar',
+        aviso: 'Não esperava este convite? Ignore este e-mail.',
         previa: 'Defina sua senha e entre na conta.',
       }
 
     case 'reauthentication':
       return {
-        assunto: 'Confirme que é você, na Terravik',
-        titulo: 'Confirmação de identidade',
+        assunto: 'Seu código de confirmação da Terravik',
+        titulo: 'Código de confirmação',
         paragrafos: [
-          `${oi} Para concluir a operação, confirme que é você.`,
+          `${oi} Para concluir a operação na sua conta, informe o código abaixo na tela em que ele foi pedido.`,
           d.token
-            ? `Seu código é <strong style="font-size:20px;letter-spacing:2px;">${escaparHtml(d.token)}</strong>.`
-            : 'Use o botão abaixo para confirmar.',
+            ? `<span style="display:inline-block;padding:12px 20px;background:#F4EFE5;border-radius:12px;color:#093E28;font-size:26px;font-weight:700;letter-spacing:6px;">${escaparHtml(d.token)}</span>`
+            : 'O código não pôde ser gerado. Peça um novo na tela em que ele foi solicitado.',
         ],
-        textoDoBotao: 'Confirmar',
-        aviso: AVISO_IGNORAR,
-        previa: 'Confirme que é você para concluir.',
+        aviso: 'Não foi você? Ignore este e-mail e, por precaução, redefina sua senha pelo site.',
+        previa: 'Use este código para confirmar que é você.',
       }
 
     default:
       return {
-        assunto: 'Confirmação de segurança na Terravik',
+        assunto: 'Confirmação de segurança da sua conta Terravik',
         titulo: 'Confirmação necessária',
-        paragrafos: [`${oi} Precisamos confirmar uma ação na conta ${conta}.`],
+        paragrafos: [
+          `${oi} Precisamos confirmar uma ação na conta ${conta}.`,
+          `Clique no botão abaixo para continuar. ${VALIDADE}`,
+        ],
         textoDoBotao: 'Confirmar',
-        aviso: AVISO_IGNORAR,
+        aviso: 'Não reconhece este pedido? Ignore este e-mail.',
         previa: 'Confirme uma ação na sua conta.',
       }
   }
@@ -163,17 +181,21 @@ function receita(d: DadosDoEmailAuth): Receita {
 
 export function montarEmailDeAuth(d: DadosDoEmailAuth): EmailPronto {
   const r = receita(d)
-  const url = linkDeVerificacao(d)
+  const url = linkDeConfirmacao(d)
 
   const corpo: Corpo = {
     titulo: r.titulo,
     paragrafos: r.paragrafos,
-    acao: { texto: r.textoDoBotao, url },
     aviso: r.aviso,
     previa: r.previa,
-    rodape:
+    motivo: 'Você recebeu este e-mail porque este endereço foi informado em uma conta da Terravik.',
+  }
+
+  if (r.textoDoBotao) {
+    corpo.acao = { texto: r.textoDoBotao, url }
+    corpo.rodape =
       'Se o botão não funcionar, copie e cole este endereço no navegador:<br>' +
-      `<span style="word-break:break-all;">${escaparHtml(url)}</span>`,
+      `<span style="word-break:break-all;">${escaparHtml(url)}</span>`
   }
 
   return {
