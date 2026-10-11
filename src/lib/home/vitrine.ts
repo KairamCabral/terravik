@@ -13,18 +13,18 @@ export interface CuradoriaDaVitrine {
 
 export const CURADORIA_DA_VITRINE: CuradoriaDaVitrine[] = [
   {
-    handle: 'gramado-novo',
-    descricao: 'Rico em fósforo para enraizamento forte desde o início.',
+    handle: 'raiz-forte',
+    descricao: 'Fósforo e cálcio para firmar a raiz no plantio e na reforma.',
     selo: null,
   },
   {
     handle: 'verde-rapido',
-    descricao: 'Alta carga de nitrogênio para verde visível em dias.',
-    selo: 'Mais vendido',
+    descricao: 'Nitrogênio e enxofre para devolver a cor ao gramado amarelado.',
+    selo: null,
   },
   {
     handle: 'resistencia-total',
-    descricao: 'NPK balanceado para gramados sob estresse e pisoteio.',
+    descricao: 'Potássio para a grama resistir à seca, ao sol e ao pisoteio.',
     selo: null,
   },
 ]

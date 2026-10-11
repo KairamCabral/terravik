@@ -96,7 +96,7 @@ export const REVALIDATE = {
 
 // Mapeamento de product_id da calculadora para handles do Shopify
 export const PRODUCT_HANDLE_MAP = {
-  P1: 'gramado-novo',
+  P1: 'raiz-forte',
   P2: 'verde-rapido',
   P3: 'resistencia-total',
 } as const

@@ -30,9 +30,9 @@ export interface CuradoriaDaCompraRapida {
 }
 
 export const CURADORIA_DA_COMPRA_RAPIDA: CuradoriaDaCompraRapida[] = [
-  { handle: 'verde-rapido', badge: 'Mais vendido', pitch: 'Recupere o verde em dias' },
-  { handle: 'gramado-novo', badge: null, pitch: 'Enraizamento forte desde o início' },
-  { handle: 'resistencia-total', badge: null, pitch: 'Proteção contra calor e pisoteio' },
+  { handle: 'verde-rapido', badge: null, pitch: 'Devolve a cor ao gramado amarelado' },
+  { handle: 'raiz-forte', badge: null, pitch: 'Firma a raiz no plantio e na reforma' },
+  { handle: 'resistencia-total', badge: null, pitch: 'Resistência à seca, ao sol e ao pisoteio' },
 ]
 
 export const CALCULATOR_RESULT_KEY = 'terravik-calculator-result'

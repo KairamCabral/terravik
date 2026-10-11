@@ -116,6 +116,12 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      // O produto "Gramado Novo" passou a se chamar "Raiz Forte", como na embalagem.
+      {
+        source: '/produtos/gramado-novo',
+        destination: '/produtos/raiz-forte',
+        permanent: true,
+      },
     ]
   },
   async rewrites() {
