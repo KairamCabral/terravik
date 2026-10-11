@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { generateRecommendation } from '@/lib/subscription/recommendations';
 import { formatPrice } from '@/lib/subscription/pricing';
 import { LawnData, SmartRecommendation as Recommendation } from '@/lib/subscription/types';
+import { useCatalogo } from '@/contexts/CatalogoContext';
 
 interface SmartRecommendationProps {
   lawnData: LawnData;
@@ -30,7 +31,13 @@ export function SmartRecommendation({
   onCustomize,
   className = '' 
 }: SmartRecommendationProps) {
-  const recommendation = generateRecommendation(lawnData);
+  // Nome, variante e preço dos produtos vêm do catálogo da página (CatalogoProvider).
+  const catalogo = useCatalogo();
+  const recommendation = generateRecommendation(lawnData, catalogo);
+
+  // Catálogo sem os produtos da recomendação: melhor não mostrar o cartão
+  // do que mostrar um plano vazio.
+  if (recommendation.recommendedProducts.length === 0) return null;
 
   const confidenceColor = {
     high: 'text-green-600',

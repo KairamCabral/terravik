@@ -10,6 +10,8 @@ import {
   SubscriptionCard 
 } from '@/components/subscription';
 import { SUBSCRIPTION_FAQ } from '@/lib/subscription/mock-data';
+import { getCatalogo } from '@/lib/shopify/catalogo';
+import { REVALIDATE } from '@/lib/utils/constants';
 import { Sparkles, Check, ChevronRight, Package, Calendar, Heart } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -32,7 +34,29 @@ export const metadata: Metadata = {
  * 9. Trust indicators
  * 10. CTA final
  */
-export default function AssinaturaPage() {
+export const revalidate = REVALIDATE.products;
+
+export default async function AssinaturaPage() {
+  // Nome, peso, foto e preço vêm do catálogo: nada de produto escrito à mão.
+  const catalogo = await getCatalogo('assinatura');
+  const produtos = catalogo
+    .filter((p) => p.available && p.featuredImage)
+    .map((p) => {
+      const variante = p.variants.find((v) => v.available) ?? p.variants[0];
+      // Produto de variante única na Shopify chega como "Default Title".
+      const peso = variante?.title && variante.title !== 'Default Title' ? ` ${variante.title}` : '';
+      return {
+        id: p.id,
+        handle: p.handle,
+        name: `Terravik ${p.title}${peso}`,
+        description: p.description,
+        price: variante?.price ?? p.price,
+        image: p.featuredImage!.url,
+      };
+    });
+  // O comparativo usa o preço de um produto real: o primeiro do catálogo.
+  const precoDoComparativo = produtos[0]?.price;
+
   return (
     <div className="min-h-screen bg-cream">
       {/* HERO SECTION */}
@@ -172,15 +196,17 @@ export default function AssinaturaPage() {
       </section>
 
       {/* COMPARATIVO */}
+      {precoDoComparativo !== undefined && (
       <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
           <SubscriptionCompare 
-            basePrice={89.90} 
+            basePrice={precoDoComparativo} 
             frequency={45} 
             quantity={1}
           />
         </div>
       </section>
+      )}
 
       {/* PRODUTOS DISPONÍVEIS */}
       <section className="py-20 px-6">
@@ -195,36 +221,7 @@ export default function AssinaturaPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Produtos mock - em produção virá do Shopify */}
-            {[
-              {
-                id: '1',
-                handle: 'nutricao-completa',
-                name: 'Terravik Nutrição Completa 5kg',
-                description: 'Fórmula balanceada NPK 20-05-20 para manutenção regular',
-                price: 89.90,
-                image: '/images/produtos/nutricao-completa.jpg',
-                coverage: 100
-              },
-              {
-                id: '2',
-                handle: 'gramado-novo',
-                name: 'Terravik Gramado Novo 5kg',
-                description: 'Rico em fósforo (NPK 11-52-00) para gramados novos',
-                price: 94.90,
-                image: '/images/produtos/gramado-novo.jpg',
-                coverage: 100
-              },
-              {
-                id: '3',
-                handle: 'verde-rapido',
-                name: 'Terravik Verde Rápido 3kg',
-                description: 'Ação rápida para recuperação acelerada',
-                price: 69.90,
-                image: '/images/produtos/verde-rapido.jpg',
-                coverage: 60
-              }
-            ].map(product => (
+            {produtos.map(product => (
               <SubscriptionCard 
                 key={product.id} 
                 product={product}

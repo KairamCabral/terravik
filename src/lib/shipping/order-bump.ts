@@ -1,155 +1,137 @@
 // src/lib/shipping/order-bump.ts
 //
-// Sistema de Order Bump inteligente com produtos REAIS do catálogo.
-// Lógica de cross-sell baseada no ciclo de cuidado do gramado:
+// "Leve junto" do carrinho e do checkout.
 //
-//   Implantação (Gramado Novo)
-//       → Crescimento (Verde Rápido)
-//           → Proteção (Resistência Total)
-//               → Manutenção (volta ao ciclo)
+// Aqui ficam só as REGRAS: qual produto oferecer para quem tem qual produto no
+// carrinho, e com que frase. Nome, variante, preço e foto vêm do catálogo
+// (GET /api/catalogo-leve), nunca escritos à mão: o preço daqui já divergiu do
+// catálogo uma vez, e as variantes antigas (400 g, 1 kg) deixaram de existir.
 //
-// SHOPIFY: Em produção, buscar produtos e regras de cross-sell
-// via metafields ou Shopify Functions.
+// A ordem segue a linha do tempo impressa nas embalagens:
+//
+//   1 Raiz Forte (firmar raiz)
+//       → 2 Verde Rápido (devolver cor)
+//           → 3 Resistência Total (recuperar vigor)
+//
+// As frases só dizem o que está em docs/produtos-fatos-do-rotulo.md.
 
+import type { ProdutoLeve } from '@/app/api/catalogo-leve/route'
 import type { OrderBumpProduct } from './types'
 
-// ─── Catálogo de bumps (produtos reais) ──────────────────────
-//
-// Cada bump mapeia para um produto + variante real do catálogo.
-// O `triggeredBy` define quais produtos no carrinho ativam este bump.
-// O `priority` define qual aparece primeiro se múltiplos se aplicam.
+interface RegraDeBump {
+  /** Handle do produto oferecido. */
+  oferece: string
+  /** Handles que, no carrinho, ativam a oferta. */
+  quandoTem: string[]
+  /** Frase de cross-sell. */
+  pitch: string
+  /** Menor aparece primeiro. */
+  priority: number
+}
 
-const ORDER_BUMP_CATALOG: OrderBumpProduct[] = [
-  // ── Se comprou Gramado Novo → oferece Verde Rápido ──
+const REGRAS: RegraDeBump[] = [
+  // ── Tem Raiz Forte ──
   {
-    id: 'mock-p2',
-    variantId: 'mock-p2-1kg',
-    handle: 'verde-rapido',
-    title: 'Verde Rápido',
-    variantTitle: '1kg',
-    pitch: 'Próximo passo: acelere o verde do seu gramado novo',
-    price: 64.90,
-    compareAtPrice: null,
-    discountPercent: 0,
-    image: '/images/Verde-Rápido.png',
-    triggeredBy: ['mock-p1'],
+    oferece: 'verde-rapido',
+    quandoTem: ['raiz-forte'],
+    pitch: 'Próximo passo: devolva a cor do gramado',
     priority: 1,
   },
-
-  // ── Se comprou Gramado Novo → oferece Resistência Total ──
   {
-    id: 'mock-p3',
-    variantId: 'mock-p3-1kg',
-    handle: 'resistencia-total',
-    title: 'Resistência Total',
-    variantTitle: '1kg',
-    pitch: 'Proteja seu gramado novo contra sol e pisoteio',
-    price: 71.20,
-    compareAtPrice: null,
-    discountPercent: 0,
-    image: '/images/Resistencia-total.png',
-    triggeredBy: ['mock-p1'],
+    oferece: 'resistencia-total',
+    quandoTem: ['raiz-forte'],
+    pitch: 'Grama resistente à seca, ao sol e ao pisoteio',
     priority: 2,
   },
 
-  // ── Se comprou Verde Rápido → oferece Resistência Total ──
+  // ── Tem Verde Rápido ──
   {
-    id: 'mock-p3',
-    variantId: 'mock-p3-1kg',
-    handle: 'resistencia-total',
-    title: 'Resistência Total',
-    variantTitle: '1kg',
-    pitch: 'Mantenha o verde: proteja contra calor e pisoteio',
-    price: 71.20,
-    compareAtPrice: null,
-    discountPercent: 0,
-    image: '/images/Resistencia-total.png',
-    triggeredBy: ['mock-p2'],
+    oferece: 'resistencia-total',
+    quandoTem: ['verde-rapido'],
+    pitch: 'Depois da cor, a força: seca, sol e pisoteio',
     priority: 1,
   },
-
-  // ── Se comprou Verde Rápido → oferece Gramado Novo ──
   {
-    id: 'mock-p1',
-    variantId: 'mock-p1-1kg',
-    handle: 'gramado-novo',
-    title: 'Gramado Novo',
-    variantTitle: '1kg',
-    pitch: 'Ideal para preencher falhas enquanto recupera o verde',
-    price: 89.90,
-    compareAtPrice: null,
-    discountPercent: 0,
-    image: '/images/Gramado-novo.png',
-    triggeredBy: ['mock-p2'],
+    oferece: 'raiz-forte',
+    quandoTem: ['verde-rapido'],
+    pitch: 'Tem falhas no gramado? Fósforo e cálcio na raiz',
     priority: 2,
   },
 
-  // ── Se comprou Resistência Total → oferece Verde Rápido ──
+  // ── Tem Resistência Total ──
   {
-    id: 'mock-p2',
-    variantId: 'mock-p2-1kg',
-    handle: 'verde-rapido',
-    title: 'Verde Rápido',
-    variantTitle: '1kg',
-    pitch: 'Complete o cuidado: recupere a cor verde intensa',
-    price: 64.90,
-    compareAtPrice: null,
-    discountPercent: 0,
-    image: '/images/Verde-Rápido.png',
-    triggeredBy: ['mock-p3'],
+    oferece: 'verde-rapido',
+    quandoTem: ['resistencia-total'],
+    pitch: 'Gramado amarelado? Devolva a cor',
     priority: 1,
   },
-
-  // ── Se comprou Resistência Total → oferece Gramado Novo ──
   {
-    id: 'mock-p1',
-    variantId: 'mock-p1-1kg',
-    handle: 'gramado-novo',
-    title: 'Gramado Novo',
-    variantTitle: '1kg',
-    pitch: 'Replante as áreas desgastadas com facilidade',
-    price: 89.90,
-    compareAtPrice: null,
-    discountPercent: 0,
-    image: '/images/Gramado-novo.png',
-    triggeredBy: ['mock-p3'],
+    oferece: 'raiz-forte',
+    quandoTem: ['resistencia-total'],
+    pitch: 'Vai reformar ou recuperar falhas? Firme a raiz',
     priority: 2,
   },
 ]
 
-// ─── Motor de recomendação ───────────────────────────────────
-
 /**
- * Seleciona o melhor order bump baseado nos produtos do carrinho.
+ * Escolhe o melhor "leve junto" para o carrinho.
  *
  * Regras:
- * 1. O produto do bump NÃO pode já estar no carrinho (mesmo productId)
- * 2. Pelo menos um item do `triggeredBy` precisa estar no carrinho
+ * 1. O produto oferecido NÃO pode já estar no carrinho
+ * 2. Pelo menos um gatilho precisa estar no carrinho
  * 3. Ordena por prioridade (menor = melhor)
- * 4. Retorna apenas 1 produto (o mais relevante)
+ * 4. Só oferece o que o catálogo tem, com variante e à venda
  *
- * SHOPIFY: Quando integrar, substituir por Shopify Product Recommendations API
- * ou lógica via metafields de cross-sell.
+ * As regras casam por HANDLE: o id do produto é `mock-p1` no catálogo de
+ * exemplo e um gid na Shopify, o handle é o mesmo nos dois. O catálogo traduz
+ * os ids do carrinho em handles.
+ *
+ * Devolve `null` enquanto o catálogo não chegou (lista vazia).
  */
 export function getSmartBumpProduct(
-  cartProductIds: string[]
+  cartProductIds: string[],
+  catalogo: ProdutoLeve[]
 ): OrderBumpProduct | null {
-  if (cartProductIds.length === 0) return null
+  if (cartProductIds.length === 0 || catalogo.length === 0) return null
 
-  const candidates = ORDER_BUMP_CATALOG
-    .filter((bump) => {
-      // Não oferecer produto que já está no carrinho
-      if (cartProductIds.includes(bump.id)) return false
+  const noCarrinho = new Set(
+    catalogo.filter((p) => cartProductIds.includes(p.id)).map((p) => p.handle)
+  )
+  if (noCarrinho.size === 0) return null
 
-      // Pelo menos um gatilho precisa estar no carrinho
-      return bump.triggeredBy.some((triggerId) =>
-        cartProductIds.includes(triggerId)
-      )
-    })
-    .sort((a, b) => a.priority - b.priority)
+  const candidatas = REGRAS.filter(
+    (regra) => !noCarrinho.has(regra.oferece) && regra.quandoTem.some((h) => noCarrinho.has(h))
+  ).sort((a, b) => a.priority - b.priority)
 
-  return candidates[0] || null
+  for (const regra of candidatas) {
+    const produto = catalogo.find((p) => p.handle === regra.oferece)
+    if (!produto || !produto.available) continue
+    if (!produto.variantId || produto.variantPrice === null || !produto.image) continue
+
+    const price = produto.variantPrice
+    // Desconto só existe se o catálogo disser: preço de comparação maior que o preço.
+    const compareAtPrice =
+      produto.variantCompareAtPrice !== null && produto.variantCompareAtPrice > price
+        ? produto.variantCompareAtPrice
+        : null
+
+    return {
+      id: produto.id,
+      variantId: produto.variantId,
+      handle: produto.handle,
+      title: produto.title,
+      // Produto de variante única na Shopify chega como "Default Title".
+      variantTitle:
+        produto.variantTitle && produto.variantTitle !== 'Default Title' ? produto.variantTitle : '',
+      pitch: regra.pitch,
+      price,
+      compareAtPrice,
+      discountPercent: compareAtPrice ? Math.round((1 - price / compareAtPrice) * 100) : 0,
+      image: produto.image,
+      triggeredBy: regra.quandoTem,
+      priority: regra.priority,
+    }
+  }
+
+  return null
 }
-
-// Exportar catálogo para uso direto (fallback)
-export const ORDER_BUMP_PRODUCTS = ORDER_BUMP_CATALOG

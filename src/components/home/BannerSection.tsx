@@ -32,19 +32,19 @@ const FALLBACK_BANNERS: BannerData[] = [
     id: 'fallback-1',
     desktop: '/images/Banner/Gramadonovo.jpg',
     mobile: '/images/Banner/mobile-gramadonovo.jpg',
-    alt: 'Terravik Gramado Novo - Plantio e Enraizamento',
+    alt: 'Terravik Raiz Forte: plantio e raiz firme',
   },
   {
     id: 'fallback-2',
     desktop: '/images/Banner/verderapido.jpg',
     mobile: '/images/Banner/mobile-verderapido.jpg',
-    alt: 'Terravik Verde Rápido - Crescimento Acelerado',
+    alt: 'Terravik Verde Rápido: o verde de volta ao gramado amarelado',
   },
   {
     id: 'fallback-3',
     desktop: '/images/Banner/resistenciatotal.jpg',
     mobile: '/images/Banner/mobile-resistenciatotal.jpg',
-    alt: 'Terravik Resistência Total - Proteção Completa',
+    alt: 'Terravik Resistência Total: gramado forte o ano inteiro',
   },
 ]
 

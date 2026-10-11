@@ -6,8 +6,11 @@ import {
   CancellationReason,
   LoyaltyTier,
   DeliveryRecord,
-  BillingRecord 
+  BillingRecord,
+  SubscriptionProduct
 } from './types';
+import type { Product } from '@/types/product';
+import { calculateSubscriptionPrice, calculateAnnualSavings } from './pricing';
 
 /**
  * Opções de frequência com metadata psicológica
@@ -152,76 +155,80 @@ export const CANCELLATION_REASONS: CancellationReason[] = [
 ];
 
 /**
- * Assinaturas mock para desenvolvimento
+ * Assinatura de exemplo para desenvolvimento.
+ *
+ * Produto, peso e preço vêm do catálogo: antes havia aqui um produto de
+ * 5 kg que nunca existiu, com preço escrito à mão. O desconto é o
+ * mesmo que pricing.ts aplica no site.
  */
-export const MOCK_SUBSCRIPTIONS: CustomerSubscription[] = [
-  {
+export function criarAssinaturaDeExemplo(catalogo: Product[]): CustomerSubscription {
+  const frequency = 45;
+  const quantity = 2;
+
+  const produto = catalogo.find((p) => p.handle === 'resistencia-total') ?? catalogo[0];
+  const variante = produto?.variants.find((v) => v.available) ?? produto?.variants[0];
+
+  const products: SubscriptionProduct[] =
+    produto && variante
+      ? [
+          {
+            productId: produto.id,
+            variantId: variante.id,
+            // Produto de variante única na Shopify chega como "Default Title".
+            name: `Terravik ${produto.title}${
+              variante.title && variante.title !== 'Default Title' ? ` ${variante.title}` : ''
+            }`,
+            image: produto.featuredImage?.url ?? '',
+            basePrice: variante.price,
+            subscriptionPrice: calculateSubscriptionPrice(variante.price, frequency),
+            quantity,
+            frequency,
+          },
+        ]
+      : [];
+
+  const total = Number(
+    products.reduce((soma, p) => soma + p.subscriptionPrice * p.quantity, 0).toFixed(2)
+  );
+  const totalAnnualSavings = products.reduce(
+    (soma, p) => soma + calculateAnnualSavings(p.basePrice, frequency, p.quantity),
+    0
+  );
+
+  return {
     id: 'sub_001',
     status: 'active',
     createdAt: new Date('2024-06-15'),
     nextBillingDate: new Date('2025-02-15'),
     nextDeliveryDate: new Date('2025-02-18'),
-    frequency: 45,
+    frequency,
     loyaltyTier: 'silver',
-    products: [
-      {
-        productId: 'prod_nutricao',
-        variantId: 'var_nutricao_5kg',
-        name: 'Terravik Nutrição Completa 5kg',
-        image: '/images/produtos/nutricao-completa.jpg',
-        basePrice: 89.90,
-        subscriptionPrice: 79.12,
-        quantity: 2,
-        frequency: 45,
-      },
-    ],
-    totalMonthly: 158.24,
-    totalAnnualSavings: 173.44,
+    products,
+    totalMonthly: total,
+    totalAnnualSavings,
     deliveryHistory: [
       {
         id: 'del_001',
         date: new Date('2024-12-20'),
         status: 'delivered',
         trackingCode: 'BR123456789',
-        products: [
-          {
-            productId: 'prod_nutricao',
-            variantId: 'var_nutricao_5kg',
-            name: 'Terravik Nutrição Completa 5kg',
-            image: '/images/produtos/nutricao-completa.jpg',
-            basePrice: 89.90,
-            subscriptionPrice: 79.12,
-            quantity: 2,
-            frequency: 45,
-          },
-        ],
-        total: 158.24
+        products,
+        total
       },
       {
         id: 'del_002',
         date: new Date('2024-11-05'),
         status: 'delivered',
         trackingCode: 'BR987654321',
-        products: [
-          {
-            productId: 'prod_nutricao',
-            variantId: 'var_nutricao_5kg',
-            name: 'Terravik Nutrição Completa 5kg',
-            image: '/images/produtos/nutricao-completa.jpg',
-            basePrice: 89.90,
-            subscriptionPrice: 79.12,
-            quantity: 2,
-            frequency: 45,
-          },
-        ],
-        total: 158.24
+        products,
+        total
       }
     ],
     billingHistory: [
       {
         id: 'bill_001',
         date: new Date('2024-12-20'),
-        amount: 158.24,
+        amount: total,
         status: 'paid',
         paymentMethod: 'Cartão •••• 4242',
         invoiceUrl: '/invoices/001.pdf'
@@ -229,14 +236,14 @@ export const MOCK_SUBSCRIPTIONS: CustomerSubscription[] = [
       {
         id: 'bill_002',
         date: new Date('2024-11-05'),
-        amount: 158.24,
+        amount: total,
         status: 'paid',
         paymentMethod: 'Cartão •••• 4242',
         invoiceUrl: '/invoices/002.pdf'
       }
     ],
-  },
-];
+  };
+}
 
 /**
  * FAQ específico de assinaturas

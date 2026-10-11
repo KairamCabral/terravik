@@ -357,7 +357,7 @@ export function VideoTestimonialsTab() {
                       type="text"
                       value={form.product_name}
                       onChange={(e) => setForm(prev => ({ ...prev, product_name: e.target.value }))}
-                      placeholder="Ex: Gramado Novo — 1 kg"
+                      placeholder="Ex: Raiz Forte 1,6 kg"
                       className="w-full px-4 py-3 rounded-xl border border-neutral-200 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                     />
                   </div>

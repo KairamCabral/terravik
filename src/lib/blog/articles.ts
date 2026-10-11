@@ -109,7 +109,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       <ul>
         <li><strong>Regar 2-3× por dia:</strong> Solo sempre úmido, mas sem encharcar.</li>
         <li><strong>Não pisar:</strong> As raízes ainda estão se fixando.</li>
-        <li><strong>Adubo de implantação:</strong> Aplique fertilizante rico em fósforo (como o Gramado Novo P1) logo após plantar.</li>
+        <li><strong>Adubo de implantação:</strong> Use fertilizante com fósforo (como o Raiz Forte) incorporado à terra no plantio. O fósforo quase não se move no solo: jogado por cima, não chega na raiz.</li>
       </ul>
 
       <h2>Dia 8-21: Primeiras raízes</h2>
@@ -153,7 +153,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
 
       <h2>1. Falta de nitrogênio</h2>
       <p><strong>Sintoma:</strong> Amarelamento uniforme, crescimento lento.</p>
-      <p><strong>Solução:</strong> Aplicar fertilizante rico em nitrogênio, como o Verde Rápido (21-0-0). Resultado em 7-10 dias.</p>
+      <p><strong>Solução:</strong> Aplicar fertilizante rico em nitrogênio, como o Verde Rápido (21-00-00 + 24S). A cor volta em poucas semanas.</p>
 
       <h2>2. Excesso de água</h2>
       <p><strong>Sintoma:</strong> Amarelamento + solo encharcado + raízes podres.</p>
@@ -188,31 +188,33 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     slug: 'produtos-terravik-quando-usar',
     title: 'Conheça os 3 produtos Terravik e quando usar cada um',
     excerpt:
-      'P1, P2 ou P3? Entenda a diferença entre os produtos Terravik e monte seu plano ideal.',
+      'Raiz Forte, Verde Rápido ou Resistência Total? Entenda a diferença entre os produtos Terravik e monte seu plano ideal.',
     content: `
       <p>A Terravik tem três produtos — cada um resolve um problema específico do gramado. Não tem "melhor" ou "pior", tem o certo para o seu momento.</p>
 
-      <h2>P1 — Gramado Novo (MAP 11-52-00)</h2>
-      <p><strong>Para que serve:</strong> Enraizamento forte na implantação.</p>
-      <p><strong>Quando usar:</strong> Logo após plantar tapete, mudas ou sementes. O fósforo (52%) estimula as raízes a crescerem rápido e fixarem no solo.</p>
-      <p><strong>Resultado esperado:</strong> Gramado "pega" em 7-15 dias, raízes profundas, resistência ao arranque.</p>
+      <h2>1. Raiz Forte (superfosfato simples: fósforo e cálcio)</h2>
+      <p><strong>Para que serve:</strong> Preparar o solo e firmar a raiz para o gramado crescer forte.</p>
+      <p><strong>Quando usar:</strong> Uso pontual: no plantio, na reforma ou quando o gramado estiver muito falhado. Não precisa repetir todo mês. É feito para ser incorporado à terra, colocando fósforo e cálcio direto na zona das raízes.</p>
+      <p><strong>Rendimento:</strong> O saco de 1,6 kg rende até 32 m². Um dosador raso cobre cerca de 2 m².</p>
 
-      <h2>P2 — Verde Rápido (Sulfato de Amônio 21-0-0 + 24S)</h2>
-      <p><strong>Para que serve:</strong> Recuperar o verde e acelerar o crescimento.</p>
-      <p><strong>Quando usar:</strong> Gramado amarelado, fraco, crescendo devagar, ou após o inverno. Alta carga de nitrogênio (21%) dá resposta rápida.</p>
-      <p><strong>Resultado esperado:</strong> Verde volta em 5-7 dias, crescimento acelerado, gramado denso.</p>
+      <h2>2. Verde Rápido (Sulfato de Amônio 21-00-00 + 24S)</h2>
+      <p><strong>Para que serve:</strong> Recuperar o gramado amarelado e devolver a cor em poucas semanas.</p>
+      <p><strong>Quando usar:</strong> Gramado amarelado ou sem cor. Repõe o nitrogênio (21%) com um reforço de enxofre, a dupla que forma clorofila. Se precisar, repita a cada 30 a 45 dias até o verde voltar.</p>
+      <p><strong>Rendimento:</strong> O saco de 1,6 kg rende até 96 m². Um dosador raso cobre cerca de 6 m².</p>
 
-      <h2>P3 — Resistência Total (NPK 19-4-19)</h2>
-      <p><strong>Para que serve:</strong> Proteção contra estresse (calor, pisoteio, uso intenso).</p>
-      <p><strong>Quando usar:</strong> Verão escaldante, gramado com tráfego pesado (crianças, pets, churrasqueira), ou para manutenção equilibrada.</p>
-      <p><strong>Resultado esperado:</strong> Gramado aguenta calor sem queimar, resiste ao pisoteio, mantém cor e vigor.</p>
+      <h2>3. Resistência Total (nutrição completa com potássio)</h2>
+      <p><strong>Para que serve:</strong> Deixar a grama resistente à seca, ao sol e ao pisoteio.</p>
+      <p><strong>Quando usar:</strong> Quando o gramado precisa de força e beleza em todas as estações.</p>
+      <p><strong>Rendimento:</strong> O saco de 1,6 kg rende até 64 m².</p>
 
       <h2>Fluxo ideal</h2>
       <ol>
-        <li><strong>Implantação:</strong> Comece com P1 para enraizar bem.</li>
-        <li><strong>Crescimento:</strong> Use P2 para recuperar cor e densidade.</li>
-        <li><strong>Manutenção:</strong> Alterne P2 (crescimento) e P3 (resistência) conforme a necessidade.</li>
+        <li><strong>Firmar raiz:</strong> Comece com Raiz Forte no plantio ou na reforma.</li>
+        <li><strong>Devolver cor:</strong> Use Verde Rápido quando o gramado estiver amarelado.</li>
+        <li><strong>Recuperar vigor:</strong> Use Resistência Total para manter o gramado forte o ano inteiro.</li>
       </ol>
+
+      <p>Os três vêm em saco de 1,6 kg, com um dosador de 100 ml dentro da embalagem. É simples: espalhe e regue.</p>
 
       <p>Não sabe qual usar ou quanto aplicar? Nossa <a href="/calculadora">calculadora</a> monta o plano completo personalizado para você.</p>
     `,
@@ -222,7 +224,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     categoryLabel: 'Produto',
     readingTime: 3,
     featuredImage: null,
-    tags: ['produtos', 'gramado novo', 'verde rápido', 'resistência total'],
+    tags: ['produtos', 'raiz forte', 'verde rápido', 'resistência total'],
   },
 ]
 

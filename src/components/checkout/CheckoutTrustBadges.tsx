@@ -21,8 +21,8 @@ const BADGES = [
   },
   {
     icon: Leaf,
-    title: '100% Orgânico',
-    subtitle: 'Certificado e natural',
+    title: 'Dosador incluso',
+    subtitle: 'Vem dentro de cada saco',
   },
 ]
 

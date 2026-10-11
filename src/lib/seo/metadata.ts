@@ -10,7 +10,7 @@ import { ALLOW_INDEXING, SOCIAL_LINKS } from '@/lib/utils/constants'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://terravik.com.br'
 const SITE_NAME = 'Terravik'
 const DEFAULT_DESCRIPTION =
-  'Fertilizantes premium para gramados residenciais. Dose certa, resultado visível. Gramado Novo, Verde Rápido e Resistência Total.'
+  'Fertilizantes premium para gramados residenciais. Dose certa, resultado visível. Raiz Forte, Verde Rápido e Resistência Total.'
 
 /** Imagem social padrão, 1200x630, em public/images/og/default.jpg. */
 const IMAGEM_PADRAO = '/images/og/default.jpg'

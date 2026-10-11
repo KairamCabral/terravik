@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ShoppingCart, Check, Trash2 } from 'lucide-react'
 import { getSmartBumpProduct } from '@/lib/shipping/order-bump'
+import { useCatalogoLeve } from '@/hooks/useCatalogoLeve'
 import { useCart } from './CartProvider'
 import { formatPrice } from '@/lib/subscription/pricing'
 
@@ -16,11 +17,13 @@ export function OrderBump({ cartProductIds }: OrderBumpProps) {
   const { addItem, isLoading } = useCart()
   const [isAdded, setIsAdded] = useState(false)
   const [isAdding, setIsAdding] = useState(false)
+  // Nome, variante, preço e foto do "leve junto" vêm do catálogo.
+  const catalogo = useCatalogoLeve()
 
   // Motor inteligente: seleciona o melhor bump baseado no carrinho
   const product = useMemo(
-    () => getSmartBumpProduct(cartProductIds),
-    [cartProductIds]
+    () => getSmartBumpProduct(cartProductIds, catalogo),
+    [cartProductIds, catalogo]
   )
 
   const handleAddBump = async () => {
