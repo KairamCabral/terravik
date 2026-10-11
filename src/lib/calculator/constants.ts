@@ -19,9 +19,7 @@ export const PACK_GRAMS = 1600
 export const PACK_LABEL = '1,6 kg'
 
 /**
- * Como usar, igual nos rótulos lidos. O verso do Resistência Total não foi
- * fornecido: para ele os passos vêm da frente ("Simples assim: espalhe e
- * regue") e do texto comum da linha. Confirmar quando o verso chegar.
+ * Como usar, igual no verso das três embalagens.
  */
 const COMO_USAR: string[] = [
   'Pegue o dosador que vem dentro da embalagem e separe a quantidade de dosadores do seu plano.',
@@ -92,24 +90,25 @@ export const CATALOG: Record<'P1' | 'P2' | 'P3', CatalogProduct> = {
   P3: {
     id: 'P3',
     name: 'Resistência Total',
-    fullName: 'Resistência Total (nutrição completa com potássio)',
-    // Composição e garantias desconhecidas: só temos a frente da embalagem.
-    base: 'Nutrição completa com potássio',
+    fullName: 'Resistência Total (NPK granulado 10-04-16)',
+    base: 'NPK granulado 10-04-16, fertilizante mineral complexo',
     packGrams: PACK_GRAMS,
     yieldM2: 64, // rótulo: 1,6 kg rende até 64 m²
     doseLabel: 25, // 1600 g / 64 m²
     doseApprox: false,
-    // DEDUÇÃO: a frente da embalagem não diz a cobertura do dosador. Por
-    // proporção com os outros dois (o saco equivale a 16 dosadores rasos),
-    // dá cerca de 4 m². Falta confirmar no verso da embalagem.
+    // PENDENTE: o verso da embalagem diz "o dosador raso cobre cerca de 2 m²",
+    // mas isso daria 32 dosadores por saco (50 g cada), o dobro da dose que o
+    // rendimento de 64 m² implica. Nos outros produtos o saco equivale a 16
+    // dosadores de 100 ml. Mantido o valor coerente com o rendimento (4 m²)
+    // até o dono confirmar; usar 2 m² dobraria a dose aplicada.
     scoopM2: 4,
     scoopDeduced: true,
-    // Frequência DESCONHECIDA: o verso não foi fornecido. O plano não afirma
-    // intervalo nem agenda repetição. Preencher quando o verso chegar.
-    frequencyKind: 'desconhecida',
-    repeatDaysMin: null,
-    repeatDaysMax: null,
-    frequencyText: 'Para repetir, siga o intervalo indicado no rótulo da embalagem.',
+    // Rótulo: "Uso contínuo: resistência se constrói com rotina. Aplique a
+    // cada 60 dias e mantenha o gramado forte o ano todo."
+    frequencyKind: 'continuo',
+    repeatDaysMin: 60,
+    repeatDaysMax: 60,
+    frequencyText: 'Uso contínuo: aplique a cada 60 dias para manter o gramado forte o ano todo.',
     description:
       'Nutrição completa com potássio, que deixa a grama resistente à seca, ao sol e ao pisoteio.',
     whenToUse: 'Quando o gramado precisa de força para aguentar seca, sol e pisoteio.',

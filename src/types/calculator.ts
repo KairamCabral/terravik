@@ -44,9 +44,10 @@ export type ProductId = 'P1' | 'P2' | 'P3'
  * Como o rótulo manda repetir o produto.
  * - pontual: aplica uma vez (plantio, reforma, gramado muito falhado).
  * - se_precisar: o rótulo dá um intervalo, e só enquanto o problema durar.
+ * - continuo: o rótulo manda repetir sempre, em intervalo fixo.
  * - desconhecida: o rótulo lido não diz. O plano não inventa intervalo.
  */
-export type FrequencyKind = 'pontual' | 'se_precisar' | 'desconhecida'
+export type FrequencyKind = 'pontual' | 'se_precisar' | 'continuo' | 'desconhecida'
 
 export interface CatalogProduct {
   id: ProductId
@@ -108,7 +109,7 @@ export interface ProductPlan {
   /** Total de sacos: é a quantidade que vai para o carrinho. */
   packs_qty: number
   frequency_kind: FrequencyKind
-  /** 0 quando não há repetição automática (uso pontual ou intervalo desconhecido). */
+  /** 0 quando não há repetição automática (uso pontual). */
   frequency_days: number
   frequency_days_max: number
   frequency_display: string // frase completa, na linguagem do rótulo

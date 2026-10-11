@@ -148,7 +148,7 @@ export function CalculatorResultSubscription({
             }}
             recommendedQuantity={Math.max(1, mainProduct.packs_qty)}
             // Entrega recorrente só para o produto que o rótulo manda repetir.
-            allowSubscription={mainProduct.frequency_kind === 'se_precisar'}
+            allowSubscription={mainProduct.frequency_days > 0}
             usageNote={mainProduct.frequency_display}
             lawnCondition={lawnCondition}
             onAddToCart={() => {
@@ -161,8 +161,8 @@ export function CalculatorResultSubscription({
       {/* O bloco SmartRecommendation saiu daqui. Ele monta um plano anual próprio
           (src/lib/subscription/recommendations.ts) com produtos e embalagens que
           não existem e com intervalo fixo para todos os produtos, o que
-          contradiz o rótulo: Raiz Forte é uso pontual e o intervalo do
-          Resistência Total é desconhecido. Volta quando aquela lista usar os
+          contradiz o rótulo: Raiz Forte é uso pontual, Verde Rápido repete só
+          se precisar e Resistência Total é a cada 60 dias. Volta quando aquela lista usar os
           fatos de docs/produtos-fatos-do-rotulo.md. */}
 
       {/* ====================================================================

@@ -42,8 +42,7 @@ interface CalculatorSubscriptionOfferProps {
   recommendedQuantity: number;      // Quantidade de sacos calculada
   /**
    * false quando o rótulo não sustenta entrega recorrente: uso pontual (Raiz
-   * Forte) ou intervalo de reaplicação desconhecido (Resistência Total).
-   * Nesses casos a oferta é só de compra única.
+   * Forte). Nesse caso a oferta é só de compra única.
    */
   allowSubscription?: boolean;
   /** Frase do rótulo sobre repetição, mostrada quando não há assinatura. */

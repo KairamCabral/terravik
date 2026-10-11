@@ -40,8 +40,11 @@ embalagens. O que NÃO está aqui não pode ser afirmado (não invente composiç
 - Uso: PONTUAL. No plantio, na reforma ou quando o gramado estiver muito falhado. Não precisa repetir todo mês.
 - Rendimento: 1,6 kg rende até 32 m². 1 dosador raso cobre cerca de 2 m². (equivale a 50 g por m²)
 - Classificação: fertilizante mineral simples. Nome do produto: superfosfato simples granulado. Via solo.
-- Garantias mínimas: fósforo (P2O5) solúvel em CNA + água 21,0%; fósforo (P2O5) solúvel em água 17,0%;
-  cálcio (Ca) total 16,0%; enxofre (S) total 10,0%.
+- Garantias mínimas: fósforo (P2O5) solúvel em CNA + água 21,0%; cálcio (Ca) total 16,0%; enxofre (S)
+  total 10,0%.
+- PENDENTE: a segunda linha da tabela muda entre as duas artes do verso. A primeira dizia "fósforo (P2O5)
+  solúvel em água 17,0%"; a de 11/10/2026 diz "cálcio (Ca) solúvel em água 16,0%". O site não publica essa
+  linha até o dono confirmar com o registro no MAPA.
 - NÃO é MAP 11-52-00 (o site dizia isso; está errado).
 
 ## Verde Rápido (handle: verde-rapido; id da calculadora: P2)
@@ -57,26 +60,43 @@ embalagens. O que NÃO está aqui não pode ser afirmado (não invente composiç
   real de clorofila, não apenas pelo efeito superficial do nitrogênio puro."
 - Uso: RECUPERAÇÃO. Use quando o gramado estiver amarelado ou sem cor. Se precisar, repita a cada 30 a 45
   dias até o verde voltar.
-- Rendimento: 1,6 kg rende até 96 m². 1 dosador raso cobre cerca de 6 m². (equivale a cerca de 17 g por m²)
+- Rendimento: 1,6 kg rende até 96 m². (equivale a cerca de 17 g por m²)
+- Dosador, PENDENTE: a primeira arte do verso dizia "1 dosador raso cobre cerca de 6 m²" (16 dosadores por
+  saco, coerente com os 96 m²). A arte de 11/10/2026 diz "cerca de 10 m²" (9,6 dosadores por saco, o que não
+  fecha com um dosador de 100 ml). O site segue com 6 m² até o dono confirmar.
 - Classificação: fertilizante mineral simples. Nome do produto: sulfato de amônio granulado, 21-00-00 + 24S.
 - Garantias mínimas: nitrogênio (N) total 21,0%; enxofre (S) total 24,0%.
 
 ## Resistência Total (handle: resistencia-total; id da calculadora: P3)
-SÓ TEMOS A FRENTE DA EMBALAGEM. O verso não foi fornecido.
+Verso fornecido em 11/10/2026.
 - Chamada: "Seu gramado forte o ano inteiro. Nutrição completa com potássio que deixa a grama resistente à
   seca, ao sol e ao pisoteio."
 - Para quem: "Seu gramado precisa de força e beleza em todas as estações? Este é o seu produto!"
 - "Seleção especial de nutrientes: a escolha por trás dos gramados que impressionam."
+- Texto do verso: "Por que alguns gramados aguentam e outros não? Falta potássio. É o nutriente que regula a
+  água dentro da planta e dá firmeza às folhas. Quando ele falta, a grama até fica verde, mas murcha na
+  primeira seca, sofre no sol forte e não se recupera do pisoteio. Resistência Total traz o potássio na medida
+  certa, junto com nitrogênio e fósforo. Nutrição completa que fortalece o gramado de dentro pra fora. Não é
+  só verde, é um gramado que aguenta."
+- Diferencial técnico: "Fertilizante complexo de verdade: cada grânulo contém os três nutrientes (N, P e K)
+  fundidos na mesma partícula" (o resto da frase está ilegível na arte).
+- Uso: CONTÍNUO. "Resistência se constrói com rotina. Aplique a cada 60 dias e mantenha o gramado forte o
+  ano todo."
 - Rendimento: 1,6 kg rende até 64 m². (equivale a 25 g por m²)
-- Dosador: o rótulo lido não diz a cobertura. Por proporção com os outros dois (o saco equivale a 16
-  dosadores rasos), seria cerca de 4 m² por dosador. É DEDUÇÃO: se usar, escreva "cerca de 4 m²" e deixe um
-  comentário no código dizendo que falta confirmar no verso da embalagem.
-- Composição e garantias: DESCONHECIDAS. O site dizia "NPK 19-4-19": NÃO está confirmado, não repita.
-  Diga apenas "nutrição completa com potássio".
-- Frequência de uso: DESCONHECIDA. Não afirme intervalo.
+- Classificação: fertilizante mineral complexo. Nome do produto: NPK granulado 10-04-16. Via solo.
+- Garantias mínimas: nitrogênio (N) total 10,0%; fósforo (P2O5) total 4,0%; fósforo (P2O5) solúvel em CNA +
+  água 4,0%; fósforo (P2O5) solúvel em água 3,0%; potássio (K2O) solúvel em água 16,0%.
+- NÃO é NPK 19-4-19 (o site antigo e o arquivo de copy do dono diziam isso; o rótulo diz 10-04-16).
+- Dosador, PENDENTE: o verso diz "o dosador raso cobre cerca de 2 m²". Isso daria 32 dosadores por saco e
+  50 g por m², o dobro da dose que os 64 m² implicam. O site usa "cerca de 4 m²" (16 dosadores por saco,
+  como nos outros produtos), marcado como estimativa, até o dono confirmar. Usar 2 m² dobraria a dose.
+
+## O que não vem das artes
+- CNPJ, número de registro e código de barras: as artes são renderizações e esses números mudam de uma
+  imagem para outra. Não publicar; usar o cadastro real.
 
 ## Imagens novas (já no repositório)
-- `/images/produtos/<handle>/frente.webp`, `lateral.webp`, `verso.webp` (Resistência Total não tem verso),
+- `/images/produtos/<handle>/frente.webp`, `lateral.webp`, `verso.webp`,
   `granulo.webp`; `/images/produtos/dosador-100-ml.webp`. Fundo transparente.
 - As antigas (`/images/Gramado-novo.png`, `/images/Verde-Rápido.png`, `/images/Resistencia-total.png`) mostram
   embalagens que não existem mais: troque pela `frente.webp` do produto onde forem usadas como foto de produto.

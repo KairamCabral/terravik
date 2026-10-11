@@ -210,7 +210,7 @@ export function generatePlan(input: CalculatorInput): CalculatorResult {
 
   const nextSteps = [`Começar por ${plan[0]?.name ?? 'seu produto'}`]
   for (const p of plan) {
-    if (p.frequency_kind === 'se_precisar') {
+    if (p.frequency_days > 0) {
       nextSteps.push(`${p.name}: ${lowerFirst(p.frequency_display)}`)
     }
   }

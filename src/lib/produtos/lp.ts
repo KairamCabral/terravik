@@ -259,8 +259,10 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       classificacao: 'Fertilizante mineral simples, aplicação via solo',
       natureza: 'Superfosfato simples granulado',
       garantias: [
+        // Só as linhas iguais nas duas artes do verso. A segunda linha diverge
+        // ("fósforo solúvel em água 17%" numa, "cálcio solúvel em água 16%" na
+        // outra) e fica de fora até o dono confirmar com o registro no MAPA.
         { nutriente: 'Fósforo (P₂O₅) solúvel em CNA + água', minimo: '21,0%' },
-        { nutriente: 'Fósforo (P₂O₅) solúvel em água', minimo: '17,0%' },
         { nutriente: 'Cálcio (Ca) total', minimo: '16,0%' },
         { nutriente: 'Enxofre (S) total', minimo: '10,0%' },
       ],
@@ -374,44 +376,61 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       video: null,
     },
     porque: {
-      titulo: 'Força e beleza em todas as estações',
+      titulo: 'Por que alguns gramados aguentam e outros não?',
       paragrafos: [
-        'Sol forte, falta de chuva e pisoteio castigam o gramado ao longo do ano. Resistência Total é a nutrição completa com potássio que deixa a grama resistente à seca, ao sol e ao pisoteio.',
-        'Uma seleção especial de nutrientes, a escolha por trás dos gramados que impressionam.',
+        'Falta potássio. É o nutriente que regula a água dentro da planta e dá firmeza às folhas. Quando ele falta, a grama até fica verde, mas murcha na primeira seca, sofre no sol forte e não se recupera do pisoteio.',
+        'Resistência Total traz o potássio na medida certa, junto com nitrogênio e fósforo. Nutrição completa que fortalece o gramado de dentro para fora. Não é só verde: é um gramado que aguenta.',
       ],
+      diferencial:
+        'Fertilizante complexo de verdade: cada grânulo contém os três nutrientes (N, P e K) fundidos na mesma partícula, não uma mistura de grânulos diferentes que se separam no solo.',
     },
     beneficios: [
       {
-        titulo: 'Nutrição completa com potássio',
-        texto: 'Para a grama resistir à seca, ao sol e ao pisoteio.',
+        titulo: 'Potássio na medida certa',
+        texto: 'O nutriente que regula a água dentro da planta e dá firmeza às folhas.',
       },
       {
-        titulo: 'O ano inteiro',
-        texto: 'Para o gramado que precisa de força e beleza em todas as estações.',
+        titulo: 'Aguenta seca, sol e pisoteio',
+        texto: 'Nutrição completa, com nitrogênio e fósforo, que fortalece o gramado de dentro para fora.',
       },
       {
-        titulo: 'Seleção especial de nutrientes',
-        texto: 'A escolha por trás dos gramados que impressionam.',
+        titulo: 'Resistência se constrói com rotina',
+        texto: 'Aplique a cada 60 dias e mantenha o gramado forte o ano todo.',
       },
     ],
-    // O rótulo lido (frente) dá o rendimento. A cobertura do dosador é
-    // DEDUÇÃO: nos outros dois produtos o saco equivale a 16 dosadores rasos.
-    // Confirmar no verso da embalagem da Resistência Total.
     trabalho:
-      'Nutrição completa com potássio, o nutriente que a grama usa para aguentar sol, pisoteio e seca.',
+      'NPK 10-04-16, com potássio em destaque: o nutriente que a grama usa para aguentar sol, pisoteio e seca.',
     compararDose: true,
+    // PENDENTE: o verso diz "o dosador raso cobre cerca de 2 m²", mas isso
+    // daria 32 dosadores por saco, o dobro da dose que o rendimento de 64 m²
+    // implica (nos outros produtos o saco equivale a 16 dosadores de 100 ml).
+    // Mantido o valor coerente com o rendimento até o dono confirmar.
     rendimento: { m2PorSaco: 64, m2PorDosador: 4, dosadorEstimado: true },
     quandoUsar: {
-      titulo: 'Manutenção',
-      texto: 'Para o gramado estabelecido que precisa de força e beleza em todas as estações.',
+      titulo: 'Uso contínuo',
+      texto: 'Resistência se constrói com rotina. Aplique a cada 60 dias e mantenha o gramado forte o ano todo.',
     },
-    // Sem `ficha`: a composição só está no verso da embalagem, que ainda não
-    // foi fornecido. Não declarar garantia sem ler o rótulo.
+    ficha: {
+      classificacao: 'Fertilizante mineral complexo, aplicação via solo',
+      natureza: 'NPK granulado 10-04-16',
+      garantias: [
+        { nutriente: 'Nitrogênio (N) total', minimo: '10,0%' },
+        { nutriente: 'Fósforo (P₂O₅) total', minimo: '4,0%' },
+        { nutriente: 'Fósforo (P₂O₅) solúvel em CNA + água', minimo: '4,0%' },
+        { nutriente: 'Fósforo (P₂O₅) solúvel em água', minimo: '3,0%' },
+        { nutriente: 'Potássio (K₂O) solúvel em água', minimo: '16,0%' },
+      ],
+    },
     perguntas: [
       {
         pergunta: 'Para que serve o Resistência Total?',
         resposta:
           'É a nutrição completa com potássio que deixa a grama resistente à seca, ao sol e ao pisoteio. É o terceiro passo da linha do tempo do gramado: recuperar o vigor.',
+      },
+      {
+        pergunta: 'De quanto em quanto tempo devo aplicar?',
+        resposta:
+          'A cada 60 dias. O Resistência Total é de uso contínuo: a resistência do gramado se constrói com rotina.',
       },
       {
         pergunta: 'Quanto rende um saco?',
