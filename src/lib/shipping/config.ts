@@ -21,32 +21,20 @@ export interface FaixaDeFreteGratis {
   minimo: number
 }
 
-// Regra definida pelo dono em 12/10/2026: Sul e Sudeste a partir de R$ 149,
-// demais regiões a partir de R$ 199.
-const UFS_DO_SUL_E_SUDESTE = ['SP', 'RJ', 'MG', 'ES', 'PR', 'SC', 'RS']
-
-export const FAIXAS_DE_FRETE_GRATIS: FaixaDeFreteGratis[] = [
-  {
-    regiao: 'Sul e Sudeste',
-    onde: 'no Sul e Sudeste',
-    ufs: UFS_DO_SUL_E_SUDESTE,
-    minimo: 149,
-  },
-  {
-    regiao: 'demais regiões',
-    onde: 'nas demais regiões',
-    ufs: [
-      'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'GO', 'MA', 'MT', 'MS', 'PA', 'PB',
-      'PE', 'PI', 'RN', 'RO', 'RR', 'SE', 'TO',
-    ],
-    minimo: 199,
-  },
-]
-
 export const TODAS_AS_UFS = [
   'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
   'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
 ] as const
+
+// Regra definida pelo dono em 12/10/2026: um valor só, para o país inteiro.
+export const FAIXAS_DE_FRETE_GRATIS: FaixaDeFreteGratis[] = [
+  {
+    regiao: 'todo o Brasil',
+    onde: 'para todo o Brasil',
+    ufs: [...TODAS_AS_UFS],
+    minimo: 199,
+  },
+]
 
 /** Faixa que atende a UF, ou null quando a UF não tem frete grátis. */
 export function faixaDaUf(uf: string): FaixaDeFreteGratis | null {
@@ -123,7 +111,9 @@ export function fraseDoFreteGratis(): string | null {
 export function linhasDoFreteGratis(): string[] {
   return faixasOrdenadas().map((f, indice, todas) => {
     const ehOResto = indice === todas.length - 1 && todas.length > 1
-    return `A partir de ${emReais(f.minimo)} ${f.onde}${ehOResto ? '' : ` (${f.ufs.join(', ')})`}`
+    // Faixa que cobre o país inteiro não precisa listar os estados.
+    const listar = !ehOResto && f.ufs.length < TODAS_AS_UFS.length
+    return `A partir de ${emReais(f.minimo)} ${f.onde}${listar ? ` (${f.ufs.join(', ')})` : ''}`
   })
 }
 
