@@ -55,6 +55,7 @@ export type OrigemDaAdicao =
   | 'calculadora'
   | 'compra-rapida'
   | 'sugestao-carrinho'
+  | 'kit'
 
 // E-commerce events. Disparados SÓ pelo CartProvider: toda adição, remoção e
 // ida ao checkout passa por lá, então nenhum botão novo esquece o evento.

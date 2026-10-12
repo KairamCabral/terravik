@@ -26,7 +26,7 @@ export interface CartItem {
   currency: string
   image: ProductImage | null
   options: Record<string, string>
-  
+
   // NOVOS CAMPOS DE ASSINATURA
   subscription?: SubscriptionData
 }
@@ -45,9 +45,16 @@ export interface Cart {
   discountCodes?: Array<{ code: string; applicable: boolean }>
   /** Desconto alocado no nível do carrinho. Ainda não está no subtotal. */
   couponDiscount?: number
-  
+
   // NOVOS CAMPOS
   hasSubscription?: boolean      // Tem pelo menos um item de assinatura?
   subscriptionCount?: number     // Quantos itens são assinatura?
   subscriptionSubtotal?: number  // Subtotal apenas de assinaturas
+
+  /**
+   * Descontos automáticos (kit, quantidade). Já estão abatidos de `subtotal`.
+   * `subtotalSemPromocoes` é a soma das linhas, para mostrar a conta.
+   */
+  promocoes?: Array<{ id: string; rotulo: string; valor: number }>
+  subtotalSemPromocoes?: number
 }

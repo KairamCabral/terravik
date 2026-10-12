@@ -8,6 +8,7 @@ import { produtoDaCalculadora } from '@/lib/calculator/produtos'
 import { intervaloDaAssinatura } from '@/lib/produtos/assinatura'
 import { conteudoDaLp } from '@/lib/produtos/lp'
 import { calculateSubscriptionPrice, getDiscountPercent } from '@/lib/subscription/pricing'
+import { calcularPromocoes, type PromocaoAplicada } from '@/lib/promocoes/regras'
 
 export interface ItemDaCompra {
   id: string
@@ -35,6 +36,8 @@ export interface CompraDoPlano {
   total: number
   totalAvulso: number
   economia: number
+  /** Kit e desconto por quantidade, os mesmos que o carrinho aplica. */
+  promocoes: PromocaoAplicada[]
   estado: 'pronto' | 'adicionando' | 'adicionado'
   /** Adiciona o plano inteiro ao carrinho; depois de adicionado, abre o carrinho. */
   comprar: () => Promise<void>
@@ -103,7 +106,20 @@ export function useCompraDoPlano(plano: ProductPlan[]): CompraDoPlano {
   })
 
   const totalAvulso = itens.reduce((soma, i) => soma + (i.disponivel ? i.precoCheio : 0), 0)
-  const total = itens.reduce((soma, i) => soma + (i.disponivel ? (i.precoComDesconto ?? i.precoCheio) : 0), 0)
+  const somaDasLinhas = itens.reduce((soma, i) => soma + (i.disponivel ? (i.precoComDesconto ?? i.precoCheio) : 0), 0)
+  // As mesmas regras do carrinho, para o total daqui bater com o de lá.
+  const { promocoes, desconto } = calcularPromocoes(
+    base
+      .filter((b) => b.variante)
+      .map((b) => ({
+        handle: b.handle,
+        nome: b.plano.name,
+        precoUnitario: b.variante!.price,
+        quantidade: b.quantidade,
+        assinatura: assinando && b === comAssinatura,
+      }))
+  )
+  const total = Math.max(0, Math.round((somaDasLinhas - desconto) * 100) / 100)
 
   const setModo = (novo: 'avulsa' | 'assinatura') => {
     setModoBruto(novo)
@@ -152,7 +168,8 @@ export function useCompraDoPlano(plano: ProductPlan[]): CompraDoPlano {
     setModo,
     total,
     totalAvulso,
-    economia: Math.max(0, totalAvulso - total),
+    economia: Math.max(0, Math.round((totalAvulso - total) * 100) / 100),
+    promocoes,
     estado,
     comprar,
   }
