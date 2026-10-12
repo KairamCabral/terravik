@@ -34,7 +34,9 @@ export const backgrounds = {
 export const text = {
   primary: '#111311',
   secondary: '#4C514C',
-  muted: '#7A807A',
+  // 5,5:1 no branco, 5,1:1 no creme, 4,8:1 no surface-2. O anterior
+  // (#7A807A) dava 4,04:1 e 3,78:1, abaixo do mínimo AA de 4,5:1.
+  muted: '#666C66',
   onDark: '#F4EFE5',
   onDarkMuted: '#A3A89F',
 } as const

@@ -31,12 +31,8 @@ export function CalculatorCTA({ fotoDisponivel = false }: CalculatorCTAProps) {
 
   return (
     <section aria-labelledby="titulo-calculadora" className="relative overflow-hidden bg-forest-ink">
-      {/* Fundo: gramado bem discreto, verde da marca e um brilho dourado. */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-[0.14]"
-        style={{ backgroundImage: "url('/images/grass/Gramado-Brasil-de-condominio-terravik.png')" }}
-        aria-hidden="true"
-      />
+      {/* Fundo: verde da marca e um brilho dourado. Sem foto: a que havia aqui
+          pesava 3,1 MB e ficava invisível sob o degradê. */}
       <div className="absolute inset-0 bg-[linear-gradient(120deg,#052317_0%,rgba(9,62,40,0.92)_55%,rgba(5,35,23,0.96)_100%)]" aria-hidden="true" />
       <div
         className="absolute -right-32 top-1/2 h-[520px] w-[520px] -translate-y-1/2 rounded-full bg-gold/20 blur-[120px]"

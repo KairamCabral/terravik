@@ -48,6 +48,9 @@ export default async function HomePage() {
         }}
       />
 
+      {/* A home abre num banner de imagem: o título da página fica para leitor
+          de tela e buscador. */}
+      <h1 className="sr-only">Terravik: fertilizantes para gramado residencial</h1>
       <BannerSection />
       <ObjetivosSection />
       <VideoSection />

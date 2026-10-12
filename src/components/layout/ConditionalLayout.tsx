@@ -36,7 +36,7 @@ export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLay
 
   // Checkout: tela cheia, sem nada em volta.
   if (isCheckoutRoute) {
-    return <>{children}</>;
+    return <main id="main-content">{children}</main>;
   }
 
   // Calculadora: tela cheia, sem header nem rodapé, mas com a gaveta do
@@ -46,7 +46,7 @@ export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLay
   if (isCalculatorRoute) {
     return (
       <>
-        {children}
+        <main id="main-content">{children}</main>
         <CartDrawer />
         <QuickPurchaseSheet />
       </>

@@ -194,7 +194,9 @@ export function BannerSection() {
     alt: currentBanner.alt,
     fill: true,
     sizes: '100vw',
-    quality: 90,
+    // 75 é o padrão do otimizador: a 90 o banner pesava quase o dobro sem
+    // diferença visível numa foto.
+    quality: 75,
     priority: primeiroSlide,
   }
   const { props: imgDesktop } = getImageProps({ ...propsComuns, src: currentBanner.desktop })

@@ -73,6 +73,12 @@ const nextConfig = {
     ].join('; ');
 
     return [
+      // Imagens de public/: 30 dias. Não são `immutable` porque nem todas
+      // trocam de nome quando mudam.
+      {
+        source: '/images/:arquivo*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }],
+      },
       {
         source: '/(.*)',
         headers: [

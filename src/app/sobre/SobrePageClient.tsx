@@ -176,7 +176,7 @@ export function SobrePageClient() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <span className="text-overline text-gold tracking-widest uppercase block mb-3">
+            <span className="text-overline text-gold-ink tracking-widest uppercase block mb-3">
               Nossos valores
             </span>
             <h2 className="font-heading text-h2 text-txt-primary">

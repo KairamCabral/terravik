@@ -387,7 +387,7 @@ export function ContactPageClient() {
               <Users className="w-4 h-4 text-gold" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-txt-primary">Quer ser representante?</h3>
+              <h2 className="text-sm font-semibold text-txt-primary">Quer ser representante?</h2>
               <p className="text-xs text-txt-muted">Conheça nosso programa</p>
             </div>
           </Link>
@@ -400,7 +400,7 @@ export function ContactPageClient() {
               <HelpCircle className="w-4 h-4 text-forest" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-txt-primary">Perguntas frequentes</h3>
+              <h2 className="text-sm font-semibold text-txt-primary">Perguntas frequentes</h2>
               <p className="text-xs text-txt-muted">Muitas dúvidas já respondidas</p>
             </div>
           </Link>

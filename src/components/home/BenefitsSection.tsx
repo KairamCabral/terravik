@@ -22,7 +22,6 @@ export function BenefitsSection() {
           height={806}
           className="hidden h-auto w-full transition-transform duration-700 group-hover:scale-[1.02] motion-reduce:transition-none md:block"
           sizes="80vw"
-          quality={88}
         />
 
         <Image
@@ -32,7 +31,6 @@ export function BenefitsSection() {
           height={812}
           className="block h-auto w-full md:hidden"
           sizes="92vw"
-          quality={88}
         />
         <p className="bg-gradient-forest px-5 py-4 text-center font-heading text-lg font-bold text-white md:hidden">
           Nutrição inteligente <span className="text-gold-soft">para seu gramado</span>

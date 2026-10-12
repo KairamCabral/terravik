@@ -95,7 +95,7 @@ export default async function AssinaturaPage() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/calculadora">
-                <Button size="lg" className="bg-white text-green-600 hover:bg-green-50 shadow-xl">
+                <Button size="lg" className="bg-white text-forest hover:bg-green-50 shadow-xl">
                   <Sparkles className="w-5 h-5 mr-2" />
                   Começar a Economizar
                 </Button>
@@ -300,7 +300,7 @@ export default async function AssinaturaPage() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/calculadora">
-              <Button size="lg" className="bg-white text-green-600 hover:bg-green-50 shadow-xl">
+              <Button size="lg" className="bg-white text-forest hover:bg-green-50 shadow-xl">
                 <Sparkles className="w-5 h-5 mr-2" />
                 Calcular Minha Economia
               </Button>

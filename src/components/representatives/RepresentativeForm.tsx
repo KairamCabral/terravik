@@ -168,10 +168,11 @@ export function RepresentativeForm() {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-terravik-brown">
+          <label htmlFor="representante-experiencia" className="mb-2 block text-sm font-medium text-terravik-brown">
             Já trabalha com vendas?
           </label>
           <select
+            id="representante-experiencia"
             value={formData.experience}
             onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
             className="w-full rounded-lg border-2 border-terravik-brown/20 px-4 py-3 focus:border-terravik-green focus:outline-none focus:ring-2 focus:ring-terravik-green/20"
@@ -183,10 +184,11 @@ export function RepresentativeForm() {
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-terravik-brown">
+          <label htmlFor="representante-mensagem" className="mb-2 block text-sm font-medium text-terravik-brown">
             Mensagem (opcional)
           </label>
           <textarea
+            id="representante-mensagem"
             rows={4}
             value={formData.message}
             onChange={(e) => setFormData({ ...formData, message: e.target.value })}

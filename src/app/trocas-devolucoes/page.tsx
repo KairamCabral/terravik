@@ -85,7 +85,7 @@ export default function TrocasDevolucoesPage() {
           {/* Table of Contents — sticky sidebar */}
           <aside className="mb-10 lg:mb-0">
             <nav className="lg:sticky lg:top-32">
-              <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-terravik-brown/50">
+              <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-terravik-brown/70">
                 Nesta página
               </h2>
               <ul className="space-y-1">
@@ -599,7 +599,7 @@ export default function TrocasDevolucoesPage() {
       </Container>
 
       {/* CTA Final */}
-      <section className="bg-blue-600 py-16 text-white md:py-20">
+      <section className="bg-forest py-16 text-white md:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
@@ -613,7 +613,7 @@ export default function TrocasDevolucoesPage() {
               forma mais simples e transparente possível.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" variant="secondary" asChild>
+              <Button size="lg" variant="secondary" className="border-white bg-white text-forest hover:bg-gold-soft hover:text-forest-ink" asChild>
                 <a href="mailto:sac@terravik.com.br">Fale com o SAC</a>
               </Button>
               <Button
@@ -715,7 +715,7 @@ function DefectCard({
         <h3 className="font-display text-lg font-semibold text-terravik-brown">
           {title}
         </h3>
-        <span className="rounded-full bg-orange-600 px-3 py-1 text-xs font-semibold text-white">
+        <span className="rounded-full bg-orange-700 px-3 py-1 text-xs font-semibold text-white">
           {prazo}
         </span>
       </div>
