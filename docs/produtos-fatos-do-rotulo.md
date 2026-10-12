@@ -1,7 +1,7 @@
 # Fatos dos produtos Terravik (lidos do rótulo das embalagens)
 
-Fonte única de verdade para qualquer texto do site sobre os produtos. Tudo abaixo foi lido das fotos das
-embalagens. O que NÃO está aqui não pode ser afirmado (não invente composição, dose, prazo, número, selo).
+Fonte única de verdade para qualquer texto do site sobre os produtos. Tudo abaixo vem da frente das
+embalagens e da arte final do verso (PDFs enviados pelo dono em 11/10/2026, que valem sobre qualquer foto). O que NÃO está aqui não pode ser afirmado (não invente composição, dose, prazo, número, selo).
 
 ## Comum aos três
 - Linha "Terravik Fertilizantes Premium". Subtítulo em todos: "Fertilizante para gramado residencial".
@@ -42,6 +42,7 @@ embalagens. O que NÃO está aqui não pode ser afirmado (não invente composiç
 - Classificação: fertilizante mineral simples. Nome do produto: superfosfato simples granulado. Via solo.
 - Garantias mínimas: fósforo (P2O5) solúvel em CNA + água 21,0%; fósforo (P2O5) solúvel em água 17,0%;
   cálcio (Ca) total 16,0%; enxofre (S) total 10,0%.
+- Registro do produto no MAPA: PR 001357-9.000050. Origem: importado (RPC). Código de barras: 7898980402005.
 - NÃO é MAP 11-52-00 (o site dizia isso; está errado).
 
 ## Verde Rápido (handle: verde-rapido; id da calculadora: P2)
@@ -60,23 +61,38 @@ embalagens. O que NÃO está aqui não pode ser afirmado (não invente composiç
 - Rendimento: 1,6 kg rende até 96 m². 1 dosador raso cobre cerca de 6 m². (equivale a cerca de 17 g por m²)
 - Classificação: fertilizante mineral simples. Nome do produto: sulfato de amônio granulado, 21-00-00 + 24S.
 - Garantias mínimas: nitrogênio (N) total 21,0%; enxofre (S) total 24,0%.
+- Registro do produto no MAPA: PR 001357-9.000054. Origem: importado (RPC). Código de barras: 7898980402012.
 
 ## Resistência Total (handle: resistencia-total; id da calculadora: P3)
-SÓ TEMOS A FRENTE DA EMBALAGEM. O verso não foi fornecido.
 - Chamada: "Seu gramado forte o ano inteiro. Nutrição completa com potássio que deixa a grama resistente à
   seca, ao sol e ao pisoteio."
 - Para quem: "Seu gramado precisa de força e beleza em todas as estações? Este é o seu produto!"
 - "Seleção especial de nutrientes: a escolha por trás dos gramados que impressionam."
-- Rendimento: 1,6 kg rende até 64 m². (equivale a 25 g por m²)
-- Dosador: o rótulo lido não diz a cobertura. Por proporção com os outros dois (o saco equivale a 16
-  dosadores rasos), seria cerca de 4 m² por dosador. É DEDUÇÃO: se usar, escreva "cerca de 4 m²" e deixe um
-  comentário no código dizendo que falta confirmar no verso da embalagem.
-- Composição e garantias: DESCONHECIDAS. O site dizia "NPK 19-4-19": NÃO está confirmado, não repita.
-  Diga apenas "nutrição completa com potássio".
-- Frequência de uso: DESCONHECIDA. Não afirme intervalo.
+- Texto do verso: "Por que alguns gramados aguentam e outros não? Falta potássio. É o nutriente que regula a
+  água dentro da planta e dá firmeza às folhas. Quando ele falta, a grama até fica verde, mas murcha na
+  primeira seca, sofre no sol forte e não se recupera do pisoteio. Resistência Total traz o potássio na medida
+  certa, junto com nitrogênio e fósforo. Nutrição completa que fortalece o gramado de dentro pra fora. Não é
+  só verde. É um gramado que aguenta."
+- Diferencial técnico: "Fertilizante complexo de verdade: cada grânulo contém os três nutrientes (N, P e K)
+  fundidos na mesma partícula, não uma mistura de grãos diferentes que se separa no saco. Onde cai um
+  grânulo, chega a nutrição completa."
+- Uso: CONTÍNUO. "Resistência se constrói com rotina. Aplique a cada 60 dias e mantenha o gramado forte o
+  ano todo."
+- Rendimento: 1,6 kg rende até 64 m². 1 dosador raso cobre cerca de 4 m². (equivale a 25 g por m²)
+- Classificação: fertilizante mineral complexo. Nome do produto: NPK granulado 19-04-19. Via solo.
+- Garantias mínimas: nitrogênio (N) total 19,0%; fósforo (P2O5) total 4,0%; fósforo (P2O5) solúvel em CNA +
+  água 4,0%; fósforo (P2O5) solúvel em água 2,0%; potássio (K2O) solúvel em água 19,0%.
+- Registro do produto no MAPA: PR 001357-9.000072. Origem: importado (Rússia). Código de barras: 7898980402029.
+
+## O que não se publica
+- A coluna "COA real (ref. interna)" da tabela de garantias: é o laudo do lote, não a garantia. O site
+  mostra só a garantia mínima.
+- As fotos do verso em `public/images/Emabalagens certas/` trazem números diferentes da arte final (por
+  exemplo 10-04-16 e outra cobertura do dosador). Não usar como fonte nem como foto de produto.
 
 ## Imagens novas (já no repositório)
-- `/images/produtos/<handle>/frente.webp`, `lateral.webp`, `verso.webp` (Resistência Total não tem verso),
-  `granulo.webp`; `/images/produtos/dosador-100-ml.webp`. Fundo transparente.
+- `/images/produtos/<handle>/frente.webp`, `lateral.webp`, `verso.webp`,
+  `granulo.webp`; `/images/produtos/dosador-100-ml.webp`. Fundo transparente, menos o `verso.webp`, que é
+  a arte final do rótulo.
 - As antigas (`/images/Gramado-novo.png`, `/images/Verde-Rápido.png`, `/images/Resistencia-total.png`) mostram
   embalagens que não existem mais: troque pela `frente.webp` do produto onde forem usadas como foto de produto.

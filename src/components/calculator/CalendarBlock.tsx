@@ -19,11 +19,9 @@ export function CalendarBlock({ plan }: CalendarBlockProps) {
   const demais = plan.slice(1)
 
   // Só entra aqui quem o rótulo manda repetir, e com o intervalo do rótulo.
-  // Uso pontual (Raiz Forte) e intervalo desconhecido (Resistência Total)
-  // ficam de fora: o plano não agenda o que o rótulo não diz.
-  const repetiveis = plan.filter(
-    (p) => p.frequency_kind === 'se_precisar' && p.frequency_days > 0
-  )
+  // Uso pontual (Raiz Forte) fica de fora: o plano não agenda o que o rótulo
+  // não manda repetir.
+  const repetiveis = plan.filter((p) => p.frequency_days > 0)
 
   return (
     <div className="rounded-2xl border-2 border-terravik-brown/10 bg-white p-6">
@@ -68,13 +66,17 @@ export function CalendarBlock({ plan }: CalendarBlockProps) {
             <Calendar className="mt-1 h-5 w-5 flex-shrink-0 text-terravik-brown/60" />
             <div>
               <p className="font-medium text-terravik-brown">
-                {p.name}: repetir só se precisar
+                {p.frequency_kind === 'continuo'
+                  ? `${p.name}: uso contínuo`
+                  : `${p.name}: repetir só se precisar`}
               </p>
               <p className="text-sm text-terravik-brown/70">
                 {p.frequency_display}
                 {/* A data só vale para o produto aplicado hoje. */}
                 {p === primeiro &&
-                  ` Aplicando hoje, a janela vai de ${dataDaqui(p.frequency_days)} a ${dataDaqui(p.frequency_days_max)}.`}
+                  (p.frequency_days_max > p.frequency_days
+                    ? ` Aplicando hoje, a janela vai de ${dataDaqui(p.frequency_days)} a ${dataDaqui(p.frequency_days_max)}.`
+                    : ` Aplicando hoje, a próxima fica para ${dataDaqui(p.frequency_days)}.`)}
               </p>
             </div>
           </div>
