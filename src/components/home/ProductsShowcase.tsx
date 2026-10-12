@@ -22,6 +22,8 @@ import { useCart } from '@/components/cart'
 import type { Product as ProdutoDoCatalogo } from '@/types/product'
 import { CURADORIA_DA_VITRINE } from '@/lib/home/vitrine'
 import { fraseParcelamento } from '@/lib/pagamento/parcelas'
+import { frasePix } from '@/lib/pagamento/pix'
+import { formatCurrency } from '@/lib/utils/formatters'
 import { intervaloDaAssinatura } from '@/lib/produtos/assinatura'
 import { getDiscountPercent } from '@/lib/subscription/pricing'
 
@@ -249,15 +251,20 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                 {/* Imagem do Produto - Clicável */}
                 <Link
                   href={`/produtos/${product.id}`}
-                  className="relative h-[260px] bg-gradient-to-br from-neutral-50 to-white flex items-center justify-center p-6 cursor-pointer group/image"
+                  className="block h-[300px] bg-gradient-to-br from-neutral-50 to-white px-6 pb-4 pt-6 cursor-pointer group/image"
                 >
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    width={220}
-                    height={220}
-                    className="object-contain transition-transform duration-500 group-hover/image:scale-110"
-                  />
+                  {/* A foto é mais alta que larga: com largura fixa ela passava
+                      da altura do card e o topo era cortado. `fill` com
+                      object-contain encaixa a embalagem inteira. */}
+                  <span className="relative block h-full w-full">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 768px) 80vw, 320px"
+                      className="object-contain transition-transform duration-500 group-hover/image:scale-105"
+                    />
+                  </span>
                 </Link>
 
                 {/* Info do Produto */}
@@ -281,14 +288,17 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                   <div className="mt-auto">
                     {product.discount > 0 && (
                       <span className="text-xs text-neutral-400 line-through block">
-                        De: R$ {primeiro.original.toFixed(2)}
+                        De: {formatCurrency(primeiro.original)}
                       </span>
                     )}
                     <div className="flex items-baseline gap-2 mt-1">
                       <span className="text-xl font-bold text-forest">
-                        R$ {primeiro.final.toFixed(2)}
+                        {formatCurrency(primeiro.final)}
                       </span>
                     </div>
+                    {frasePix(primeiro.final) && (
+                      <span className="mt-1 block text-sm font-semibold text-forest">{frasePix(primeiro.final)}</span>
+                    )}
                     <span className="text-xs text-neutral-500 block mt-1 mb-3">
                       {fraseParcelamento(primeiro.final) ? `ou ${fraseParcelamento(primeiro.final)}` : '\u00a0'}
                     </span>
@@ -425,7 +435,7 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                         <div className="bg-neutral-50 rounded-xl p-3 text-center">
                           <span className="text-[10px] text-neutral-600 block">Total:</span>
                           <span className="text-2xl font-bold text-forest block mt-0.5">
-                            R$ {currentPrice.toFixed(2)}
+                            {formatCurrency(currentPrice)}
                           </span>
                         </div>
                       </div>

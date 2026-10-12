@@ -25,11 +25,11 @@ import { linkWhatsapp } from '@/lib/utils/constants'
 
 /**
  * Meus Pedidos — Arquitetura Híbrida Inteligente
- * 
+ *
  * SEÇÃO 1: Lista de Pedidos (Shopify Cache + Actions)
  * SEÇÃO 2: Suporte & FAQ (Híbrido)
  * SEÇÃO 3: Recompensas por Compras (Supabase)
- * 
+ *
  * DONO: Shopify (cache no Supabase via orders_sync)
  */
 
@@ -485,7 +485,6 @@ export default function MeusPedidosPage() {
           <div className="mt-4 bg-white/50 border border-purple-200 rounded-xl p-4">
             <p className="text-sm text-neutral-700">
               <strong className="text-purple-700">💡 Dica:</strong> Cada R$ 10 em compras = 1 XP.
-              Complete cursos da Academia para ganhar ainda mais XP!
             </p>
           </div>
         </div>

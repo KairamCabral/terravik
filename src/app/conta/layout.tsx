@@ -18,7 +18,7 @@ import { Container } from '@/components/ui'
 
 /**
  * Layout da Área do Cliente
- * 
+ *
  * Navegação lateral (desktop) / horizontal (mobile)
  * Design consistente com o site principal
  *
@@ -32,7 +32,6 @@ const CONTA_MENU = [
   { label: 'Meus Dados', href: '/conta/dados', icon: User },
   { label: 'Meus Pedidos', href: '/conta/pedidos', icon: Package },
   { label: 'Favoritos', href: '/conta/favoritos', icon: Heart },
-  { label: 'Cursos', href: '/conta/academia', icon: GraduationCap },
   { label: 'Preferências', href: '/conta/preferencias', icon: Settings },
 ]
 
@@ -150,7 +149,7 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
 
               {/* Logout */}
               <div className="my-2 border-t border-neutral-100" />
-              
+
               {/* Links úteis (sutil) */}
               <div className="px-4 py-3 space-y-3">
                 <div>
@@ -172,7 +171,7 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                     </Link>
                   </div>
                 </div>
-                
+
                 {/* Horário de atendimento */}
                 <div className="pt-2 border-t border-neutral-50">
                   <p className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold mb-1.5">
@@ -184,7 +183,7 @@ export default function ContaLayout({ children }: { children: React.ReactNode })
                   </p>
                 </div>
               </div>
-              
+
               <div className="my-2 border-t border-neutral-100" />
               <button
                 onClick={handleLogout}

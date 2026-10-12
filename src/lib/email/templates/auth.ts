@@ -101,7 +101,7 @@ function receita(d: DadosDoEmailAuth): Receita {
         titulo: 'Confirme seu e-mail',
         paragrafos: [
           `${oi} Sua conta na Terravik foi criada.`,
-          'Para ativá-la, confirme que este endereço é seu. Com a conta ativa você acompanha seus pedidos, salva seus produtos favoritos e acessa os cursos sobre cuidados com o gramado.',
+          'Para ativá-la, confirme que este endereço é seu. Com a conta ativa você acompanha seus pedidos e salva seus produtos favoritos.',
         ],
         textoDoBotao: 'Confirmar e-mail',
         aviso: 'Não criou esta conta? Ignore este e-mail e nada será ativado.',

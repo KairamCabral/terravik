@@ -4,7 +4,7 @@ import { CadastroForm } from './CadastroForm'
 
 export const metadata: Metadata = createMetadata({
   title: 'Criar Conta',
-  description: 'Crie sua conta Terravik e tenha acesso a pedidos, favoritos, academia e muito mais.',
+  description: 'Crie sua conta Terravik e tenha acesso a pedidos, favoritos e muito mais.',
   path: '/cadastro',
   noIndex: true,
 })

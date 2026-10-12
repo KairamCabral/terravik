@@ -39,9 +39,9 @@ function variante(id: string, preco: number, sku: string | null, image: ProductI
   }
 }
 
-const RAIZ_FORTE_FRENTE = foto('raiz-forte', 'frente-v2', 'Raiz Forte Terravik, embalagem de 1,6 kg, frente', 962, 1328)
-const VERDE_RAPIDO_FRENTE = foto('verde-rapido', 'frente-v2', 'Verde Rápido Terravik, embalagem de 1,6 kg, frente', 919, 1263)
-const RESISTENCIA_TOTAL_FRENTE = foto('resistencia-total', 'frente-v2', 'Resistência Total Terravik, embalagem de 1,6 kg, frente', 979, 1398)
+const RAIZ_FORTE_FRENTE = foto('raiz-forte', 'frente-v3', 'Raiz Forte Terravik, embalagem de 1,6 kg, frente', 954, 1300)
+const VERDE_RAPIDO_FRENTE = foto('verde-rapido', 'frente-v3', 'Verde Rápido Terravik, embalagem de 1,6 kg, frente', 896, 1224)
+const RESISTENCIA_TOTAL_FRENTE = foto('resistencia-total', 'frente-v3', 'Resistência Total Terravik, embalagem de 1,6 kg, frente', 942, 1334)
 
 export const MOCK_PRODUCTS: Product[] = [
   {
