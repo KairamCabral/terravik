@@ -74,6 +74,8 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
   const granulo = product.images.find((i) => i.url.endsWith('/granulo.webp'))
   const { rendimento } = conteudo
   const video = conteudo.destaque.video
+  const imagemDeDestaque = conteudo.destaque.imagem
+  const temMidia = Boolean(video || imagemDeDestaque || MOSTRAR_ESPACO_RESERVADO)
   const gramas = gramasPorM2(rendimento)
   // O custo por m² só entra onde o argumento do rendimento se aplica.
   const custo =
@@ -84,8 +86,8 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
       {/* ═══ 2. DESTAQUE: a promessa e o vídeo ═══ */}
       <section className="bg-forest text-white">
         <div className="container-main py-14 md:py-20">
-          <div className={cn('grid items-center gap-10', (video || MOSTRAR_ESPACO_RESERVADO) && 'lg:grid-cols-2 lg:gap-14')}>
-            <div className={cn(!(video || MOSTRAR_ESPACO_RESERVADO) && 'mx-auto max-w-3xl text-center')}>
+          <div className={cn('grid items-center gap-10', temMidia && 'lg:grid-cols-2 lg:gap-14')}>
+            <div className={cn(!temMidia && 'mx-auto max-w-3xl text-center')}>
               <Sobretitulo claro>{conteudo.destaque.sobretitulo}</Sobretitulo>
               <h2 className="font-heading text-3xl font-bold leading-tight md:text-5xl">
                 {conteudo.destaque.titulo}
@@ -112,6 +114,17 @@ export function ProductLp({ product, conteudo }: ProductLpProps) {
                 >
                   <source src={video.src} type="video/mp4" />
                 </video>
+              </div>
+            ) : imagemDeDestaque ? (
+              <div className="overflow-hidden rounded-2xl shadow-2xl ring-1 ring-white/10">
+                <Image
+                  src={imagemDeDestaque.src}
+                  alt={imagemDeDestaque.alt}
+                  width={imagemDeDestaque.largura}
+                  height={imagemDeDestaque.altura}
+                  sizes="(max-width: 1024px) 100vw, 560px"
+                  className="aspect-[4/3] h-full w-full object-cover sm:aspect-[16/9] lg:aspect-[4/3]"
+                />
               </div>
             ) : (
               MOSTRAR_ESPACO_RESERVADO && (

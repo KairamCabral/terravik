@@ -7,7 +7,8 @@
  * PREÇOS: informados pelo dono em 11/10/2026 para o saco de 1,6 kg. Não há
  * preço "de": preço riscado sem histórico de venda é oferta enganosa.
  *
- * FOTOS: frente, lateral, verso e grânulo. O verso é a arte final do rótulo
+ * FOTOS: frente (arte de 12/10/2026), verso e grânulo. A foto lateral saiu:
+ * mostrava a arte anterior da embalagem. O verso é a arte final do rótulo
  * (PDF enviado pelo dono em 11/10/2026), não a foto do saco: as fotos do verso
  * traziam números diferentes da arte final.
  *
@@ -38,9 +39,9 @@ function variante(id: string, preco: number, sku: string | null, image: ProductI
   }
 }
 
-const RAIZ_FORTE_FRENTE = foto('raiz-forte', 'frente', 'Raiz Forte Terravik, embalagem de 1,6 kg, frente', 966, 1383)
-const VERDE_RAPIDO_FRENTE = foto('verde-rapido', 'frente', 'Verde Rápido Terravik, embalagem de 1,6 kg, frente', 964, 1325)
-const RESISTENCIA_TOTAL_FRENTE = foto('resistencia-total', 'frente', 'Resistência Total Terravik, embalagem de 1,6 kg, frente', 994, 1397)
+const RAIZ_FORTE_FRENTE = foto('raiz-forte', 'frente-v2', 'Raiz Forte Terravik, embalagem de 1,6 kg, frente', 962, 1328)
+const VERDE_RAPIDO_FRENTE = foto('verde-rapido', 'frente-v2', 'Verde Rápido Terravik, embalagem de 1,6 kg, frente', 919, 1263)
+const RESISTENCIA_TOTAL_FRENTE = foto('resistencia-total', 'frente-v2', 'Resistência Total Terravik, embalagem de 1,6 kg, frente', 979, 1398)
 
 export const MOCK_PRODUCTS: Product[] = [
   {
@@ -62,7 +63,6 @@ export const MOCK_PRODUCTS: Product[] = [
     featuredImage: RAIZ_FORTE_FRENTE,
     images: [
       RAIZ_FORTE_FRENTE,
-      foto('raiz-forte', 'lateral', 'Raiz Forte Terravik, embalagem vista de lado', 923, 1365),
       foto('raiz-forte', 'verso', 'Rótulo do Raiz Forte Terravik: modo de usar, garantias e cuidados', 1400, 1598),
       foto('raiz-forte', 'granulo', 'Grânulos do fertilizante Raiz Forte', 1200, 788),
     ],
@@ -91,7 +91,6 @@ export const MOCK_PRODUCTS: Product[] = [
     featuredImage: VERDE_RAPIDO_FRENTE,
     images: [
       VERDE_RAPIDO_FRENTE,
-      foto('verde-rapido', 'lateral', 'Verde Rápido Terravik, embalagem vista de lado', 963, 1191),
       foto('verde-rapido', 'verso', 'Rótulo do Verde Rápido Terravik: modo de usar, garantias e cuidados', 1400, 1598),
       foto('verde-rapido', 'granulo', 'Grânulos do fertilizante Verde Rápido', 1200, 805),
     ],
@@ -120,7 +119,6 @@ export const MOCK_PRODUCTS: Product[] = [
     featuredImage: RESISTENCIA_TOTAL_FRENTE,
     images: [
       RESISTENCIA_TOTAL_FRENTE,
-      foto('resistencia-total', 'lateral', 'Resistência Total Terravik, embalagem vista de lado', 1025, 1195),
       foto('resistencia-total', 'verso', 'Rótulo do Resistência Total Terravik: modo de usar, garantias e cuidados', 1400, 1598),
       foto('resistencia-total', 'granulo', 'Grânulos do fertilizante Resistência Total', 1200, 804),
     ],

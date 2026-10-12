@@ -36,15 +36,15 @@ export interface VideoDaSecao {
 }
 
 /**
- * Só existe MP4 (1280×720, 8 s, 1,3 MB, sem áudio). Quando houver uma versão
+ * Só existe MP4 (1280×720, 7 s, 4 MB; toca sempre sem som). Quando houver uma versão
  * WebM, preencha `webm` e ela passa a ser tentada primeiro.
  *
  * O pôster é o primeiro quadro do próprio vídeo, tirado em 1280×720: como o
  * vídeo começa nele, a troca pôster → vídeo não pula.
  */
 export const VIDEO_DA_SECAO: VideoDaSecao | null = {
-  fontes: { mp4: '/video/fertilizante-terravik.mp4' },
-  poster: '/video/fertilizante-terravik-poster.jpg',
+  fontes: { mp4: '/video/granulo-uniforme.mp4' },
+  poster: '/video/granulo-uniforme-poster.jpg',
   descricao:
-    'Animação de um grânulo do fertilizante Terravik que se abre ao meio e mostra as camadas internas.',
+    'Animação de um grânulo do fertilizante Terravik que se abre ao meio e mostra as camadas internas, com o texto Tecnologia Grânulo Uniforme.',
 }

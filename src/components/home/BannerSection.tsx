@@ -12,7 +12,7 @@ import { createClient } from '@/lib/supabase/client'
  *
  * - Busca banners ativos do Supabase (tabela `banners`)
  * - Fallback para dados locais se banco indisponível
- * - Desktop 1920x800 / Mobile 1080x1350
+ * - Desktop 1920x800 (painel) ou 1920x720 (artes locais) / Mobile 1080x1350
  * - Auto-play 5s, pausa ao hover
  * - Suporte a link clicável por banner
  * - Auto-refresh a cada 30s para refletir mudanças do admin
@@ -24,27 +24,38 @@ interface BannerData {
   mobile: string
   alt: string
   link?: string | null
+  /** Proporção da arte de computador, em CSS ("8 / 3"). Padrão: 1920 / 800. */
+  proporcaoDesktop?: string
 }
+
+// As artes locais são 1920x720. Cortar para 1920x800 comeria o texto da borda.
+const PROPORCAO_DA_ARTE_LOCAL = '8 / 3'
 
 // Fallback caso o banco não esteja acessível
 const FALLBACK_BANNERS: BannerData[] = [
   {
     id: 'fallback-1',
-    desktop: '/images/Banner/Gramadonovo.jpg',
-    mobile: '/images/Banner/mobile-gramadonovo.jpg',
-    alt: 'Terravik Raiz Forte: plantio e raiz firme',
+    desktop: '/images/Banner/home-raiz-forte.jpg',
+    mobile: '/images/Banner/home-raiz-forte-celular.jpg',
+    alt: 'Raiz Forte Terravik: raízes fortes, gramado saudável. Rende 32 m².',
+    link: '/produtos/raiz-forte',
+    proporcaoDesktop: PROPORCAO_DA_ARTE_LOCAL,
   },
   {
     id: 'fallback-2',
-    desktop: '/images/Banner/verderapido.jpg',
-    mobile: '/images/Banner/mobile-verderapido.jpg',
-    alt: 'Terravik Verde Rápido: o verde de volta ao gramado amarelado',
+    desktop: '/images/Banner/home-verde-rapido.jpg',
+    mobile: '/images/Banner/home-verde-rapido-celular.jpg',
+    alt: 'Verde Rápido Terravik: seu gramado verde de novo. Rende 96 m².',
+    link: '/produtos/verde-rapido',
+    proporcaoDesktop: PROPORCAO_DA_ARTE_LOCAL,
   },
   {
     id: 'fallback-3',
-    desktop: '/images/Banner/resistenciatotal.jpg',
-    mobile: '/images/Banner/mobile-resistenciatotal.jpg',
-    alt: 'Terravik Resistência Total: gramado forte o ano inteiro',
+    desktop: '/images/Banner/home-resistencia-total.jpg',
+    mobile: '/images/Banner/home-resistencia-total-celular.jpg',
+    alt: 'Resistência Total Terravik: um gramado forte o ano inteiro. Rende 64 m².',
+    link: '/produtos/resistencia-total',
+    proporcaoDesktop: PROPORCAO_DA_ARTE_LOCAL,
   },
 ]
 
@@ -209,7 +220,10 @@ export function BannerSection() {
       aria-label="Banner carousel"
     >
       {/* Container — Mobile: 1080×1350 / Desktop: 1920×800 */}
-      <div className="relative w-full aspect-[1080/1350] md:aspect-[1920/800]">
+      <div
+        className="relative w-full aspect-[1080/1350] md:[aspect-ratio:var(--proporcao-do-banner)]"
+        style={{ ['--proporcao-do-banner' as string]: currentBanner.proporcaoDesktop ?? '1920 / 800' }}
+      >
         <AnimatePresence initial={false} mode="wait">
           {currentBanner.link ? (
             <Link href={currentBanner.link} className="absolute inset-0 block">
