@@ -100,7 +100,7 @@ export function FindRepresentative() {
 
                   <div className="space-y-2 text-sm text-terravik-brown/70">
                     <p>
-                      {rep.city} — {rep.state}
+                      {rep.city}, {rep.state}
                     </p>
                   </div>
 

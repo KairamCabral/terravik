@@ -301,7 +301,7 @@ export function VideoTestimonialsTab() {
         <div>
           <h2 className="text-lg font-semibold text-neutral-900">Vídeos Depoimentos</h2>
           <p className="text-sm text-neutral-500">
-            Seção &ldquo;Resultados reais&rdquo; — vídeos estilo Reels com thumbnail
+            Seção &ldquo;Resultados reais&rdquo;: vídeos estilo Reels com thumbnail
           </p>
         </div>
         {!isCreating && !editingId && (

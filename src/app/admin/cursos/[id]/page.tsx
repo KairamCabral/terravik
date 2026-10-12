@@ -642,7 +642,7 @@ export default function EditarCursoPage() {
                   {/* Thumbnail Landscape */}
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1">
-                      Thumbnail Landscape (1920x1080) — Cards horizontais
+                      Thumbnail Landscape (1920x1080): cards horizontais
                     </label>
                     {form.thumbnail_landscape ? (
                       <div className="relative w-full max-w-md aspect-video">
@@ -701,7 +701,7 @@ export default function EditarCursoPage() {
                   {/* Thumbnail Portrait */}
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-1">
-                      Thumbnail Portrait (1080x1920) — Cards verticais (poster)
+                      Thumbnail Portrait (1080x1920): cards verticais (poster)
                     </label>
                     {form.thumbnail_portrait ? (
                       <div className="relative w-full max-w-[200px] aspect-[9/16]">

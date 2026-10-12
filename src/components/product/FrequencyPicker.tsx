@@ -144,7 +144,7 @@ export function FrequencyPicker({
         className="text-center text-xs text-txt-muted"
       >
         {FREQUENCY_OPTIONS.find((o) => o.days === selectedFrequency)?.description}
-        {' — '}
+        {'. '}
         Você recebe a cada {selectedFrequency} dias
       </motion.p>
     </div>

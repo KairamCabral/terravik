@@ -226,7 +226,7 @@ function OrderConfirmedContent() {
                   Previsão de entrega: até {formattedDelivery}
                 </p>
                 <p className="text-xs text-txt-muted">
-                  {shippingService} · {shippingDaysMin}–{shippingDaysMax} dias úteis
+                  {shippingService} · {shippingDaysMin} a {shippingDaysMax} dias úteis
                 </p>
               </div>
             </div>

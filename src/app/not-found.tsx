@@ -21,7 +21,7 @@ export default function NotFound() {
 
         {/* Subtítulo */}
         <p className="mb-8 text-lg text-terravik-brown/70">
-          Parece que essa página não existe — mas o seu gramado pode ficar
+          Parece que essa página não existe, mas o seu gramado pode ficar
           perfeito!
         </p>
 

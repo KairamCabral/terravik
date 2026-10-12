@@ -61,7 +61,7 @@ export function LocationCard({ location }: LocationCardProps) {
       <div className="mb-4 space-y-1 text-sm text-terravik-brown/70">
         <p>{location.address}</p>
         <p>
-          {location.city} — {location.state}
+          {location.city}, {location.state}
         </p>
         {location.zipCode && <p>CEP: {location.zipCode}</p>}
       </div>

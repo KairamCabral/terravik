@@ -351,7 +351,7 @@ export function PhotoTestimonialsTab() {
         <div>
           <h2 className="text-lg font-semibold text-neutral-900">Fotos Depoimentos</h2>
           <p className="text-sm text-neutral-500">
-            Seção &ldquo;O que dizem nossos clientes&rdquo; — cards com foto, texto e avaliação
+            Seção &ldquo;O que dizem nossos clientes&rdquo;: cards com foto, texto e avaliação
           </p>
         </div>
         {!isCreating && !editingId && (

@@ -66,7 +66,7 @@ export function QuickPurchaseProductRow({
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-txt-primary truncate">{title}</p>
           <p className="text-xs text-txt-muted mt-0.5">
-            {selectedVariant.title} — {formatPrice(selectedVariant.price)}
+            {selectedVariant.title} · {formatPrice(selectedVariant.price)}
           </p>
           {selectedVariant.compareAtPrice && selectedVariant.compareAtPrice > selectedVariant.price && (
             <span className="text-xs text-txt-muted line-through mt-0.5 block">
@@ -115,7 +115,7 @@ export function QuickPurchaseProductRow({
                   : 'bg-bg-surface-2 text-txt-muted border border-border-subtle hover:border-forest/30 hover:text-forest'
               )}
             >
-              {v.title} — {formatPrice(v.price)}
+              {v.title} · {formatPrice(v.price)}
             </button>
           ))}
         </div>

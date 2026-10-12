@@ -181,7 +181,7 @@ export const SUNLIGHT_LABELS = {
 
 export const IRRIGATION_LABELS = {
   '3x_semana': '3× ou mais por semana',
-  '1_2x_semana': '1–2× por semana',
+  '1_2x_semana': '1 a 2× por semana',
   quase_nao: 'Quase não rego / depende de chuva',
 } as const
 

@@ -20,7 +20,7 @@ import {
 export const metadata: Metadata = createMetadata({
   title: 'Política de Privacidade',
   description:
-    'Saiba como a Terravik coleta, usa e protege seus dados pessoais. Transparência é um dos nossos valores — inclusive com a sua privacidade.',
+    'Saiba como a Terravik coleta, usa e protege seus dados pessoais. Transparência é um dos nossos valores, inclusive com a sua privacidade.',
   path: '/privacidade',
 })
 
@@ -63,7 +63,7 @@ export default function PrivacidadePage() {
               Política de Privacidade
             </h1>
             <p className="mt-6 text-lg text-terravik-brown/80 md:text-xl">
-              Transparência é um dos nossos valores — inclusive com os seus dados.
+              Transparência é um dos nossos valores, inclusive com os seus dados.
               Aqui explicamos tudo de forma clara, sem juridiquês.
             </p>
             <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-terravik-green/10 px-4 py-2 text-sm text-terravik-green">
@@ -162,7 +162,7 @@ export default function PrivacidadePage() {
                   title="Dados de compra"
                   items={[
                     'Histórico de pedidos (processado pelo Shopify)',
-                    'Dados de pagamento (armazenados exclusivamente pelo Shopify — nunca temos acesso ao número do cartão)',
+                    'Dados de pagamento (armazenados exclusivamente pelo Shopify: nunca temos acesso ao número do cartão)',
                   ]}
                 />
                 <DataCard
@@ -182,24 +182,24 @@ export default function PrivacidadePage() {
                 <p>Seus dados são usados exclusivamente para:</p>
                 <ul>
                   <li>
-                    <strong>Fornecer nossos serviços</strong> — processar
+                    <strong>Fornecer nossos serviços</strong>: processar
                     pedidos, calcular doses, registrar progresso na Academia
                   </li>
                   <li>
-                    <strong>Melhorar sua experiência</strong> — personalizar
+                    <strong>Melhorar sua experiência</strong>: personalizar
                     recomendações, lembrar preferências, otimizar o site
                   </li>
                   <li>
-                    <strong>Comunicação</strong> — enviar atualizações de
+                    <strong>Comunicação</strong>: enviar atualizações de
                     pedidos, novidades e conteúdo educacional (com seu
                     consentimento)
                   </li>
                   <li>
-                    <strong>Segurança</strong> — prevenir fraudes, proteger
+                    <strong>Segurança</strong>: prevenir fraudes, proteger
                     contas e cumprir obrigações legais
                   </li>
                   <li>
-                    <strong>Análise</strong> — entender como nossos produtos e
+                    <strong>Análise</strong>: entender como nossos produtos e
                     conteúdos são usados para melhorá-los continuamente
                   </li>
                 </ul>
@@ -315,24 +315,24 @@ export default function PrivacidadePage() {
                 <p>Proteger seus dados é prioridade. Nossas medidas incluem:</p>
                 <ul>
                   <li>
-                    <strong>Criptografia</strong> — todas as conexões usam HTTPS/TLS
+                    <strong>Criptografia</strong>: todas as conexões usam HTTPS/TLS
                   </li>
                   <li>
-                    <strong>Autenticação segura</strong> — senhas são hasheadas
+                    <strong>Autenticação segura</strong>: senhas são hasheadas
                     com bcrypt; suportamos autenticação social (Google)
                   </li>
                   <li>
-                    <strong>Dados de pagamento isolados</strong> — nunca tocamos
+                    <strong>Dados de pagamento isolados</strong>: nunca tocamos
                     no número do seu cartão; tudo é processado pelo Shopify (PCI
                     DSS compliant)
                   </li>
                   <li>
-                    <strong>Controle de acesso</strong> — Row Level Security
+                    <strong>Controle de acesso</strong>: Row Level Security
                     (RLS) no banco de dados; cada usuário só acessa seus
                     próprios dados
                   </li>
                   <li>
-                    <strong>Monitoramento</strong> — alertas automáticos para
+                    <strong>Monitoramento</strong>: alertas automáticos para
                     atividades suspeitas
                   </li>
                 </ul>
@@ -397,19 +397,19 @@ export default function PrivacidadePage() {
                 <p>Mantemos seus dados apenas pelo tempo necessário:</p>
                 <ul>
                   <li>
-                    <strong>Dados de conta</strong> — enquanto sua conta estiver
+                    <strong>Dados de conta</strong>: enquanto sua conta estiver
                     ativa. Após exclusão, removemos em até 30 dias.
                   </li>
                   <li>
-                    <strong>Dados de pedidos</strong> — 5 anos (obrigação fiscal
+                    <strong>Dados de pedidos</strong>: 5 anos (obrigação fiscal
                     e legal).
                   </li>
                   <li>
-                    <strong>Dados de navegação</strong> — até 26 meses
+                    <strong>Dados de navegação</strong>: até 26 meses
                     (conforme política do Google Analytics).
                   </li>
                   <li>
-                    <strong>Dados da Academia</strong> — enquanto sua conta
+                    <strong>Dados da Academia</strong>: enquanto sua conta
                     estiver ativa.
                   </li>
                 </ul>
