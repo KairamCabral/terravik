@@ -4,7 +4,7 @@
  * StepWelcome — Premium, minimalista, sofisticado
  */
 
-export function StepWelcome() {
+export function StepWelcome({ fotoDisponivel = false }: { fotoDisponivel?: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center text-center space-y-8">
       
@@ -21,14 +21,18 @@ export function StepWelcome() {
           <span className="block text-forest">para o seu gramado</span>
         </h1>
         <p className="text-lg text-neutral-500 max-w-lg mx-auto">
-          Responda algumas perguntas e receba um plano personalizado com produtos, doses e calendário.
+          {fotoDisponivel
+            ? 'Tire uma foto do gramado ou responda algumas perguntas e receba um plano com produtos, doses e calendário.'
+            : 'Responda algumas perguntas e receba um plano personalizado com produtos, doses e calendário.'}
         </p>
       </div>
 
       {/* Steps minimalistas */}
       <div className="flex items-center gap-8 lg:gap-12">
         {[
-          { num: '1', text: 'Responda', sub: '8 perguntas simples' },
+          fotoDisponivel
+            ? { num: '1', text: 'Mostre', sub: 'uma foto ou 8 perguntas' }
+            : { num: '1', text: 'Responda', sub: '8 perguntas simples' },
           { num: '2', text: 'Receba', sub: 'seu plano personalizado' },
           { num: '3', text: 'Compre', sub: 'e receba em casa' },
         ].map((step, i) => (

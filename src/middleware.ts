@@ -18,7 +18,7 @@ import { checkRateLimit, getPathPrefix } from '@/lib/rate-limit'
  * - Atualiza cookies de sessão a cada request
  */
 
-const RATE_LIMIT_PATHS = ['/api/upload', '/api/contact']
+const RATE_LIMIT_PATHS = ['/api/upload', '/api/contact', '/api/calculadora/foto']
 const METODOS_QUE_GRAVAM = ['POST', 'PUT', 'PATCH', 'DELETE']
 
 // Rotas que exigem autenticação
@@ -140,6 +140,7 @@ export const config = {
     // Rate limit
     '/api/upload',
     '/api/contact',
+    '/api/calculadora/foto',
     // Rotas protegidas
     '/conta/:path*',
     '/admin/:path*',
