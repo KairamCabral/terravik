@@ -1,5 +1,6 @@
 'use client'
 
+import { frasePix } from '@/lib/pagamento/pix'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { X, RefreshCw } from 'lucide-react'
 import { useCart } from './CartProvider'
@@ -189,13 +190,21 @@ export function CartDrawer() {
                     const subscriptionSavings = calculateCartSavings(cart)
                     const shippingSavings = selectedShipping?.isFree && selectedShipping?.originalPrice ? selectedShipping.originalPrice : 0
                     const couponSavings = appliedCoupon?.discountAmount || 0
-                    const totalSavings = subscriptionSavings + shippingSavings + couponSavings
+                    const promoSavings = (cart.promocoes ?? []).reduce((soma, p) => soma + p.valor, 0)
+                    const totalSavings = subscriptionSavings + shippingSavings + couponSavings + promoSavings
                     return totalSavings > 0 ? (
                       <p className="mb-2 text-center text-xs font-medium text-forest">
                         Economizando {formatPrice(totalSavings)}
                       </p>
                     ) : null
                   })()}
+
+                  {(cart.promocoes ?? []).map((promocao) => (
+                    <div key={promocao.id} className="mb-1.5 flex items-center justify-between gap-3 text-xs">
+                      <span className="font-medium text-forest">{promocao.rotulo}</span>
+                      <span className="font-semibold text-forest">-{formatPrice(promocao.valor)}</span>
+                    </div>
+                  ))}
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-txt-muted">Total:</span>
@@ -206,6 +215,15 @@ export function CartDrawer() {
                       )}
                     </span>
                   </div>
+                  {(() => {
+                    const pix = frasePix(
+                      Math.max(0, cart.subtotal - (appliedCoupon?.discountAmount || 0)) +
+                        (selectedShipping?.price || 0)
+                    )
+                    return pix ? (
+                      <p className="mt-1 text-right text-xs font-semibold text-forest">ou {pix}</p>
+                    ) : null
+                  })()}
                 </div>
 
                 {/* CTA */}

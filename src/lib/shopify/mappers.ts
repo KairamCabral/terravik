@@ -140,6 +140,7 @@ export function normalizeCart(cart: ShopifyCart): Cart {
 // ============================================
 
 import type { MockCart } from './mock-cart'
+import { calcularPromocoes } from '@/lib/promocoes/regras'
 
 /**
  * Normaliza um MockCart para o formato esperado pelo CartProvider
@@ -168,7 +169,7 @@ export function normalizeMockCart(mockCart: MockCart): Cart {
     options: {
       tamanho: item.variantTitle,
     },
-    
+
     // NOVOS CAMPOS DE ASSINATURA
     subscription: {
       isSubscription: item.isSubscription,
@@ -176,7 +177,7 @@ export function normalizeMockCart(mockCart: MockCart): Cart {
       frequency: item.frequency,
       subscriptionPrice: item.subscriptionPrice,
       discountPercent: item.discountPercent,
-      nextDeliveryDate: item.isSubscription 
+      nextDeliveryDate: item.isSubscription
         ? calculateNextDeliveryDate().toISOString()
         : undefined,
     },
@@ -189,16 +190,31 @@ export function normalizeMockCart(mockCart: MockCart): Cart {
     (sum, item) => sum + item.totalPrice, 0
   );
 
+  // Kit e desconto por quantidade (src/lib/promocoes/regras.ts). O subtotal
+  // já sai com o desconto: frete grátis, cupom e total partem dele.
+  const { promocoes, desconto } = calcularPromocoes(
+    mockCart.items.map((item) => ({
+      handle: item.handle,
+      nome: item.title,
+      precoUnitario: item.price,
+      quantidade: item.quantity,
+      assinatura: item.isSubscription,
+    }))
+  )
+  const subtotal = Math.max(0, Math.round((mockCart.subtotal - desconto) * 100) / 100)
+
   return {
     id: mockCart.id,
     checkoutUrl: '/checkout',
     totalQuantity: mockCart.totalQuantity,
-    subtotal: mockCart.subtotal,
-    total: mockCart.subtotal,
+    subtotal,
+    total: subtotal,
+    promocoes,
+    subtotalSemPromocoes: mockCart.subtotal,
     tax: 0,
     currency: 'BRL',
     items,
-    
+
     // NOVOS CAMPOS
     hasSubscription,
     subscriptionCount: subscriptionItems.length,

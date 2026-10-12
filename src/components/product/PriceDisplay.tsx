@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Tag } from 'lucide-react'
 import { fraseParcelamento } from '@/lib/pagamento/parcelas'
+import { frasePix } from '@/lib/pagamento/pix'
+import { FAIXAS_DE_QUANTIDADE, percentualPorQuantidade } from '@/lib/promocoes/regras'
 
 interface PriceDisplayProps {
   basePrice: number
@@ -40,8 +42,15 @@ export function PriceDisplay({
   const totalCompareAt =
     compareAtPrice && compareAtPrice > basePrice ? compareAtPrice * quantity : null
 
+  // Desconto por quantidade (2 sacos, 3 ou mais): só na compra única.
+  const descontoPorQuantidade = purchaseMode === 'one-time' ? percentualPorQuantidade(quantity) : 0
+  const totalComQuantidade =
+    Math.round(totalBasePrice * (100 - descontoPorQuantidade)) / 100
+
   const displayPrice =
-    purchaseMode === 'subscription' ? totalSubscriptionPrice : totalBasePrice
+    purchaseMode === 'subscription' ? totalSubscriptionPrice : totalComQuantidade
+  const pix = frasePix(displayPrice)
+  const [faixaMaior, faixaMenor] = FAIXAS_DE_QUANTIDADE
   const unitPrice =
     purchaseMode === 'subscription' ? subscriptionPrice : basePrice
   // Regra única de parcelamento (lib/pagamento/parcelas.ts).
@@ -91,7 +100,11 @@ export function PriceDisplay({
           </motion.span>
         )}
 
-        {totalCompareAt && purchaseMode === 'one-time' && (
+        {descontoPorQuantidade > 0 && (
+          <span className="text-lg text-txt-muted line-through">{formatPrice(totalBasePrice)}</span>
+        )}
+
+        {totalCompareAt && purchaseMode === 'one-time' && descontoPorQuantidade === 0 && (
           <span className="text-lg text-txt-muted line-through">
             {formatPrice(totalCompareAt)}
           </span>
@@ -115,6 +128,9 @@ export function PriceDisplay({
               </span>
               <span className="text-sm text-txt-muted">por entrega</span>
             </div>
+            {pix && (
+              <p className="text-sm font-semibold text-forest">{pix}</p>
+            )}
             {parcelamento && (
               <p className="text-xs text-txt-secondary">
                 ou <span className="font-medium">{parcelamento}</span>
@@ -129,6 +145,9 @@ export function PriceDisplay({
             exit={{ opacity: 0, y: -4 }}
             className="space-y-1"
           >
+            {pix && (
+              <p className="text-sm font-semibold text-forest">{pix}</p>
+            )}
             {parcelamento && (
               <p className="text-xs text-txt-secondary">
                 ou <span className="font-medium">{parcelamento}</span>
@@ -144,6 +163,13 @@ export function PriceDisplay({
       {quantity > 1 && (
         <p className="text-xs text-txt-muted">
           {quantity} unidades × {formatPrice(unitPrice)} cada
+          {descontoPorQuantidade > 0 && `, com ${descontoPorQuantidade}% de desconto pela quantidade`}
+        </p>
+      )}
+
+      {purchaseMode === 'one-time' && (
+        <p className="rounded-lg bg-gold-soft px-3 py-2 text-xs font-medium text-txt-primary">
+          Leve {faixaMenor.minimo} sacos e ganhe {faixaMenor.percentual}%. Com {faixaMaior.minimo} ou mais, {faixaMaior.percentual}%.
         </p>
       )}
     </div>

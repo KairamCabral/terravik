@@ -4,6 +4,9 @@ import { FAQ_HOME } from '@/lib/faq/home'
 import { BannerSection } from '@/components/home/BannerSection'
 import { VideoSection } from '@/components/home/VideoSection'
 import { ProductsShowcase } from '@/components/home/ProductsShowcase'
+import { ObjetivosSection } from '@/components/home/ObjetivosSection'
+import { KitSection } from '@/components/home/KitSection'
+import { ComparativoSection } from '@/components/home/ComparativoSection'
 import { CalculatorCTA } from '@/components/home/CalculatorCTA'
 import { InfluencersSection } from '@/components/home/InfluencersSection'
 import { BenefitsSection } from '@/components/home/BenefitsSection'
@@ -41,8 +44,11 @@ export default async function HomePage() {
       />
 
       <BannerSection />
+      <ObjetivosSection />
       <VideoSection />
       <ProductsShowcase produtos={produtos} />
+      <KitSection produtos={produtos} />
+      <ComparativoSection />
       <CalculatorCTA />
       <InfluencersSection />
       <BenefitsSection />

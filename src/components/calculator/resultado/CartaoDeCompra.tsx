@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils/cn'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { fraseParcelamento } from '@/lib/pagamento/parcelas'
 import { progressoDoFreteGratis } from '@/lib/shipping/config'
+import { frasePix } from '@/lib/pagamento/pix'
 import type { CompraDoPlano } from './useCompraDoPlano'
 
 interface CartaoDeCompraProps {
@@ -24,7 +25,8 @@ export const CartaoDeCompra = forwardRef<HTMLDivElement, CartaoDeCompraProps>(fu
   { compra, areaM2 },
   botaoRef
 ) {
-  const { itens, assinavel, modo, setModo, total, totalAvulso, economia, estado, comprar } = compra
+  const { itens, assinavel, modo, setModo, total, totalAvulso, economia, promocoes, estado, comprar } = compra
+  const pix = frasePix(total)
   const frete = progressoDoFreteGratis(total)
   const parcelas = fraseParcelamento(total)
   const disponiveis = itens.filter((i) => i.disponivel)
@@ -128,6 +130,16 @@ export const CartaoDeCompra = forwardRef<HTMLDivElement, CartaoDeCompraProps>(fu
       )}
 
       <div className="mt-3 bg-bg-surface-2/60 px-5 pb-6 pt-4 sm:px-7">
+        {promocoes.length > 0 && (
+          <ul className="mb-3 space-y-1.5 border-b border-border-subtle pb-3">
+            {promocoes.map((promocao) => (
+              <li key={promocao.id} className="flex items-center justify-between gap-3 text-sm">
+                <span className="font-medium text-forest">{promocao.rotulo}</span>
+                <span className="font-semibold text-forest">-{formatCurrency(promocao.valor)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
         <div className="flex items-end justify-between gap-4">
           <div>
             <p className="text-sm text-txt-secondary">Total do plano</p>
@@ -135,7 +147,8 @@ export const CartaoDeCompra = forwardRef<HTMLDivElement, CartaoDeCompraProps>(fu
           </div>
           <div className="text-right">
             <p className="font-heading text-3xl font-bold leading-none text-forest">{formatCurrency(total)}</p>
-            {parcelas && <p className="mt-1 text-xs text-txt-secondary">ou {parcelas}</p>}
+            {pix && <p className="mt-1 text-sm font-semibold text-forest">{pix}</p>}
+            {parcelas && <p className="mt-0.5 text-xs text-txt-secondary">ou {parcelas}</p>}
             {economia > 0 && (
               <p className="mt-1 text-xs font-semibold text-gold-ink">Você economiza {formatCurrency(economia)}</p>
             )}

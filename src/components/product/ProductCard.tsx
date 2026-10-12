@@ -1,5 +1,6 @@
 'use client'
 
+import { frasePix } from '@/lib/pagamento/pix'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -156,6 +157,9 @@ export function ProductCard({
                       {formatCurrency(product.price, product.currency)}
                     </span>
                   </div>
+                  {frasePix(product.price) && (
+                    <p className="text-xs font-semibold text-forest">{frasePix(product.price)}</p>
+                  )}
                 </>
               )}
             </div>

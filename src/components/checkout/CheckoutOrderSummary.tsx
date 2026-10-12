@@ -156,8 +156,15 @@ export function CheckoutOrderSummary({
       <div className="px-5 py-4 border-t border-border-subtle space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-txt-muted">Subtotal</span>
-          <span className="text-txt-primary">{formatPrice(cart.subtotal)}</span>
+          <span className="text-txt-primary">{formatPrice(cart.subtotalSemPromocoes ?? cart.subtotal)}</span>
         </div>
+
+        {(cart.promocoes ?? []).map((promocao) => (
+          <div key={promocao.id} className="flex justify-between gap-3 text-sm">
+            <span className="text-forest">{promocao.rotulo}</span>
+            <span className="text-forest font-medium">-{formatPrice(promocao.valor)}</span>
+          </div>
+        ))}
 
         {coupon && couponDiscount > 0 && (
           <div className="flex justify-between text-sm">
