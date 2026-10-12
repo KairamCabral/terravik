@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useId, useRef, useState } from 'react'
 import { ArrowRight, Plus } from 'lucide-react'
-import type { KitMontado } from '@/lib/promocoes/kits'
+import { sacosDoKit, type KitMontado } from '@/lib/promocoes/kits'
 import { frasePix } from '@/lib/pagamento/pix'
 import { fraseParcelamento } from '@/lib/pagamento/parcelas'
 import { formatCurrency } from '@/lib/utils/formatters'
@@ -103,7 +103,7 @@ export function KitsExplorer({ kits, titulo = 'h2' }: KitsExplorerProps) {
                   indice === ativo ? 'bg-gold text-forest-ink' : 'bg-white/15 text-gold-soft'
                 )}
               >
-                -{k.percentual}%
+                {k.percentual}% OFF
               </span>
             </button>
           ))}
@@ -120,8 +120,8 @@ export function KitsExplorer({ kits, titulo = 'h2' }: KitsExplorerProps) {
           {/* O que vem dentro, em imagem */}
           <div key={kit.id} className="animate-fade-in motion-reduce:animate-none">
             <div className="flex items-end justify-center gap-1.5 sm:gap-3">
-              {kit.itens.map((item, indice) => (
-                <div key={item.handle} className="flex min-w-0 items-center gap-1 sm:gap-3">
+              {sacosDoKit(kit).map((item, indice, sacos) => (
+                <div key={`${item.handle}-${indice}`} className="flex min-w-0 items-center gap-1 sm:gap-3">
                   {indice > 0 && <Plus className="h-4 w-4 flex-shrink-0 text-gold-soft sm:h-5 sm:w-5" aria-hidden="true" />}
                   <div className="relative">
                     {item.imagem && (
@@ -133,14 +133,9 @@ export function KitsExplorer({ kits, titulo = 'h2' }: KitsExplorerProps) {
                         sizes="(max-width: 640px) 30vw, 190px"
                         className={cn(
                           'h-auto drop-shadow-2xl',
-                          kit.itens.length === 1 ? 'w-40 sm:w-52' : kit.itens.length === 2 ? 'w-32 sm:w-44' : 'w-[20vw] max-w-[150px] sm:w-36'
+                          sacos.length === 1 ? 'w-40 sm:w-52' : sacos.length === 2 ? 'w-32 sm:w-44' : 'w-[20vw] max-w-[150px] sm:w-36'
                         )}
                       />
-                    )}
-                    {item.quantidade > 1 && (
-                      <span className="absolute -right-2 -top-2 flex h-10 w-10 items-center justify-center rounded-full bg-gold font-heading text-base font-bold text-forest-ink shadow-lg">
-                        {item.quantidade}×
-                      </span>
                     )}
                   </div>
                 </div>

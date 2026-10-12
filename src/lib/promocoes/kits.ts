@@ -157,6 +157,11 @@ export function montarKits(produtos: Product[]): KitMontado[] {
   return kits
 }
 
+/** Os sacos do kit, um por unidade, para desenhar: 3 × Resistência Total vira três sacos. */
+export function sacosDoKit(kit: KitMontado): ItemDoKit[] {
+  return kit.itens.flatMap((item) => Array.from({ length: item.quantidade }, () => item))
+}
+
 /** Kits que levam o produto, na ordem em que fazem mais sentido para quem está na página dele. */
 export function kitsDoProduto(kits: KitMontado[], handle: string): KitMontado[] {
   const comEle = kits.filter((k) => k.itens.some((i) => i.handle === handle))

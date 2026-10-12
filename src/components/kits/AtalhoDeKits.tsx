@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Layers, Plus } from 'lucide-react'
-import type { KitMontado } from '@/lib/promocoes/kits'
+import { sacosDoKit, type KitMontado } from '@/lib/promocoes/kits'
 import { FAIXAS_DE_QUANTIDADE } from '@/lib/promocoes/regras'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { BotaoDoKit } from './BotaoDoKit'
@@ -38,34 +38,29 @@ export function AtalhoDeKits({ kits }: AtalhoDeKitsProps) {
           </Link>
         </div>
 
-        <ul className="scrollbar-hide -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-3 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0 lg:pb-0">
+        <ul className="scrollbar-hide -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-3 pt-4 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0 lg:pb-0">
           {kits.map((kit) => (
             <li key={kit.id} className="w-[66%] flex-shrink-0 snap-start sm:w-[40%] lg:w-auto">
-              <article className="flex h-full flex-col rounded-2xl border border-border-subtle bg-bg-surface p-4">
+              <article className="relative flex h-full flex-col rounded-2xl border border-border-subtle bg-bg-surface p-4">
+                {/* Etiqueta sobre a borda do cartão: fora da área das fotos, nunca fica atrás delas. */}
+                <span className="absolute -top-3 left-4 z-10 rounded-full bg-gold px-3 py-1 text-xs font-bold text-forest-ink shadow-md ring-2 ring-bg-primary">
+                  {kit.percentual}% OFF
+                </span>
                 <div className="relative flex h-28 items-end justify-center gap-1 rounded-xl bg-gradient-forest px-2 pb-2 pt-3">
-                  <span className="absolute left-2 top-2 rounded-full bg-gold px-2 py-0.5 text-[11px] font-bold text-forest-ink">
-                    -{kit.percentual}%
-                  </span>
-                  {kit.itens.map((item, indice) => (
-                    <div key={item.handle} className="flex h-full items-end gap-1">
+                  {/* Um saco por unidade: 3 sacos aparecem como 3 sacos. */}
+                  {sacosDoKit(kit).map((item, indice) => (
+                    <div key={`${item.handle}-${indice}`} className="flex h-full min-w-0 items-end gap-1">
                       {indice > 0 && <Plus className="mb-8 h-3 w-3 flex-shrink-0 text-gold-soft" aria-hidden="true" />}
-                      <div className="relative h-full">
-                        {item.imagem && (
-                          <Image
-                            src={item.imagem.url}
-                            alt=""
-                            width={item.imagem.width}
-                            height={item.imagem.height}
-                            sizes="72px"
-                            className="h-full w-auto object-contain drop-shadow-lg"
-                          />
-                        )}
-                        {item.quantidade > 1 && (
-                          <span className="absolute -right-3 top-0 flex h-7 w-7 items-center justify-center rounded-full bg-gold text-xs font-bold text-forest-ink">
-                            {item.quantidade}×
-                          </span>
-                        )}
-                      </div>
+                      {item.imagem && (
+                        <Image
+                          src={item.imagem.url}
+                          alt=""
+                          width={item.imagem.width}
+                          height={item.imagem.height}
+                          sizes="72px"
+                          className="h-full w-auto min-w-0 object-contain drop-shadow-lg"
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
