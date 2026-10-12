@@ -5,7 +5,8 @@ import { BannerSection } from '@/components/home/BannerSection'
 import { VideoSection } from '@/components/home/VideoSection'
 import { ProductsShowcase } from '@/components/home/ProductsShowcase'
 import { ObjetivosSection } from '@/components/home/ObjetivosSection'
-import { KitSection } from '@/components/home/KitSection'
+import { KitsExplorer } from '@/components/kits/KitsExplorer'
+import { montarKits } from '@/lib/promocoes/kits'
 import { ComparativoSection } from '@/components/home/ComparativoSection'
 import { CalculatorCTA } from '@/components/home/CalculatorCTA'
 import { InfluencersSection } from '@/components/home/InfluencersSection'
@@ -50,7 +51,7 @@ export default async function HomePage() {
       <ObjetivosSection />
       <VideoSection />
       <ProductsShowcase produtos={produtos} />
-      <KitSection produtos={produtos} />
+      <KitsExplorer kits={montarKits(produtos)} />
       <ComparativoSection />
       <CalculatorCTA fotoDisponivel={fotoDisponivel} />
       <InfluencersSection />

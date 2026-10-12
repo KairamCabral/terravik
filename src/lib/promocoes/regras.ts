@@ -1,28 +1,54 @@
 /**
  * Descontos automáticos do carrinho: fonte única.
  *
- * Duas regras, definidas pelo dono em 12/10/2026:
- * - KIT: um saco de cada um dos três produtos, 15% sobre o conjunto.
- * - QUANTIDADE: 2 sacos do mesmo produto, 5%; 3 ou mais, 10%.
- *   (Os percentuais de quantidade foram propostos na implementação e aguardam
- *   a confirmação do dono.)
+ * KITS (combinações de produtos diferentes):
+ * - Gramado Completo: um saco de cada um dos três produtos, 15% (definido pelo
+ *   dono em 12/10/2026).
+ * - Plantio (Raiz Forte + Verde Rápido) e Recuperação (Verde Rápido +
+ *   Resistência Total): 10%. PERCENTUAL PROPOSTO na implementação, aguardando
+ *   a confirmação do dono.
  *
- * As regras não se somam na mesma unidade: primeiro formam-se os kits; o que
- * sobra de cada produto entra na faixa de quantidade. Item de assinatura já
- * tem o desconto dele e fica de fora.
+ * QUANTIDADE (o mesmo produto): 2 sacos, 5%; 3 ou mais, 10%. Também proposto
+ * na implementação.
+ *
+ * As regras não se somam na mesma unidade: primeiro formam-se os kits, do
+ * maior desconto para o menor; o que sobra de cada produto entra na faixa de
+ * quantidade. Item de assinatura já tem o desconto dele e fica de fora.
  *
  * ATENÇÃO: hoje quem aplica isto é o carrinho de demonstração. Com a Shopify
  * ligada, os mesmos descontos precisam existir lá como descontos automáticos,
  * senão o site anuncia um preço que o checkout não cobra.
  */
 
-export const KIT = {
-  id: 'kit-gramado-completo',
-  nome: 'Kit Gramado Completo',
-  /** Na ordem da linha do tempo da embalagem. */
-  handles: ['raiz-forte', 'verde-rapido', 'resistencia-total'],
-  percentual: 15,
-} as const
+export interface RegraDeKit {
+  id: string
+  nome: string
+  /** Um saco de cada. Na ordem da linha do tempo da embalagem. */
+  handles: readonly string[]
+  percentual: number
+}
+
+/** Do maior desconto para o menor: é a ordem em que o carrinho forma os kits. */
+export const KITS: readonly RegraDeKit[] = [
+  {
+    id: 'kit-gramado-completo',
+    nome: 'Kit Gramado Completo',
+    handles: ['raiz-forte', 'verde-rapido', 'resistencia-total'],
+    percentual: 15,
+  },
+  {
+    id: 'kit-plantio',
+    nome: 'Kit Plantio',
+    handles: ['raiz-forte', 'verde-rapido'],
+    percentual: 10,
+  },
+  {
+    id: 'kit-recuperacao',
+    nome: 'Kit Recuperação',
+    handles: ['verde-rapido', 'resistencia-total'],
+    percentual: 10,
+  },
+]
 
 /** Da maior para a menor. */
 export const FAIXAS_DE_QUANTIDADE = [
@@ -71,18 +97,19 @@ export function calcularPromocoes(linhas: LinhaParaPromocao[]): ResultadoDasProm
 
   const promocoes: PromocaoAplicada[] = []
 
-  // 1) Kits: quantos conjuntos completos cabem no carrinho.
-  const kits = Math.min(...KIT.handles.map((h) => porHandle.get(h)?.quantidade ?? 0))
-  if (kits > 0) {
-    const precoDoConjunto = KIT.handles.reduce((soma, h) => soma + (porHandle.get(h)?.preco ?? 0), 0)
+  // 1) Kits, do maior desconto para o menor: quantos conjuntos completos cabem.
+  for (const kit of KITS) {
+    const conjuntos = Math.min(...kit.handles.map((h) => porHandle.get(h)?.quantidade ?? 0))
+    if (conjuntos <= 0) continue
+    const precoDoConjunto = kit.handles.reduce((soma, h) => soma + (porHandle.get(h)?.preco ?? 0), 0)
     promocoes.push({
-      id: KIT.id,
-      rotulo: kits > 1 ? `${kits} × ${KIT.nome} (${KIT.percentual}%)` : `${KIT.nome} (${KIT.percentual}%)`,
-      valor: centavos((precoDoConjunto * kits * KIT.percentual) / 100),
+      id: kit.id,
+      rotulo: `${conjuntos > 1 ? `${conjuntos} × ` : ''}${kit.nome} (${kit.percentual}%)`,
+      valor: centavos((precoDoConjunto * conjuntos * kit.percentual) / 100),
     })
-    for (const h of KIT.handles) {
+    for (const h of kit.handles) {
       const item = porHandle.get(h)
-      if (item) item.quantidade -= kits
+      if (item) item.quantidade -= conjuntos
     }
   }
 
@@ -98,11 +125,4 @@ export function calcularPromocoes(linhas: LinhaParaPromocao[]): ResultadoDasProm
   })
 
   return { promocoes, desconto: centavos(promocoes.reduce((soma, p) => soma + p.valor, 0)) }
-}
-
-/** Preço do kit a partir dos preços unitários dos três produtos. */
-export function precoDoKit(precos: number[]): { cheio: number; comDesconto: number; economia: number } {
-  const cheio = centavos(precos.reduce((soma, p) => soma + p, 0))
-  const economia = centavos((cheio * KIT.percentual) / 100)
-  return { cheio, comDesconto: centavos(cheio - economia), economia }
 }

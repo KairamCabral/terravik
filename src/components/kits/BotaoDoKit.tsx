@@ -6,12 +6,15 @@ import { useCart } from '@/components/cart'
 import { cn } from '@/lib/utils/cn'
 
 interface BotaoDoKitProps {
-  itens: { variantId: string }[]
+  itens: { variantId: string; quantidade: number }[]
+  /** `claro`: botão branco, para fundo verde. `escuro`: botão verde, para fundo claro. */
+  tom?: 'claro' | 'escuro'
+  texto?: string
   className?: string
 }
 
-/** Adiciona um saco de cada produto do kit. O desconto é aplicado no carrinho. */
-export function BotaoDoKit({ itens, className }: BotaoDoKitProps) {
+/** Adiciona os produtos do kit. O desconto é aplicado no carrinho. */
+export function BotaoDoKit({ itens, tom = 'escuro', texto = 'Adicionar o kit ao carrinho', className }: BotaoDoKitProps) {
   const { addItem, openCart } = useCart()
   const [estado, setEstado] = useState<'pronto' | 'adicionando' | 'adicionado'>('pronto')
 
@@ -24,7 +27,7 @@ export function BotaoDoKit({ itens, className }: BotaoDoKitProps) {
     setEstado('adicionando')
     try {
       for (const item of itens) {
-        await addItem(item.variantId, 1, { purchaseMode: 'one-time' }, 'kit')
+        await addItem(item.variantId, item.quantidade, { purchaseMode: 'one-time' }, 'kit')
       }
       setEstado('adicionado')
       openCart()
@@ -40,7 +43,10 @@ export function BotaoDoKit({ itens, className }: BotaoDoKitProps) {
       onClick={comprar}
       disabled={estado === 'adicionando'}
       className={cn(
-        'flex min-h-[56px] w-full items-center justify-center gap-3 rounded-2xl bg-white px-6 text-base font-semibold text-forest shadow-lg transition-all hover:bg-gold-soft active:scale-[0.98] disabled:opacity-70 sm:w-auto sm:px-10',
+        'flex min-h-[52px] w-full items-center justify-center gap-2.5 rounded-2xl px-6 text-base font-semibold transition-all active:scale-[0.98] disabled:opacity-70',
+        tom === 'claro'
+          ? 'bg-white text-forest shadow-lg hover:bg-gold-soft'
+          : 'bg-forest text-white shadow-md hover:bg-forest-ink',
         className
       )}
     >
@@ -57,7 +63,7 @@ export function BotaoDoKit({ itens, className }: BotaoDoKitProps) {
       ) : (
         <>
           <ShoppingBag className="h-5 w-5" aria-hidden="true" />
-          Adicionar o kit ao carrinho
+          {texto}
         </>
       )}
     </button>
