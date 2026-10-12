@@ -12,7 +12,7 @@ import { createClient } from '@/lib/supabase/client'
  *
  * - Busca banners ativos do Supabase (tabela `banners`)
  * - Fallback para dados locais se banco indisponível
- * - Desktop 1920x800 (painel) ou 1920x720 (artes locais) / Mobile 1080x1350
+ * - Desktop 1920x800 (painel) ou 1920x720 (artes locais) / Mobile 1080x1350 (painel) ou horizontal 1720x720 (artes locais)
  * - Auto-play 5s, pausa ao hover
  * - Suporte a link clicável por banner
  * - Auto-refresh a cada 30s para refletir mudanças do admin
@@ -26,36 +26,44 @@ interface BannerData {
   link?: string | null
   /** Proporção da arte de computador, em CSS ("8 / 3"). Padrão: 1920 / 800. */
   proporcaoDesktop?: string
+  /** Proporção da arte de celular, em CSS. Padrão: 1080 / 1350. */
+  proporcaoCelular?: string
 }
 
 // As artes locais são 1920x720. Cortar para 1920x800 comeria o texto da borda.
 const PROPORCAO_DA_ARTE_LOCAL = '8 / 3'
+// No celular a arte local também é horizontal: a mesma do computador com as
+// bordas laterais aparadas (1720x720), sem cortar o texto nem a embalagem.
+const PROPORCAO_DA_ARTE_LOCAL_NO_CELULAR = '43 / 18'
 
 // Fallback caso o banco não esteja acessível
 const FALLBACK_BANNERS: BannerData[] = [
   {
     id: 'fallback-1',
     desktop: '/images/Banner/home-raiz-forte.jpg',
-    mobile: '/images/Banner/home-raiz-forte-celular.jpg',
+    mobile: '/images/Banner/home-raiz-forte-celular-h.jpg',
     alt: 'Raiz Forte Terravik: raízes fortes, gramado saudável. Rende 32 m².',
     link: '/produtos/raiz-forte',
     proporcaoDesktop: PROPORCAO_DA_ARTE_LOCAL,
+    proporcaoCelular: PROPORCAO_DA_ARTE_LOCAL_NO_CELULAR,
   },
   {
     id: 'fallback-2',
     desktop: '/images/Banner/home-verde-rapido.jpg',
-    mobile: '/images/Banner/home-verde-rapido-celular.jpg',
+    mobile: '/images/Banner/home-verde-rapido-celular-h.jpg',
     alt: 'Verde Rápido Terravik: seu gramado verde de novo. Rende 96 m².',
     link: '/produtos/verde-rapido',
     proporcaoDesktop: PROPORCAO_DA_ARTE_LOCAL,
+    proporcaoCelular: PROPORCAO_DA_ARTE_LOCAL_NO_CELULAR,
   },
   {
     id: 'fallback-3',
     desktop: '/images/Banner/home-resistencia-total.jpg',
-    mobile: '/images/Banner/home-resistencia-total-celular.jpg',
+    mobile: '/images/Banner/home-resistencia-total-celular-h.jpg',
     alt: 'Resistência Total Terravik: um gramado forte o ano inteiro. Rende 64 m².',
     link: '/produtos/resistencia-total',
     proporcaoDesktop: PROPORCAO_DA_ARTE_LOCAL,
+    proporcaoCelular: PROPORCAO_DA_ARTE_LOCAL_NO_CELULAR,
   },
 ]
 
@@ -221,8 +229,11 @@ export function BannerSection() {
     >
       {/* Container — Mobile: 1080×1350 / Desktop: 1920×800 */}
       <div
-        className="relative w-full aspect-[1080/1350] md:[aspect-ratio:var(--proporcao-do-banner)]"
-        style={{ ['--proporcao-do-banner' as string]: currentBanner.proporcaoDesktop ?? '1920 / 800' }}
+        className="relative w-full [aspect-ratio:var(--proporcao-do-banner-no-celular)] md:[aspect-ratio:var(--proporcao-do-banner)]"
+        style={{
+          ['--proporcao-do-banner' as string]: currentBanner.proporcaoDesktop ?? '1920 / 800',
+          ['--proporcao-do-banner-no-celular' as string]: currentBanner.proporcaoCelular ?? '1080 / 1350',
+        }}
       >
         <AnimatePresence initial={false} mode="wait">
           {currentBanner.link ? (
@@ -241,7 +252,7 @@ export function BannerSection() {
           <button
             onClick={goToPrevious}
             aria-label="Banner anterior"
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-bg-surface/90 backdrop-blur-sm border border-border-subtle text-txt-primary shadow-sm transition-all hover:bg-bg-surface hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest md:h-12 md:w-12"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-bg-surface/90 backdrop-blur-sm border border-border-subtle text-txt-primary shadow-sm transition-all hover:bg-bg-surface hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest md:h-12 md:w-12"
           >
             <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
           </button>
@@ -249,7 +260,7 @@ export function BannerSection() {
           <button
             onClick={goToNext}
             aria-label="Próximo banner"
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-bg-surface/90 backdrop-blur-sm border border-border-subtle text-txt-primary shadow-sm transition-all hover:bg-bg-surface hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest md:h-12 md:w-12"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-bg-surface/90 backdrop-blur-sm border border-border-subtle text-txt-primary shadow-sm transition-all hover:bg-bg-surface hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest md:h-12 md:w-12"
           >
             <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
           </button>
@@ -258,7 +269,7 @@ export function BannerSection() {
 
       {/* Indicadores */}
       {banners.length > 1 && (
-        <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2 md:gap-3">
+        <div className="absolute bottom-1.5 md:bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2 md:gap-3">
           {banners.map((_, index) => (
             <button
               key={index}
@@ -279,7 +290,7 @@ export function BannerSection() {
 
       {/* Contador */}
       {banners.length > 1 && (
-        <div className="absolute top-4 right-4 z-10 rounded-full bg-bg-dark/50 backdrop-blur-sm px-3 py-1.5 text-xs md:text-sm font-medium text-txt-on-dark">
+        <div className="absolute top-4 right-4 z-10 hidden md:block rounded-full bg-bg-dark/50 backdrop-blur-sm px-3 py-1.5 text-xs md:text-sm font-medium text-txt-on-dark">
           {safeIndex + 1} / {banners.length}
         </div>
       )}
