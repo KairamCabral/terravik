@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { Plus } from 'lucide-react'
 import type { Product } from '@/types/product'
-import { kitsDoProduto, montarKits, type KitMontado } from '@/lib/promocoes/kits'
+import { kitsDoProduto, montarKits, sacosDoKit, type KitMontado } from '@/lib/promocoes/kits'
 import { frasePix } from '@/lib/pagamento/pix'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { cn } from '@/lib/utils/cn'
@@ -88,14 +88,14 @@ function CartaoDoKit({
             destaque ? 'bg-gold text-forest-ink' : 'bg-forest/10 text-forest'
           )}
         >
-          -{kit.percentual}%{destaque ? ' · maior desconto' : ''}
+          {kit.percentual}% OFF{destaque ? ' · maior desconto' : ''}
         </span>
       </div>
 
       {/* Este produto + o que entra junto */}
       <div className="mt-4 flex items-end justify-center gap-1.5 rounded-2xl bg-bg-surface-2 px-3 pb-3 pt-5">
-        {kit.itens.map((item, indice) => (
-          <div key={item.handle} className="flex items-center gap-1.5">
+        {sacosDoKit(kit).map((item, indice, sacos) => (
+          <div key={`${item.handle}-${indice}`} className="flex items-center gap-1.5">
             {indice > 0 && <Plus className="h-4 w-4 flex-shrink-0 text-gold-ink" aria-hidden="true" />}
             <div className="relative flex flex-col items-center">
               {item.imagem && (
@@ -105,19 +105,17 @@ function CartaoDoKit({
                   width={item.imagem.width}
                   height={item.imagem.height}
                   sizes="96px"
-                  className={cn('h-auto drop-shadow-lg', kit.itens.length === 3 ? 'w-[68px]' : 'w-20')}
+                  className={cn('h-auto drop-shadow-lg', sacos.length === 3 ? 'w-[68px]' : 'w-20')}
                 />
-              )}
-              {item.quantidade > 1 && (
-                <span className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-forest text-xs font-bold text-white">
-                  {item.quantidade}×
-                </span>
               )}
               <span
                 className={cn(
                   'mt-2 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                  item.handle === handleDaPagina ? 'bg-forest text-white' : 'bg-bg-surface text-txt-secondary'
+                  item.handle === handleDaPagina ? 'bg-forest text-white' : 'bg-bg-surface text-txt-secondary',
+                  // Sacos repetidos do mesmo produto: a etiqueta aparece só no primeiro.
+                  sacos.findIndex((s) => s.handle === item.handle) !== indice && 'invisible'
                 )}
+                aria-hidden={sacos.findIndex((s) => s.handle === item.handle) !== indice}
               >
                 {item.handle === handleDaPagina ? 'Este produto' : item.papel}
               </span>
