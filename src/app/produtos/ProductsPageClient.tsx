@@ -41,6 +41,7 @@ const TRUST_ITEMS = [
   ...(FRASE_DO_FRETE ? [{ icon: Truck, text: FRASE_DO_FRETE }] : []),
   { icon: ShieldCheck, text: 'Garantia de satisfação' },
   { icon: Leaf, text: 'Fórmulas premium' },
+  { icon: Sparkles, text: 'Tecnologia Grânulo Uniforme' },
 ]
 
 interface ProductsPageClientProps {
@@ -161,11 +162,11 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
               >
                 <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-forest/10 to-forest/5 shadow-sm transition-all duration-300 group-hover:shadow-md group-hover:from-forest/15 group-hover:to-forest/10">
                   <item.icon className="h-6 w-6 text-forest transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
-                  
+
                   {/* Decorative glow effect on hover */}
                   <div className="absolute inset-0 rounded-2xl bg-forest/5 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-100" />
                 </div>
-                
+
                 <span className="max-w-[140px] text-xs font-semibold leading-tight text-txt-primary transition-colors duration-300 group-hover:text-forest md:text-sm lg:max-w-none">
                   {item.text}
                 </span>

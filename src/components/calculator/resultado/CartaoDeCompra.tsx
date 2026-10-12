@@ -6,7 +6,7 @@ import { Check, Loader2, RotateCcw, ShieldCheck, ShoppingBag, Truck } from 'luci
 import { cn } from '@/lib/utils/cn'
 import { formatCurrency } from '@/lib/utils/formatters'
 import { fraseParcelamento } from '@/lib/pagamento/parcelas'
-import { progressoDoFreteGratis } from '@/lib/shipping/config'
+import { mensagemDoFreteGratis } from '@/lib/shipping/config'
 import { frasePix } from '@/lib/pagamento/pix'
 import type { CompraDoPlano } from './useCompraDoPlano'
 
@@ -27,7 +27,7 @@ export const CartaoDeCompra = forwardRef<HTMLDivElement, CartaoDeCompraProps>(fu
 ) {
   const { itens, assinavel, modo, setModo, total, totalAvulso, economia, promocoes, estado, comprar } = compra
   const pix = frasePix(total)
-  const frete = progressoDoFreteGratis(total)
+  const frete = mensagemDoFreteGratis(total)
   const parcelas = fraseParcelamento(total)
   const disponiveis = itens.filter((i) => i.disponivel)
 
@@ -184,17 +184,17 @@ export const CartaoDeCompra = forwardRef<HTMLDivElement, CartaoDeCompraProps>(fu
           </button>
         </div>
 
-        {frete.liberada ? (
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs font-medium text-success-ink">
-            <Truck className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-            Frete grátis para {frete.liberada.regiao}
+        {frete && (
+          <p
+            className={cn(
+              'mt-3 flex items-start justify-center gap-1.5 text-center text-xs',
+              frete.liberado ? 'font-medium text-success-ink' : 'text-txt-secondary'
+            )}
+          >
+            <Truck className="mt-px h-4 w-4 flex-shrink-0 text-forest" aria-hidden="true" />
+            {frete.texto}
           </p>
-        ) : frete.proxima ? (
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-txt-secondary">
-            <Truck className="h-4 w-4 flex-shrink-0 text-forest" aria-hidden="true" />
-            Faltam {formatCurrency(frete.falta)} para frete grátis em {frete.proxima.regiao}
-          </p>
-        ) : null}
+        )}
 
         <ul className="mt-4 grid grid-cols-3 gap-2 border-t border-border-subtle pt-4">
           {[

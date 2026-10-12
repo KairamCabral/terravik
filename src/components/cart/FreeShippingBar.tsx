@@ -2,8 +2,7 @@
 
 import { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { progressoDoFreteGratis, regiaoDoFreteGratis } from '@/lib/shipping/config'
-import { formatPrice } from '@/lib/subscription/pricing'
+import { mensagemDoFreteGratis, progressoDoFreteGratis } from '@/lib/shipping/config'
 
 interface FreeShippingBarProps {
   cartSubtotal: number
@@ -19,7 +18,7 @@ interface FreeShippingBarProps {
  */
 export function FreeShippingBar({ cartSubtotal, className = '' }: FreeShippingBarProps) {
   const semMovimento = useReducedMotion()
-  const { liberada, proxima, falta, percentual } = useMemo(
+  const { liberada, proxima, percentual } = useMemo(
     () => progressoDoFreteGratis(cartSubtotal),
     [cartSubtotal]
   )
@@ -27,10 +26,8 @@ export function FreeShippingBar({ cartSubtotal, className = '' }: FreeShippingBa
   // Sem faixa nenhuma no config não há o que mostrar.
   if (!liberada && !proxima) return null
 
-  const achieved = proxima === null
-  const regiao = (proxima ?? liberada)!.regiao
-  const todoOBrasil = regiaoDoFreteGratis() === 'todo o Brasil'
-  const onde = todoOBrasil ? '' : ` para ${regiao}`
+  // "achieved" pinta a barra de verde: vale quando alguma faixa já liberou.
+  const achieved = liberada !== null
 
   const getProgressColor = () => {
     if (achieved) return 'bg-grass'
@@ -39,11 +36,7 @@ export function FreeShippingBar({ cartSubtotal, className = '' }: FreeShippingBa
     return 'bg-terravik-gold-300'
   }
 
-  const getMessage = () => {
-    if (achieved) return `Frete grátis liberado${onde}`
-    if (percentual >= 50) return `Falta ${formatPrice(falta)} para frete grátis${onde}`
-    return `Frete grátis a partir de ${formatPrice(proxima!.minimo)}${onde}`
-  }
+  const getMessage = () => mensagemDoFreteGratis(cartSubtotal)?.texto ?? ''
 
   return (
     <div className={`space-y-1.5 ${className}`}>

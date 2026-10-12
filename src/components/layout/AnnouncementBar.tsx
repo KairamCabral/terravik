@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils/cn'
 import { useCart } from '@/components/cart'
 import { useToast } from '@/components/ui'
 import { FIRST_PURCHASE_COUPON_CODE } from '@/lib/utils/constants'
-import { limiteFreteGratis } from '@/lib/shipping/config'
+import { FAIXAS_DE_FRETE_GRATIS } from '@/lib/shipping/config'
 
 const COUPON_TO_APPLY_KEY = 'terravik-coupon-to-apply'
 
@@ -59,6 +59,8 @@ const announcements: Record<
     icon: typeof Truck
     text: string
     highlight: string
+    /** Versão curta do destaque, para o celular. */
+    highlightCurto?: string
     cta: string
     link: string
     gradient: string
@@ -69,7 +71,9 @@ const announcements: Record<
     icon: Truck,
     text: 'FRETE GRÁTIS',
     // Valor lido de FREE_SHIPPING_CONFIG, nunca escrito à mão.
-    highlight: `acima de ${limiteFreteGratis()}`,
+    // As duas faixas no computador; no celular só cabe a primeira, com a região.
+    highlight: FAIXAS_DE_FRETE_GRATIS.map((f) => `${f.regiao === 'demais regiões' ? 'demais' : f.regiao} R$ ${f.minimo}`).join(' · '),
+    highlightCurto: FAIXAS_DE_FRETE_GRATIS[0] ? `Frete grátis Sul/Sudeste R$ ${FAIXAS_DE_FRETE_GRATIS[0].minimo}` : undefined,
     cta: 'Aproveite',
     link: '/produtos',
     gradient: 'from-forest to-forest-ink',
@@ -167,14 +171,22 @@ export function AnnouncementBar({
       >
         <div className="container-main relative">
           <div className="flex h-10 flex-nowrap items-center justify-center gap-1.5 sm:gap-2 px-3 py-0 sm:px-4">
-            <Icon className="h-4 w-4 flex-shrink-0 text-bg-primary sm:h-4 sm:w-4" strokeWidth={1.5} aria-hidden="true" />
+            <Icon className={cn('h-4 w-4 flex-shrink-0 text-bg-primary', announcement.highlightCurto && 'hidden min-[380px]:block')} strokeWidth={1.5} aria-hidden="true" />
 
             <div className="flex min-w-0 flex-shrink flex-nowrap items-center justify-center gap-1.5 sm:gap-2">
-              <span className="truncate text-xs font-semibold text-bg-primary sm:text-sm">
+              {/* Com destaque curto, o rótulo já vai dentro dele no celular. */}
+              <span className={cn('truncate text-xs font-semibold text-bg-primary sm:text-sm', announcement.highlightCurto && 'hidden sm:inline')}>
                 {announcement.text}
               </span>
-              <span className="inline-flex flex-shrink-0 items-center px-2 py-0.5 rounded-full border border-bg-primary/20 bg-bg-primary/15 text-xs font-bold text-bg-primary backdrop-blur-sm sm:text-sm">
-                {announcement.highlight}
+              <span className="inline-flex flex-shrink-0 items-center px-2 py-0.5 rounded-full border border-bg-primary/20 bg-bg-primary/15 text-[11px] font-bold text-bg-primary backdrop-blur-sm min-[380px]:text-xs sm:text-sm">
+                {announcement.highlightCurto ? (
+                  <>
+                    <span className="sm:hidden">{announcement.highlightCurto}</span>
+                    <span className="hidden sm:inline">{announcement.highlight}</span>
+                  </>
+                ) : (
+                  announcement.highlight
+                )}
               </span>
             </div>
 

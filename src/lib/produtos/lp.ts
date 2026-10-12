@@ -334,7 +334,7 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       },
     ],
     trabalho:
-      '21% de nitrogênio e 24% de enxofre. É o que a grama usa para produzir verde, sem enchimento.',
+      'Nitrogênio com reforço de enxofre. É o que a grama usa para produzir verde, sem enchimento.',
     compararDose: true,
     rendimento: { m2PorSaco: 96, m2PorDosador: 6 },
     quandoUsar: {
@@ -417,7 +417,7 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       },
     ],
     trabalho:
-      'NPK 19-04-19, rico em nitrogênio e potássio: o nutriente que a grama usa para aguentar sol, pisoteio e seca.',
+      'Nutrição completa, com potássio em destaque: o nutriente que a grama usa para aguentar sol, pisoteio e seca.',
     compararDose: true,
     rendimento: { m2PorSaco: 64, m2PorDosador: 4 },
     quandoUsar: {

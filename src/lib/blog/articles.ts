@@ -153,7 +153,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
 
       <h2>1. Falta de nitrogênio</h2>
       <p><strong>Sintoma:</strong> Amarelamento uniforme, crescimento lento.</p>
-      <p><strong>Solução:</strong> Aplicar fertilizante rico em nitrogênio, como o Verde Rápido (21-00-00 + 24S). A cor volta em poucas semanas.</p>
+      <p><strong>Solução:</strong> Aplicar fertilizante rico em nitrogênio, como o Verde Rápido. A cor volta em poucas semanas.</p>
 
       <h2>2. Excesso de água</h2>
       <p><strong>Sintoma:</strong> Amarelamento + solo encharcado + raízes podres.</p>
@@ -192,14 +192,14 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     content: `
       <p>A Terravik tem três produtos, cada um resolve um problema específico do gramado. Não tem "melhor" ou "pior", tem o certo para o seu momento.</p>
 
-      <h2>1. Raiz Forte (superfosfato simples: fósforo e cálcio)</h2>
+      <h2>1. Raiz Forte (fósforo e cálcio para firmar a raiz)</h2>
       <p><strong>Para que serve:</strong> Preparar o solo e firmar a raiz para o gramado crescer forte.</p>
       <p><strong>Quando usar:</strong> Uso pontual: no plantio, na reforma ou quando o gramado estiver muito falhado. Não precisa repetir todo mês. É feito para ser incorporado à terra, colocando fósforo e cálcio direto na zona das raízes.</p>
       <p><strong>Rendimento:</strong> O saco de 1,6 kg rende até 32 m². Um dosador raso cobre cerca de 2 m².</p>
 
-      <h2>2. Verde Rápido (Sulfato de Amônio 21-00-00 + 24S)</h2>
+      <h2>2. Verde Rápido (nitrogênio e enxofre para devolver a cor)</h2>
       <p><strong>Para que serve:</strong> Recuperar o gramado amarelado e devolver a cor em poucas semanas.</p>
-      <p><strong>Quando usar:</strong> Gramado amarelado ou sem cor. Repõe o nitrogênio (21%) com um reforço de enxofre, a dupla que forma clorofila. Se precisar, repita a cada 30 a 45 dias até o verde voltar.</p>
+      <p><strong>Quando usar:</strong> Gramado amarelado ou sem cor. Repõe o nitrogênio com um reforço de enxofre, a dupla que forma clorofila. Se precisar, repita a cada 30 a 45 dias até o verde voltar.</p>
       <p><strong>Rendimento:</strong> O saco de 1,6 kg rende até 96 m². Um dosador raso cobre cerca de 6 m².</p>
 
       <h2>3. Resistência Total (nutrição completa com potássio)</h2>
