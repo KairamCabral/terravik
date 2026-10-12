@@ -71,9 +71,15 @@ const announcements: Record<
     icon: Truck,
     text: 'FRETE GRÁTIS',
     // Valor lido de FREE_SHIPPING_CONFIG, nunca escrito à mão.
-    // As duas faixas no computador; no celular só cabe a primeira, com a região.
-    highlight: FAIXAS_DE_FRETE_GRATIS.map((f) => `${f.regiao === 'demais regiões' ? 'demais' : f.regiao} R$ ${f.minimo}`).join(' · '),
-    highlightCurto: FAIXAS_DE_FRETE_GRATIS[0] ? `Frete grátis Sul/Sudeste R$ ${FAIXAS_DE_FRETE_GRATIS[0].minimo}` : undefined,
+    // Valor e região lidos do config, nunca escritos à mão. Com uma faixa só,
+    // o destaque diz o valor; com mais de uma, lista as regiões.
+    highlight:
+      FAIXAS_DE_FRETE_GRATIS.length === 1
+        ? `a partir de R$ ${FAIXAS_DE_FRETE_GRATIS[0].minimo} para ${FAIXAS_DE_FRETE_GRATIS[0].regiao}`
+        : FAIXAS_DE_FRETE_GRATIS.map((f) => `${f.regiao} R$ ${f.minimo}`).join(' · '),
+    highlightCurto: FAIXAS_DE_FRETE_GRATIS[0]
+      ? `Frete grátis a partir de R$ ${FAIXAS_DE_FRETE_GRATIS[0].minimo}`
+      : undefined,
     cta: 'Aproveite',
     link: '/produtos',
     gradient: 'from-forest to-forest-ink',
