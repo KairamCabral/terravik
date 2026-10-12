@@ -37,7 +37,7 @@ export function StepImplanting() {
         <ImageRadioCard
           label="Não, já tenho grama"
           description="Só preciso cuidar e melhorar"
-          image="/images/grass/quiz/Já-tenho-grama.png"
+          image="/images/grass/quiz/ja-tenho-grama.png"
           checked={answers.implantando === false}
           onChange={() => setAnswer('implantando', false)}
           name="implanting"
