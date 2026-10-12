@@ -1,5 +1,5 @@
 import type { Config } from 'tailwindcss'
-import { palette } from './src/design-system/colors'
+import { canais, palette } from './src/design-system/colors'
 import { fontFamily, fontSize, letterSpacing } from './src/design-system/typography'
 import { borderRadius, boxShadow, container } from './src/design-system/spacing'
 
@@ -39,6 +39,7 @@ const config: Config = {
           ink: palette.functionalInk.warning,
         },
         error: palette.functional.error,
+        whatsapp: { DEFAULT: canais.whatsapp, ink: canais.whatsappInk },
         info: palette.functional.info,
 
         // ── Compat: nomes antigos mapeados p/ novos ─────────

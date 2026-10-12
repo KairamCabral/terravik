@@ -31,9 +31,23 @@ export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLay
                           dentroDe(pathname, '/pedido-confirmado');
   const isCalculatorRoute = pathname === '/calculadora';
 
-  // Fullscreen routes: layout próprio (sem header, footer, cart drawer)
-  if (isCheckoutRoute || isCalculatorRoute) {
+  // Checkout: tela cheia, sem nada em volta.
+  if (isCheckoutRoute) {
     return <>{children}</>;
+  }
+
+  // Calculadora: tela cheia, sem header nem rodapé, mas com a gaveta do
+  // carrinho e a compra rápida. O plano pronto tem botão de compra e menu
+  // inferior (montado pela própria calculadora): sem a gaveta, o toque no
+  // carrinho não abria nada.
+  if (isCalculatorRoute) {
+    return (
+      <>
+        {children}
+        <CartDrawer />
+        <QuickPurchaseSheet />
+      </>
+    );
   }
 
   // Áreas logadas (admin e conta do cliente) e telas de autenticação
