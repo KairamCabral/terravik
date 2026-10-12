@@ -1,7 +1,9 @@
 /**
  * Constantes e Catálogo de Produtos da Calculadora Terravik.
  *
- * Tudo o que está em CATALOG foi lido do rótulo das embalagens. A fonte é
+ * Tudo o que está em CATALOG foi lido do rótulo das embalagens. `base` é o que
+ * a tela mostra e fala do benefício; a composição técnica fica em `fullName`
+ * e na ficha técnica da página do produto, não na frente. A fonte é
  * docs/produtos-fatos-do-rotulo.md. O que não está lá não pode ser afirmado
  * aqui: nada de composição, dose, prazo ou número inventado.
  */
@@ -47,7 +49,7 @@ export const CATALOG: Record<'P1' | 'P2' | 'P3', CatalogProduct> = {
     id: 'P1',
     name: 'Raiz Forte',
     fullName: 'Raiz Forte (superfosfato simples granulado)',
-    base: 'Superfosfato simples granulado (fósforo e cálcio)',
+    base: 'Fósforo e cálcio para firmar a raiz',
     packGrams: PACK_GRAMS,
     yieldM2: 32, // rótulo: 1,6 kg rende até 32 m²
     doseLabel: 50, // 1600 g / 32 m²
@@ -71,7 +73,7 @@ export const CATALOG: Record<'P1' | 'P2' | 'P3', CatalogProduct> = {
     id: 'P2',
     name: 'Verde Rápido',
     fullName: 'Verde Rápido (sulfato de amônio granulado, 21-00-00 + 24S)',
-    base: 'Sulfato de amônio granulado, 21-00-00 + 24S',
+    base: 'Nitrogênio e enxofre para devolver a cor',
     packGrams: PACK_GRAMS,
     yieldM2: 96, // rótulo: 1,6 kg rende até 96 m²
     doseLabel: 17, // 1600 g / 96 m² = 16,7. O rótulo permite dizer "cerca de 17 g"
@@ -91,7 +93,7 @@ export const CATALOG: Record<'P1' | 'P2' | 'P3', CatalogProduct> = {
     id: 'P3',
     name: 'Resistência Total',
     fullName: 'Resistência Total (NPK granulado 19-04-19)',
-    base: 'NPK granulado 19-04-19, fertilizante mineral complexo',
+    base: 'Nutrição completa com potássio',
     packGrams: PACK_GRAMS,
     yieldM2: 64, // rótulo: 1,6 kg rende até 64 m²
     doseLabel: 25, // 1600 g / 64 m²

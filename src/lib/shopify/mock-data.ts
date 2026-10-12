@@ -105,7 +105,7 @@ export const MOCK_PRODUCTS: Product[] = [
     handle: 'resistencia-total',
     title: 'Resistência Total',
     description:
-      'Nutrição completa com potássio (NPK 19-04-19) para a grama resistir à seca, ao sol e ao pisoteio o ano inteiro.',
+      'Nutrição completa com potássio para a grama resistir à seca, ao sol e ao pisoteio o ano inteiro.',
     descriptionHtml:
       '<p>Seu gramado forte o ano inteiro. Resistência Total é a nutrição completa com potássio que deixa a grama resistente à seca, ao sol e ao pisoteio.</p>' +
       '<p>Para o gramado que precisa de força e beleza em todas as estações.</p>',

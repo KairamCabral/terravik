@@ -12,18 +12,34 @@ import type { FreeShippingConfig, OrderBumpConfig } from './types'
  * Para mudar a regra, edite só esta lista. Pode haver uma faixa só.
  */
 export interface FaixaDeFreteGratis {
-  /** Como a região aparece no texto: "SP, RJ, MG, PR, SC e RS". */
+  /** Como a região aparece no texto: "Sul e Sudeste". */
   regiao: string
+  /** A região com preposição, para frase: "no Sul e Sudeste". */
+  onde: string
   ufs: string[]
   /** Subtotal mínimo, em reais. */
   minimo: number
 }
 
+// Regra definida pelo dono em 12/10/2026: Sul e Sudeste a partir de R$ 149,
+// demais regiões a partir de R$ 199.
+const UFS_DO_SUL_E_SUDESTE = ['SP', 'RJ', 'MG', 'ES', 'PR', 'SC', 'RS']
+
 export const FAIXAS_DE_FRETE_GRATIS: FaixaDeFreteGratis[] = [
   {
-    regiao: 'SP, RJ, MG, PR, SC e RS',
-    ufs: ['SP', 'RJ', 'MG', 'PR', 'SC', 'RS'],
-    minimo: 150,
+    regiao: 'Sul e Sudeste',
+    onde: 'no Sul e Sudeste',
+    ufs: UFS_DO_SUL_E_SUDESTE,
+    minimo: 149,
+  },
+  {
+    regiao: 'demais regiões',
+    onde: 'nas demais regiões',
+    ufs: [
+      'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'GO', 'MA', 'MT', 'MS', 'PA', 'PB',
+      'PE', 'PI', 'RN', 'RO', 'RR', 'SE', 'TO',
+    ],
+    minimo: 199,
   },
 ]
 
@@ -74,23 +90,58 @@ export function regiaoDoFreteGratis(): string {
   return FAIXAS_DE_FRETE_GRATIS.map((f) => f.regiao).join('; ')
 }
 
-/**
- * Frase curta de frete grátis, com o valor do config, ou null quando não há
- * faixa: quem chama não renderiza.
- */
-export function fraseFreteGratis(): string | null {
-  if (!FREE_SHIPPING_CONFIG.enabled) return null
-  return `Frete grátis acima de ${limiteFreteGratis()}`
+const emReais = (valor: number) => `R$ ${valor.toLocaleString('pt-BR')}`
+
+function faixasOrdenadas(): FaixaDeFreteGratis[] {
+  return [...FAIXAS_DE_FRETE_GRATIS].sort((a, b) => a.minimo - b.minimo)
 }
 
 /**
- * Frase completa, com a região. Use onde houver espaço: dizer só o valor
- * promete frete grátis a quem mora fora das faixas.
+ * Frase curta: só a faixa de menor valor, COM a região. Dizer só o valor
+ * prometeria o menor valor a quem mora fora da região dele.
+ * Forma: "Frete grátis a partir de [valor] [onde]".
+ */
+export function fraseFreteGratis(): string | null {
+  const [primeira] = faixasOrdenadas()
+  if (!primeira) return null
+  return `Frete grátis a partir de ${emReais(primeira.minimo)} ${primeira.onde}`
+}
+
+/**
+ * Frase completa, com todas as faixas.
+ * Forma: "Frete grátis a partir de [valor] [onde] e de [valor] [onde]".
  */
 export function fraseDoFreteGratis(): string | null {
-  const curta = fraseFreteGratis()
-  if (!curta) return null
-  return `${curta} para ${regiaoDoFreteGratis()}`
+  const faixas = faixasOrdenadas()
+  if (faixas.length === 0) return null
+  const [primeira, ...outras] = faixas
+  const resto = outras.map((f) => ` e de ${emReais(f.minimo)} ${f.onde}`).join('')
+  return `Frete grátis a partir de ${emReais(primeira.minimo)} ${primeira.onde}${resto}`
+}
+
+/** Uma linha por faixa, com as UFs quando a faixa não é "o resto". */
+export function linhasDoFreteGratis(): string[] {
+  return faixasOrdenadas().map((f, indice, todas) => {
+    const ehOResto = indice === todas.length - 1 && todas.length > 1
+    return `A partir de ${emReais(f.minimo)} ${f.onde}${ehOResto ? '' : ` (${f.ufs.join(', ')})`}`
+  })
+}
+
+/**
+ * O que dizer sobre o frete grátis para um subtotal. Carrinho e calculadora
+ * usam a mesma frase.
+ */
+export function mensagemDoFreteGratis(subtotal: number): { texto: string; liberado: boolean } | null {
+  const { liberada, proxima, falta } = progressoDoFreteGratis(subtotal)
+  if (!liberada && !proxima) return null
+  const faltam = `${falta === 1 ? 'Falta' : 'Faltam'} R$ ${falta.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+  if (liberada && !proxima) {
+    return { texto: 'Frete grátis liberado para todo o Brasil', liberado: true }
+  }
+  if (liberada && proxima) {
+    return { texto: `Frete grátis liberado ${liberada.onde}. ${faltam} para liberar ${proxima.onde}`, liberado: true }
+  }
+  return { texto: `${faltam} para frete grátis ${proxima!.onde}`, liberado: false }
 }
 
 export interface ProgressoDoFreteGratis {
