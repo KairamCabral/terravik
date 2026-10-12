@@ -6,7 +6,7 @@ export const SITE = {
   name: 'Terravik',
   tagline: 'Fertilizantes premium para gramados',
   description:
-    'Dose certa, resultado visível. Fertilizantes granulados para implantação, crescimento e proteção do seu gramado.',
+    'Dose certa, resultado visível. Fertilizantes granulados para firmar a raiz, devolver a cor e manter o seu gramado forte.',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://terravik.com.br',
   locale: 'pt-BR',
   currency: 'BRL',
@@ -39,7 +39,7 @@ export const NAV_LINKS = [
 ] as const
 
 export const SOCIAL_LINKS = {
-  instagram: 'https://instagram.com/terravik',
+  instagram: 'https://instagram.com/terravikbrasil',
   facebook: 'https://facebook.com/terravik',
 } as const
 

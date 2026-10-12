@@ -87,7 +87,7 @@ const announcements: Record<
   launch: {
     icon: TrendingUp,
     text: 'Calculadora',
-    highlight: 'dose em 30s',
+    highlight: 'dose em 1 minuto',
     cta: 'Testar',
     link: '/calculadora',
     gradient: 'from-forest to-forest-ink',

@@ -17,7 +17,7 @@ import { REVALIDATE } from '@/lib/utils/constants'
 export const metadata: Metadata = createMetadata({
   title: 'Terravik — Fertilizantes Premium para Gramados',
   description:
-    'Dose certa, resultado visível. Conheça os fertilizantes Terravik para implantação, crescimento e proteção do seu gramado residencial.',
+    'Dose certa, resultado visível. Conheça os fertilizantes Terravik para firmar a raiz, devolver a cor e manter forte o seu gramado residencial.',
   path: '',
 })
 

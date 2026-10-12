@@ -6,18 +6,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Product, ProductVariant } from '@/types/product';
 import { PurchaseModeToggle } from './PurchaseModeToggle';
-import { FrequencyPicker } from './FrequencyPicker';
 import { PriceDisplay } from './PriceDisplay';
 import { SavingsHighlight } from './SavingsHighlight';
 import { SubscriptionBenefits } from './SubscriptionBenefits';
 import { TrustSignals } from './TrustSignals';
 import { AddToCartSection } from './AddToCartSection';
 import { VariantSelector } from './VariantSelector';
-import { 
-  calculateSubscriptionPrice, 
+import {
+  calculateSubscriptionPrice,
   calculateAnnualSavings,
-  getDiscountPercent 
+  getDiscountPercent
 } from '@/lib/subscription/pricing';
+import { intervaloDaAssinatura } from '@/lib/produtos/assinatura';
 
 interface PurchaseSectionProps {
   product: Product;
@@ -31,8 +31,8 @@ interface PurchaseSectionProps {
   notaDoPreco?: string;
 }
 
-export function PurchaseSection({ 
-  product, 
+export function PurchaseSection({
+  product,
   selectedVariant,
   onVariantChange,
   freteSlot,
@@ -41,7 +41,10 @@ export function PurchaseSection({
 }: PurchaseSectionProps) {
   // Estado do modo de compra (compra única como padrão)
   const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscription'>('one-time');
-  const [frequency, setFrequency] = useState<30 | 60 | 90>(60);
+  // Só assina quem o rótulo manda repetir sempre, e no intervalo do rótulo.
+  const intervalo = intervaloDaAssinatura(product.handle);
+  const assinavel = intervalo !== null;
+  const frequency = intervalo ?? 60;
   const [quantity, setQuantity] = useState(1);
   const [showBenefits, setShowBenefits] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -49,7 +52,7 @@ export function PurchaseSection({
   // Preços calculados
   const basePrice = selectedVariant.price;
   const compareAtPrice = selectedVariant.compareAtPrice || null;
-  
+
   const subscriptionPrice = calculateSubscriptionPrice(basePrice, frequency);
   const discountPercent = getDiscountPercent(frequency);
   const savingsPerDelivery = basePrice - subscriptionPrice;
@@ -67,16 +70,10 @@ export function PurchaseSection({
   const handleModeChange = useCallback((mode: 'one-time' | 'subscription') => {
     setPurchaseMode(mode);
     setHasInteracted(true);
-    
+
     // Analytics event (se tiver)
     // trackEvent('purchase_mode_change', { mode, product: product.handle });
   }, [product.handle]);
-
-  // Handler para mudança de frequência
-  const handleFrequencyChange = useCallback((newFrequency: 30 | 60 | 90) => {
-    setFrequency(newFrequency);
-    setHasInteracted(true);
-  }, []);
 
   return (
     <div className="space-y-6">
@@ -92,12 +89,14 @@ export function PurchaseSection({
       />
 
       {/* ========== TOGGLE COMPRA/ASSINATURA ========== */}
-      <PurchaseModeToggle
-        currentMode={purchaseMode}
-        onModeChange={handleModeChange}
-        savingsPercent={discountPercent}
-        savingsAmount={savingsPerDelivery}
-      />
+      {assinavel && (
+        <PurchaseModeToggle
+          currentMode={purchaseMode}
+          onModeChange={handleModeChange}
+          savingsPercent={discountPercent}
+          savingsAmount={savingsPerDelivery}
+        />
+      )}
 
       {/* ========== SELETOR DE FREQUÊNCIA ========== */}
       <AnimatePresence mode="wait">
@@ -109,12 +108,9 @@ export function PurchaseSection({
             exit={{ opacity: 0, height: 0, marginTop: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
-            <FrequencyPicker
-              selectedFrequency={frequency}
-              onFrequencyChange={handleFrequencyChange}
-              basePrice={basePrice}
-              quantity={quantity}
-            />
+            <p className="rounded-xl border border-forest/15 bg-forest/5 p-3 text-sm text-txt-primary">
+              <strong>Entrega a cada {frequency} dias</strong>, o intervalo de aplicação do rótulo.
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -179,7 +175,7 @@ export function PurchaseSection({
 
       {/* ========== AVISO DE PERDA (se compra única) ========== */}
       <AnimatePresence>
-        {purchaseMode === 'one-time' && hasInteracted && (
+        {assinavel && purchaseMode === 'one-time' && hasInteracted && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -203,10 +199,10 @@ export function PurchaseSection({
 // ============================================
 // SUB-COMPONENTE: Aviso de Perda (Loss Aversion)
 // ============================================
-function LossAversionNotice({ 
-  annualSavings, 
-  onSwitchToSubscription 
-}: { 
+function LossAversionNotice({
+  annualSavings,
+  onSwitchToSubscription
+}: {
   annualSavings: number;
   onSwitchToSubscription: () => void;
 }) {
@@ -223,12 +219,12 @@ function LossAversionNotice({
       <div className="absolute -right-4 -top-4 text-6xl opacity-10">
         💸
       </div>
-      
+
       <div className="relative flex items-start gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100">
           <span className="text-lg">⚠️</span>
         </div>
-        
+
         <div className="flex-1">
           <p className="font-semibold text-amber-900">
             Você está deixando de economizar {formatPrice(annualSavings)}/ano
@@ -236,7 +232,7 @@ function LossAversionNotice({
           <p className="mt-1 text-sm text-amber-700">
             Com a assinatura você recebe frete grátis e pode cancelar quando quiser.
           </p>
-          
+
           <button
             onClick={onSwitchToSubscription}
             className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-amber-900 underline decoration-amber-300 underline-offset-2 transition-colors hover:text-amber-700 hover:decoration-amber-500"

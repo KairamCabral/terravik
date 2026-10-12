@@ -11,7 +11,7 @@ import { useCart } from '@/components/cart'
 
 /**
  * Products Showcase - Ultra Minimalista
- * 
+ *
  * Features:
  * - Cards com altura fixa otimizada
  * - Overlay compacto sem necessidade de scroll
@@ -22,6 +22,8 @@ import { useCart } from '@/components/cart'
 import type { Product as ProdutoDoCatalogo } from '@/types/product'
 import { CURADORIA_DA_VITRINE } from '@/lib/home/vitrine'
 import { fraseParcelamento } from '@/lib/pagamento/parcelas'
+import { intervaloDaAssinatura } from '@/lib/produtos/assinatura'
+import { getDiscountPercent } from '@/lib/subscription/pricing'
 
 interface Tamanho {
   label: string
@@ -100,12 +102,13 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
   // Tamanho escolhido, ou o primeiro disponível.
   const getSelectedSize = (product: Product): Tamanho =>
     product.sizes.find((t) => t.label === selectedSizes[product.id]) ?? product.sizes[0]
-  
-  const getQuantity = (productId: string): number => 
+
+  const getQuantity = (productId: string): number =>
     quantities[productId] || 1
 
-  const isSubscription = (productId: string): boolean => 
-    subscriptions[productId] || false
+  // product.id é o handle. Só assina o produto de uso contínuo do rótulo.
+  const isSubscription = (productId: string): boolean =>
+    intervaloDaAssinatura(productId) !== null && (subscriptions[productId] || false)
 
   const handleBuyClick = (productId: string) => {
     setExpandedProduct(productId)
@@ -132,7 +135,8 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
     const size = getSelectedSize(product)
     const quantity = getQuantity(product.id)
     const subscription = isSubscription(product.id)
-    return size.final * quantity * (subscription ? 0.9 : 1)
+    const desconto = subscription ? getDiscountPercent(intervaloDaAssinatura(product.id) ?? 60) / 100 : 0
+    return size.final * quantity * (1 - desconto)
   }
 
   const handleAddToCart = async (product: Product) => {
@@ -142,13 +146,15 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
     const variantId = size.variantId
 
     setAddingToCart(true)
-    
+
     try {
+      const intervalo = intervaloDaAssinatura(product.id) ?? 60
+      const desconto = getDiscountPercent(intervalo)
       await addItem(variantId, quantity, subscription ? {
         purchaseMode: 'subscription',
-        frequency: 30,
-        subscriptionPrice: size.final * 0.9,
-        discountPercent: 10,
+        frequency: intervalo,
+        subscriptionPrice: Number((size.final * (1 - desconto / 100)).toFixed(2)),
+        discountPercent: desconto,
       } : {
         purchaseMode: 'one-time',
       }, 'vitrine')
@@ -241,7 +247,7 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                 />
 
                 {/* Imagem do Produto - Clicável */}
-                <Link 
+                <Link
                   href={`/produtos/${product.id}`}
                   className="relative h-[260px] bg-gradient-to-br from-neutral-50 to-white flex items-center justify-center p-6 cursor-pointer group/image"
                 >
@@ -320,7 +326,7 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                               className="object-contain"
                             />
                           </div>
-                          
+
                           {/* Título */}
                           <div className="flex-1 min-w-0">
                             <h3 className="font-heading text-base font-bold text-forest truncate">
@@ -330,7 +336,7 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                               {product.description}
                             </p>
                           </div>
-                          
+
                           {/* Close */}
                           <button
                             onClick={() => setExpandedProduct(null)}
@@ -394,6 +400,7 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                         </div>
 
                         {/* Assinatura Compacta */}
+                        {intervaloDaAssinatura(product.id) !== null && (
                         <div className="bg-gold/5 border border-gold/20 rounded-xl p-2.5">
                           <label className="flex items-center gap-2 cursor-pointer">
                             <input
@@ -404,14 +411,15 @@ export function ProductsShowcase({ produtos }: ProductsShowcaseProps) {
                             />
                             <div className="flex-1 flex items-center gap-1.5">
                               <span className="text-[11px] font-semibold text-forest">
-                                Assinatura mensal
+                                Assinar: entrega a cada {intervaloDaAssinatura(product.id)} dias
                               </span>
                               <span className="text-[9px] font-bold text-gold bg-gold/15 px-1.5 py-0.5 rounded-full">
-                                -10%
+                                -{getDiscountPercent(intervaloDaAssinatura(product.id) ?? 60)}%
                               </span>
                             </div>
                           </label>
                         </div>
+                        )}
 
                         {/* Total Compacto */}
                         <div className="bg-neutral-50 rounded-xl p-3 text-center">

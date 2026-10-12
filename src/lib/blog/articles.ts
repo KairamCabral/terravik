@@ -85,7 +85,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       </ul>
 
       <h2>Frequência ideal</h2>
-      <p>Depende do produto e do objetivo. Gramados em crescimento pedem adubação a cada 4-8 semanas. Gramados em manutenção, a cada 8-12 semanas.</p>
+      <p>Depende do produto, e quem manda é o rótulo. Raiz Forte é de uso pontual. Verde Rápido se repete a cada 30 a 45 dias, só enquanto o gramado estiver amarelado. Resistência Total é de uso contínuo, a cada 60 dias.</p>
 
       <p>Quer um plano personalizado? Nossa <a href="/calculadora">calculadora</a> monta o cronograma certo para você.</p>
     `,
@@ -204,8 +204,8 @@ export const BLOG_ARTICLES: BlogArticle[] = [
 
       <h2>3. Resistência Total (nutrição completa com potássio)</h2>
       <p><strong>Para que serve:</strong> Deixar a grama resistente à seca, ao sol e ao pisoteio.</p>
-      <p><strong>Quando usar:</strong> Quando o gramado precisa de força e beleza em todas as estações.</p>
-      <p><strong>Rendimento:</strong> O saco de 1,6 kg rende até 64 m².</p>
+      <p><strong>Quando usar:</strong> Uso contínuo: aplique a cada 60 dias para manter o gramado forte o ano todo.</p>
+      <p><strong>Rendimento:</strong> O saco de 1,6 kg rende até 64 m². Um dosador raso cobre cerca de 4 m².</p>
 
       <h2>Fluxo ideal</h2>
       <ol>

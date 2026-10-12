@@ -7,9 +7,9 @@ import { getCatalogo } from '@/lib/shopify/catalogo'
 import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
-  title: 'Calculadora — Plano Terravik para o seu Gramado',
+  title: 'Calculadora: Plano Terravik para o seu Gramado',
   description:
-    'Responda 7 perguntas rápidas e receba a dose certa de fertilizante por m², sem tentativa e erro. Plano personalizado para o seu gramado.',
+    'Responda 8 perguntas rápidas e receba quantos sacos e dosadores o seu gramado pede, com a dose do rótulo. Plano personalizado para a sua área.',
   path: '/calculadora',
 })
 

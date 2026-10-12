@@ -5,8 +5,8 @@
  *
  * REGRA CENTRAL: a dose é a do rótulo, e nada passa dela. O rótulo diz "não
  * exceda a dose recomendada, o excesso queima a grama". As respostas do quiz
- * (clima, sol, rega, pisoteio, estado do gramado) escolhem QUAIS produtos
- * entram no plano e quais avisos aparecem. Elas não mexem mais na dose:
+ * (objetivo, plantio e estado do gramado) escolhem QUAIS produtos entram no
+ * plano; clima, rega e pisoteio só geram avisos. Elas não mexem mais na dose:
  * o rótulo traz um valor só por produto, e não dá base para faixa nenhuma.
  */
 
@@ -24,44 +24,41 @@ import { CATALOG, PACK_LABEL } from './constants'
 // 1) DECISÃO: quais produtos entram no plano
 // ============================================================
 
+/**
+ * Cada produto entra pelo "para quem" do rótulo:
+ * - Raiz Forte: "Vai plantar, reformar ou recuperar as falhas do gramado?"
+ * - Verde Rápido: "Seu gramado está amarelado ou sem vida?" O verso fala em
+ *   grama que "perde força, clareia e fica ralinha". É recuperação: não entra
+ *   em gramado que já está bonito, a não ser que a pessoa peça cor.
+ * - Resistência Total: uso contínuo, para o gramado forte o ano inteiro.
+ */
 export function selectProducts(input: CalculatorInput): ProductId[] {
-  const products: ProductId[] = []
+  const products = new Set<ProductId>()
 
-  // Se implantando → incluir P1
-  if (input.implantando) {
-    products.push('P1')
-  }
+  if (input.implantando) products.add('P1')
 
   switch (input.objetivo) {
     case 'implantacao':
-      if (!products.includes('P1')) products.push('P1')
+      products.add('P1')
       break
 
     case 'verde_vigor':
-      products.push('P2')
+      products.add('P2')
       break
 
     case 'resistencia':
-      products.push('P3')
+      products.add('P3')
       break
 
     case 'plano_completo':
-      if (input.implantando) {
-        if (!products.includes('P1')) products.push('P1')
-        products.push('P2')
-        // P3 somente se pisoteio alto ou quente e seco
-        if (input.pisoteio === 'alto' || input.clima_hoje === 'quente_seco') {
-          products.push('P3')
-        }
-      } else {
-        products.push('P2')
-        products.push('P3')
-      }
+      if (input.nivel === 'ralo_falhas') products.add('P1')
+      if (input.nivel !== 'bonito') products.add('P2')
+      products.add('P3')
       break
   }
 
-  // Remover duplicatas. A ordem P1, P2, P3 é a da linha do tempo da embalagem.
-  return [...new Set(products)]
+  // A ordem P1, P2, P3 é a da linha do tempo da embalagem.
+  return (['P1', 'P2', 'P3'] as const).filter((id) => products.has(id))
 }
 
 // ============================================================
@@ -157,6 +154,18 @@ export function generateAlerts(
   if (input.clima_hoje === 'frio') {
     alerts.push(
       'No frio o gramado cresce menos, e o resultado pode demorar mais para aparecer.'
+    )
+  }
+
+  if (input.nivel === 'fraco_amarelado' && !productIds.includes('P2')) {
+    alerts.push(
+      'Você contou que o gramado está fraco ou amarelado. O Verde Rápido é o produto da linha para devolver a cor.'
+    )
+  }
+
+  if (input.nivel === 'ralo_falhas' && !productIds.includes('P1')) {
+    alerts.push(
+      'Você contou que o gramado está ralo ou com falhas. O Raiz Forte é o produto da linha para recuperar as falhas.'
     )
   }
 

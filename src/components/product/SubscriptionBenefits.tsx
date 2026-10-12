@@ -12,7 +12,7 @@ const BENEFITS = [
   {
     icon: Percent,
     title: 'Desconto exclusivo',
-    description: 'Até 18% off em todos os pedidos',
+    description: '15% em cada entrega',
     accent: 'bg-forest/8 text-forest',
   },
   {
@@ -37,7 +37,7 @@ const BENEFITS = [
 ]
 
 const BENEFITS_COMPACT = [
-  { icon: Percent, text: 'Até 18% off' },
+  { icon: Percent, text: '15% off' },
   { icon: Truck, text: 'Frete grátis' },
   { icon: Calendar, text: 'Flexível' },
   { icon: X, text: 'Cancele grátis' },

@@ -19,7 +19,7 @@ export function StepCondition() {
           Como está o gramado hoje?
         </h2>
         <p className="text-neutral-500">
-          Seja sincero — isso ajuda a calcular a dose certa
+          Seja sincero: isso define quais produtos entram no seu plano
         </p>
       </div>
 

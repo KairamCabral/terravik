@@ -56,7 +56,7 @@ export function StepObjective() {
 
         <ImageRadioCard
           label="Plano completo"
-          description="Tudo: plantio + manutenção"
+          description="A rotina que o seu gramado pede"
           image="/images/grass/quiz/plano-completo.png"
           checked={answers.objetivo === 'plano_completo'}
           onChange={() => setAnswer('objetivo', 'plano_completo')}

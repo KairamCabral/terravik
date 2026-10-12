@@ -665,7 +665,7 @@ Você já viu aqueles números nos pacotes de adubo? **10-10-10**, **20-05-20**,
 
 ### 3. Resistência Total (recuperar vigor)
 - **Nutrição completa com potássio** para a grama resistir à seca, ao sol e ao pisoteio
-- **Quando usar:** Para manter o gramado forte o ano inteiro
+- **Quando usar:** Uso contínuo. Aplique a cada 60 dias para manter o gramado forte o ano todo
 
 Os três vêm em saco de 1,6 kg com um dosador de 100 ml dentro da embalagem.
 
@@ -677,17 +677,17 @@ Os três vêm em saco de 1,6 kg com um dosador de 100 ml dentro da embalagem.
 |---------|------------------|------------|
 | **Plantio, reforma ou muitas falhas** | Raiz Forte | Pontual |
 | **Amarelado ou sem cor** | Verde Rápido | Se precisar, a cada 30 a 45 dias até o verde voltar |
-| **Manter força o ano inteiro** | Resistência Total | Siga o rótulo |
+| **Manter força o ano inteiro** | Resistência Total | A cada 60 dias |
 
 ---
 
 ## 💡 Dicas Importantes
 
-1. **NUNCA adube em gramado seco** - Sempre regue antes ou após
+1. **Aplique com a grama seca e regue logo depois** - A água dissolve os grânulos e leva a nutrição até a raiz
 2. **Menos é mais** - Excesso queima mais que falta
 3. **Distribua uniformemente** - Espalhe por igual, sem deixar montinhos
 4. **Leia instruções** - Dosagem varia por produto
-5. **Evite em dias muito quentes** - Prefira dias nublados/frescos`
+5. **Evite o sol forte do meio-dia** - Aplique de manhã ou no fim da tarde`
             },
             {
               type: 'callout',
@@ -744,13 +744,13 @@ Os três vêm em saco de 1,6 kg com um dosador de 100 ml dentro da embalagem.
               {
                 id: 'q4',
                 type: 'true-false',
-                question: 'Devemos SEMPRE regar o gramado antes ou depois de adubar.',
+                question: 'Devemos regar o gramado imediatamente depois de adubar.',
                 options: [
                   { id: 'true', text: 'Verdadeiro' },
                   { id: 'false', text: 'Falso' },
                 ],
                 correctAnswer: 'true',
-                explanation: 'Verdadeiro! Regar ajuda o adubo a penetrar no solo e evita queima das folhas pelo contato direto.',
+                explanation: 'Verdadeiro! Aplique com a grama seca e regue em seguida: a água dissolve os grânulos e leva a nutrição até a raiz.',
               },
             ],
           },
@@ -807,7 +807,7 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
 
 ## 🔍 Diagnóstico: Identifique a Causa
 
-### 1. 🟡 Falta de Nitrogênio (MAIS COMUM - 70% dos casos)
+### 1. 🟡 Falta de Nitrogênio (causa comum)
 
 **Sintomas:**
 - Amarelamento **uniforme** por toda área
@@ -894,9 +894,8 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
 
 **Solução:**
 1. Regar IMEDIATAMENTE após o pet urinar (dilui)
-2. Aplicar calcário nas manchas
-3. Treinar pet para usar área específica
-4. Plantar grama mais resistente (Bermuda)
+2. Treinar pet para usar área específica
+3. Plantar grama mais resistente (Bermuda)
 
 ---
 
@@ -952,7 +951,7 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
    - Não melhorou? Pode ser doença (aplicar fungicida)
 
 4. **Prevenção:**
-   - Adubação mensal
+   - Adubação no intervalo do rótulo de cada produto
    - Rega adequada
    - Corte com lâmina afiada`
             },
@@ -961,7 +960,7 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
               content: {
                 type: 'tip',
                 title: '💡 Dica de Ouro',
-                text: 'Em 70% dos casos, gramado amarelado é simples falta de Nitrogênio. Tente adubar primeiro antes de investigar outras causas!',
+                text: 'Gramado amarelado por igual costuma ser falta de Nitrogênio. Tente adubar primeiro antes de investigar outras causas!',
               },
             },
           ],
@@ -980,7 +979,7 @@ Gramado amarelado é uma das queixas mais comuns. A boa notícia: **geralmente �
                   { id: 'd', text: 'Doenças fúngicas' },
                 ],
                 correctAnswer: 'b',
-                explanation: 'A falta de Nitrogênio é responsável por cerca de 70% dos casos de amarelamento uniforme em gramados.',
+                explanation: 'A falta de Nitrogênio é uma causa comum de amarelamento uniforme: é o nutriente que dá a cor verde e o crescimento.',
               },
               {
                 id: 'q2',

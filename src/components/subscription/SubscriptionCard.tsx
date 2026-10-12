@@ -24,7 +24,7 @@ interface SubscriptionCardProps {
 
 /**
  * Card de produto com opção de assinatura integrada
- * 
+ *
  * PSICOLOGIA APLICADA:
  * - Badge de desconto em destaque
  * - Preço original riscado (anchoring)
@@ -32,12 +32,12 @@ interface SubscriptionCardProps {
  * - CTA diferenciado para assinatura (mais premium)
  * - Hover eleva card (micro-interação)
  */
-export function SubscriptionCard({ 
-  product, 
+export function SubscriptionCard({
+  product,
   variant = 'default',
-  onAddToCart 
+  onAddToCart
 }: SubscriptionCardProps) {
-  const defaultFrequency = 45; // frequência padrão para exibição
+  const defaultFrequency = 60; // intervalo do rótulo do produto assinável (Resistência Total)
   const subscriptionPrice = calculateSubscriptionPrice(product.price, defaultFrequency);
   const discount = SUBSCRIPTION_DISCOUNTS[defaultFrequency] * 100;
 

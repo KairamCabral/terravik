@@ -358,7 +358,7 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
                 Não sabe qual escolher?
               </h2>
               <p className="mt-3 text-sm text-txt-secondary">
-                Nossa calculadora analisa o estado do seu gramado e recomenda o produto ideal em menos de 2 minutos.
+                Nossa calculadora analisa o estado do seu gramado e recomenda o produto ideal em menos de 1 minuto.
               </p>
               <Link
                 href="/calculadora"

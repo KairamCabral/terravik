@@ -49,8 +49,8 @@ export function TrustIndicators({ variant = 'default', className = '' }: TrustIn
             <Shield className="w-5 h-5 text-blue-600" />
           </div>
           <div className="text-sm">
-            <div className="font-bold text-neutral-900">Garantia Total</div>
-            <div className="text-xs text-neutral-600">30 dias para devolver</div>
+            <div className="font-bold text-neutral-900">Devolução</div>
+            <div className="text-xs text-neutral-600">7 dias para devolver</div>
           </div>
         </div>
 
