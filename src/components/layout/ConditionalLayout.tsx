@@ -30,6 +30,9 @@ export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLay
   const isCheckoutRoute = dentroDe(pathname, '/checkout') ||
                           dentroDe(pathname, '/pedido-confirmado');
   const isCalculatorRoute = pathname === '/calculadora';
+  // Página de um produto: no celular, o rodapé fixo é a barra de compra
+  // (AddToCartSection), não o menu de navegação.
+  const isProductPage = /^\/produtos\/[^/]+$/.test(pathname ?? '');
 
   // Checkout: tela cheia, sem nada em volta.
   if (isCheckoutRoute) {
@@ -76,7 +79,7 @@ export function ConditionalLayout({ children, produtosNoRodape }: ConditionalLay
       <Footer produtos={produtosNoRodape} />
       <CartDrawer />
       <QuickPurchaseSheet />
-      <MobileBottomNav />
+      {!isProductPage && <MobileBottomNav />}
     </>
   );
 }
