@@ -93,7 +93,7 @@ export function SobrePageClient() {
             </h1>
             
             <p className="text-body-lg text-white/90 max-w-2xl mx-auto">
-              Criamos fertilizantes para quem quer resultado sem complicação —
+              Criamos fertilizantes para quem quer resultado sem complicação,
               porque cuidar do gramado deveria ser simples.
             </p>
           </motion.div>

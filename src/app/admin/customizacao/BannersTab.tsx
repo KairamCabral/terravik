@@ -184,7 +184,7 @@ function ImageUploader({
                 Arraste a imagem aqui
               </p>
               <p className="text-xs text-neutral-400 mt-1">
-                ou clique para selecionar (JPG, PNG, WebP — max 5MB)
+                ou clique para selecionar (JPG, PNG, WebP, max 5MB)
               </p>
             </>
           )}
@@ -571,7 +571,7 @@ export function BannersTab() {
         <div>
           <h2 className="text-lg font-semibold text-neutral-900">Banners da Home</h2>
           <p className="text-sm text-neutral-500">
-            Gerencie o carousel — faça upload das imagens para Desktop e Mobile
+            Gerencie o carousel: faça upload das imagens para Desktop e Mobile
           </p>
         </div>
         {!isCreating && !editingId && (

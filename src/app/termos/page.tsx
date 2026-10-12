@@ -355,8 +355,8 @@ export default function TermosPage() {
               <SectionHeader icon={Copyright} title="Propriedade Intelectual" />
               <div className="prose prose-lg prose-terravik max-w-none">
                 <p>
-                  Todo o conteúdo do site — textos, imagens, logotipos, ícones,
-                  código, design, vídeos, calculadora, cursos da Academia — é de
+                  Todo o conteúdo do site (textos, imagens, logotipos, ícones,
+                  código, design, vídeos, calculadora, cursos da Academia) é de
                   propriedade exclusiva da Terravik ou de seus licenciadores e
                   está protegido por leis de direitos autorais e propriedade
                   intelectual.
@@ -424,7 +424,7 @@ export default function TermosPage() {
                 </p>
                 <ul>
                   <li>Lei nº 8.078/1990 (Código de Defesa do Consumidor)</li>
-                  <li>Lei nº 13.709/2018 (Lei Geral de Proteção de Dados — LGPD)</li>
+                  <li>Lei nº 13.709/2018 (Lei Geral de Proteção de Dados, LGPD)</li>
                   <li>Marco Civil da Internet (Lei nº 12.965/2014)</li>
                 </ul>
                 <p>

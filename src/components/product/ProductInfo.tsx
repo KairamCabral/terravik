@@ -82,7 +82,7 @@ export function ProductInfo({
         {product.available ? (
           <p className="flex items-center gap-2 text-sm text-forest">
             <span className="h-2 w-2 rounded-full bg-forest" />
-            Em estoque — pronta entrega
+            Em estoque, pronta entrega
           </p>
         ) : (
           <p className="flex items-center gap-2 text-sm text-error">

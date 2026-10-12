@@ -60,7 +60,7 @@ export function SubscriptionCompare({
     },
     {
       label: 'Pause ou cancele fácil',
-      oneTime: '—',
+      oneTime: 'Não',
       subscription: 'Sim',
     },
     {
@@ -170,7 +170,7 @@ export function SubscriptionCompare({
           <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6">
             <div className="grid grid-cols-3 gap-4">
               <div className="font-bold">Economia Anual</div>
-              <div className="text-center">—</div>
+              <div className="text-center">-</div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-2">
                   <TrendingUp className="w-5 h-5" />

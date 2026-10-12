@@ -152,7 +152,7 @@ export function CheckoutShipping({
                       <p className="text-xs text-txt-muted mt-0.5">
                         {opt.estimatedDays.min === opt.estimatedDays.max
                           ? `${opt.estimatedDays.min} dia útil`
-                          : `${opt.estimatedDays.min}–${opt.estimatedDays.max} dias úteis`}
+                          : `${opt.estimatedDays.min} a ${opt.estimatedDays.max} dias úteis`}
                       </p>
                     </div>
                   </div>

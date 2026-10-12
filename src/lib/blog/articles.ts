@@ -32,7 +32,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       <p>O fertilizante repõe os nutrientes que o solo perde naturalmente. Nitrogênio para crescimento e cor, fósforo para raízes fortes, e potássio para resistência ao calor e pisoteio.</p>
 
       <h2>Quando adubar?</h2>
-      <p>O momento ideal é quando o gramado está crescendo ativamente — geralmente na primavera e no verão. Evite adubar em períodos de seca extrema ou frio intenso.</p>
+      <p>O momento ideal é quando o gramado está crescendo ativamente, geralmente na primavera e no verão. Evite adubar em períodos de seca extrema ou frio intenso.</p>
 
       <h2>Como aplicar?</h2>
       <ol>
@@ -72,7 +72,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         <li><strong>Quente e chuvoso:</strong> Melhor momento. O gramado cresce rápido e absorve tudo.</li>
         <li><strong>Quente e seco:</strong> Funciona, mas precisa regar bastante após aplicar.</li>
         <li><strong>Ameno:</strong> Crescimento moderado. Bom para manutenção.</li>
-        <li><strong>Frio:</strong> Gramado "dorme". Evite adubar — o produto fica no solo sem ser usado.</li>
+        <li><strong>Frio:</strong> Gramado "dorme". Evite adubar: o produto fica no solo sem ser usado.</li>
       </ul>
 
       <h2>Sinais de que o gramado precisa de adubo</h2>
@@ -190,7 +190,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     excerpt:
       'Raiz Forte, Verde Rápido ou Resistência Total? Entenda a diferença entre os produtos Terravik e monte seu plano ideal.',
     content: `
-      <p>A Terravik tem três produtos — cada um resolve um problema específico do gramado. Não tem "melhor" ou "pior", tem o certo para o seu momento.</p>
+      <p>A Terravik tem três produtos, cada um resolve um problema específico do gramado. Não tem "melhor" ou "pior", tem o certo para o seu momento.</p>
 
       <h2>1. Raiz Forte (superfosfato simples: fósforo e cálcio)</h2>
       <p><strong>Para que serve:</strong> Preparar o solo e firmar a raiz para o gramado crescer forte.</p>

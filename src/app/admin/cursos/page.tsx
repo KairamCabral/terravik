@@ -294,7 +294,7 @@ export default function AdminCoursesPage() {
                               {diff.label}
                             </span>
                           ) : (
-                            <span className="text-neutral-400 text-sm">—</span>
+                            <span className="text-neutral-400 text-sm">-</span>
                           )}
                         </td>
                         <td className="py-3 px-4">

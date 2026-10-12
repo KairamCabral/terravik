@@ -68,7 +68,7 @@ export function Footer({ produtos = [] }: FooterProps) {
             <p className="mt-6 max-w-md text-sm leading-relaxed text-txt-on-dark-muted">
               Gramados impecáveis começam com nutrição inteligente.
               Desenvolvemos fertilizantes com dose certa, resultado previsível
-              e aplicação simples — para quem leva o cuidado do gramado a sério.
+              e aplicação simples, para quem leva o cuidado do gramado a sério.
             </p>
 
             {/* Social */}

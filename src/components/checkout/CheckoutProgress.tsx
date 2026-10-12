@@ -109,7 +109,7 @@ export function CheckoutProgress({ currentStep }: CheckoutProgressProps) {
       >
         {currentStep === 'info' && 'Preencha seus dados e endereço'}
         {currentStep === 'shipping' && 'Quase lá! Escolha o frete'}
-        {currentStep === 'payment' && 'Último passo — finalize com segurança'}
+        {currentStep === 'payment' && 'Último passo: finalize com segurança'}
       </motion.p>
     </div>
   )

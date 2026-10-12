@@ -414,7 +414,7 @@ export function ContactPageClient() {
           className="text-center text-xs text-txt-muted mt-6 flex items-center justify-center gap-1.5"
         >
           <Clock className="w-3.5 h-3.5" />
-          Atendimento Seg–Sex, 8h às 18h
+          Atendimento Seg a Sex, 8h às 18h
         </motion.p>
       </div>
     </div>

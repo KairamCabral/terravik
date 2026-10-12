@@ -15,7 +15,7 @@ import { getCatalogo } from '@/lib/shopify/catalogo'
 import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
-  title: 'Terravik — Fertilizantes Premium para Gramados',
+  title: 'Terravik: Fertilizantes Premium para Gramados',
   description:
     'Dose certa, resultado visível. Conheça os fertilizantes Terravik para firmar a raiz, devolver a cor e manter forte o seu gramado residencial.',
   path: '',
