@@ -54,6 +54,8 @@ export interface ConteudoDaLp {
     titulo: string
     texto: string
     video: VideoDaLp | null
+    /** Foto de ambiente do produto, mostrada quando não há vídeo. */
+    imagem?: { src: string; alt: string; largura: number; altura: number }
   }
   /** O porquê, com o texto do verso da embalagem. */
   porque: {
@@ -223,6 +225,12 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       texto:
         'Raiz Forte prepara o solo e firma a raiz para o gramado crescer forte. É o primeiro passo de um gramado que pega de vez.',
       video: null,
+      imagem: {
+        src: '/images/produtos/raiz-forte/destaque.webp',
+        alt: 'Saco de Raiz Forte sobre a terra preparada, ao lado de tapetes de grama',
+        largura: 1600,
+        altura: 667,
+      },
     },
     porque: {
       titulo: 'A parte mais importante do gramado é a que você não vê',
@@ -295,6 +303,12 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       texto:
         'Verde Rápido recupera o gramado amarelado e devolve a cor em poucas semanas. Não é tinta: é verde que vem da raiz.',
       video: null,
+      imagem: {
+        src: '/images/produtos/verde-rapido/destaque.webp',
+        alt: 'Saco de Verde Rápido sobre um gramado verde e fechado',
+        largura: 1600,
+        altura: 594,
+      },
     },
     porque: {
       titulo: 'Por que seu gramado fica amarelado ou perde a cor?',
@@ -372,6 +386,12 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       texto:
         'Resistência Total deixa a grama resistente à seca, ao sol e ao pisoteio. É a nutrição de quem quer o gramado bonito em todas as estações.',
       video: null,
+      imagem: {
+        src: '/images/produtos/resistencia-total/destaque.webp',
+        alt: 'Saco de Resistência Total no gramado, com crianças e cães brincando em volta',
+        largura: 1600,
+        altura: 640,
+      },
     },
     porque: {
       titulo: 'Por que alguns gramados aguentam e outros não?',
