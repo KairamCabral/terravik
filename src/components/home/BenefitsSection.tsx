@@ -16,7 +16,7 @@ export function BenefitsSection() {
         className="group mx-auto block w-[92%] overflow-hidden rounded-2xl shadow-[0_24px_60px_-30px_rgba(9,62,40,0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-4 md:w-[80%] lg:rounded-3xl"
       >
         <Image
-          src="/images/linha-terravik.jpg"
+          src="/images/linha-terravik-v2.jpg"
           alt="Raiz Forte, Verde Rápido e Resistência Total, os três fertilizantes Terravik, sobre um gramado. Nutrição inteligente para seu gramado."
           width={1920}
           height={806}
@@ -26,7 +26,7 @@ export function BenefitsSection() {
         />
 
         <Image
-          src="/images/linha-terravik-celular.jpg"
+          src="/images/linha-terravik-v2-celular.jpg"
           alt="Raiz Forte, Verde Rápido e Resistência Total, os três fertilizantes Terravik, sobre um gramado."
           width={1350}
           height={812}
