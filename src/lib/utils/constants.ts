@@ -31,6 +31,7 @@ export const FIRST_PURCHASE_COUPON_CODE = 'PRIMEIRACOMPRA'
 
 export const NAV_LINKS = [
   { label: 'Produtos', href: '/produtos' },
+  { label: 'Kits', href: '/kits' },
   { label: 'Calculadora', href: '/calculadora' },
   { label: 'Onde Encontrar', href: '/onde-encontrar' },
   { label: 'Sobre', href: '/sobre' },

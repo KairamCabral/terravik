@@ -15,6 +15,8 @@ import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { getMockProductByHandle, MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 import { ProductPageClient } from './ProductPageClient'
 import { ProductLp } from '@/components/product/lp/ProductLp'
+import { KitsDoProduto } from '@/components/kits/KitsDoProduto'
+import { getCatalogo } from '@/lib/shopify/catalogo'
 import { conteudoDaLp, custoPorM2, PESO_DO_SACO } from '@/lib/produtos/lp'
 import { REVALIDATE } from '@/lib/utils/constants'
 
@@ -100,6 +102,8 @@ export default async function ProductPage({ params }: Props) {
         })} por m² tratado`
       : undefined
 
+  const catalogo = await getCatalogo('produto-kits')
+
   return (
     <>
       {/* JSON-LD: Product */}
@@ -140,6 +144,8 @@ export default async function ProductPage({ params }: Props) {
         fatos={fatos}
         notaDoPreco={notaDoPreco}
       />
+      {/* Kits logo abaixo da compra: é onde a pessoa decide quanto levar. */}
+      <KitsDoProduto produto={product} catalogo={catalogo} />
       {conteudo && <ProductLp product={product} conteudo={conteudo} />}
     </>
   )
