@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { getImageProps } from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -142,6 +142,25 @@ export function BannerSection() {
     setCurrentIndex(index)
   }, [])
 
+  // Troca de slide com o dedo. Só conta o gesto mais horizontal que vertical,
+  // para não brigar com a rolagem da página.
+  const toque = useRef<{ x: number; y: number } | null>(null)
+  const aoTocar = (e: React.TouchEvent) => {
+    const t = e.touches[0]
+    toque.current = { x: t.clientX, y: t.clientY }
+  }
+  const aoSoltar = (e: React.TouchEvent) => {
+    const inicio = toque.current
+    toque.current = null
+    if (!inicio || banners.length <= 1) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - inicio.x
+    const dy = t.clientY - inicio.y
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    if (dx < 0) goToNext()
+    else goToPrevious()
+  }
+
   // Auto-play
   useEffect(() => {
     if (isHovered || banners.length <= 1) return
@@ -222,9 +241,11 @@ export function BannerSection() {
 
   return (
     <section
-      className="relative w-full overflow-hidden"
+      className="relative w-full touch-pan-y overflow-hidden"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={aoTocar}
+      onTouchEnd={aoSoltar}
       aria-label="Banner carousel"
     >
       {/* Container — Mobile: 1080×1350 / Desktop: 1920×800 */}

@@ -42,9 +42,10 @@ export function ObjetivosSection() {
           </h2>
         </div>
 
-        <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
+        {/* Celular: uma linha que desliza, com o próximo card aparecendo na borda. */}
+        <ul className="scrollbar-hide -mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-4 md:gap-5 md:overflow-visible md:px-0 md:pb-0">
           {OBJETIVOS.map((objetivo) => (
-            <li key={objetivo.href}>
+            <li key={objetivo.href} className="w-[62%] flex-shrink-0 snap-start sm:w-[42%] md:w-auto">
               <Link
                 href={objetivo.href}
                 className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border-subtle bg-bg-surface transition-all hover:-translate-y-0.5 hover:border-forest/30 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest"
@@ -72,7 +73,7 @@ export function ObjetivosSection() {
             </li>
           ))}
 
-          <li>
+          <li className="w-[62%] flex-shrink-0 snap-start sm:w-[42%] md:w-auto">
             <Link
               href="/calculadora"
               className="group flex h-full flex-col justify-between rounded-2xl bg-gradient-forest p-4 text-white transition-all hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-forest focus-visible:ring-offset-2"
