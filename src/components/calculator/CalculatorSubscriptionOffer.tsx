@@ -4,11 +4,11 @@
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Sparkles, 
-  Check, 
-  Truck, 
-  Calendar, 
+import {
+  Sparkles,
+  Check,
+  Truck,
+  Calendar,
   TrendingUp,
   Gift,
   Shield,
@@ -22,10 +22,7 @@ import {
   calculateSubscriptionPrice,
   calculateAnnualSavings,
   formatPrice,
-  getRecommendedFrequency,
   getSavingsAnalogy,
-  FREQUENCY_OPTIONS_EXTENDED,
-  FrequencyDays,
 } from '@/lib/subscription/pricing';
 
 interface CalculatorSubscriptionOfferProps {
@@ -42,13 +39,20 @@ interface CalculatorSubscriptionOfferProps {
   recommendedQuantity: number;      // Quantidade de sacos calculada
   /**
    * false quando o rótulo não sustenta entrega recorrente: uso pontual (Raiz
-   * Forte). Nesse caso a oferta é só de compra única.
+   * Forte) ou repetição só enquanto o problema durar (Verde Rápido). Nesses
+   * casos a oferta é só de compra única.
    */
   allowSubscription?: boolean;
+  /**
+   * Intervalo de aplicação do rótulo, em dias. A entrega segue esse intervalo:
+   * cada entrega traz uma aplicação, e entregar antes sobraria produto ou
+   * convidaria a passar da dose.
+   */
+  frequencyDays?: number;
   /** Frase do rótulo sobre repetição, mostrada quando não há assinatura. */
   usageNote?: string;
-  lawnCondition?: 'poor' | 'fair' | 'good' | 'excellent';
-  
+
+
   // Callbacks
   onAddToCart?: () => void;
   onClose?: () => void;
@@ -59,35 +63,33 @@ export function CalculatorSubscriptionOffer({
   recommendedProduct,
   recommendedQuantity,
   allowSubscription = true,
+  frequencyDays = 60,
   usageNote,
-  lawnCondition = 'fair',
   onAddToCart,
   onClose,
 }: CalculatorSubscriptionOfferProps) {
   const router = useRouter();
   const { addItem, openCart } = useCart();
-  
+
   // Estados
   const [purchaseMode, setPurchaseMode] = useState<'one-time' | 'subscription'>(
     allowSubscription ? 'subscription' : 'one-time'
   );
-  const [frequency, setFrequency] = useState<FrequencyDays>(() => 
-    getRecommendedFrequency(lawnCondition)
-  );
+  const frequency = frequencyDays;
   const [isAdding, setIsAdding] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
 
   // Cálculos
   const basePrice = recommendedProduct.price;
   const totalBasePrice = basePrice * recommendedQuantity;
-  
+
   const calculations = useMemo(() => {
     const discountPercent = getDiscountPercent(frequency);
     const subscriptionPrice = calculateSubscriptionPrice(basePrice, frequency);
     const totalSubscriptionPrice = subscriptionPrice * recommendedQuantity;
     const savingsPerDelivery = (totalBasePrice - totalSubscriptionPrice);
     const annualSavings = calculateAnnualSavings(basePrice, frequency, recommendedQuantity);
-    
+
     return {
       discountPercent,
       subscriptionPrice,
@@ -101,19 +103,31 @@ export function CalculatorSubscriptionOffer({
   // Handler de adicionar ao carrinho
   const handleAddToCart = async () => {
     setIsAdding(true);
-    
+
     try {
       // Adicionar ao carrinho (mock ou real)
-      await addItem(recommendedProduct.variantId, recommendedQuantity, undefined, 'calculadora');
-      
+      await addItem(
+        recommendedProduct.variantId,
+        recommendedQuantity,
+        purchaseMode === 'subscription'
+          ? {
+              purchaseMode: 'subscription',
+              frequency,
+              subscriptionPrice: calculations.subscriptionPrice,
+              discountPercent: calculations.discountPercent,
+            }
+          : { purchaseMode: 'one-time' },
+        'calculadora'
+      );
+
       setIsAdded(true);
-      
+
       // Feedback e abrir carrinho
       setTimeout(() => {
         openCart();
         onAddToCart?.();
       }, 500);
-      
+
     } catch (error) {
       console.error('Erro ao adicionar:', error);
     } finally {
@@ -137,7 +151,7 @@ export function CalculatorSubscriptionOffer({
           </span>
         </div>
         <h3 className="text-xl font-bold">
-          Plano ideal para seu gramado de {calculatedArea}m²
+          Plano para o seu gramado de {calculatedArea} m²
         </h3>
       </div>
 
@@ -158,8 +172,8 @@ export function CalculatorSubscriptionOffer({
               {recommendedProduct.name}
             </h4>
             <p className="text-sm text-neutral-500">
-              {recommendedQuantity} {recommendedQuantity > 1 ? 'sacos' : 'saco'} de 1,6 kg • 
-              Cobre {calculatedArea}m²
+              {recommendedQuantity} {recommendedQuantity > 1 ? 'sacos' : 'saco'} de 1,6 kg •{' '}
+              {recommendedQuantity > 1 ? 'Cobrem' : 'Cobre'} {calculatedArea} m² em uma aplicação
             </p>
             {!allowSubscription && usageNote && (
               <p className="mt-1 text-sm text-neutral-600">{usageNote}</p>
@@ -173,7 +187,7 @@ export function CalculatorSubscriptionOffer({
           <p className="text-sm font-medium text-neutral-700">
             Como você quer receber?
           </p>
-          
+
           <div className="grid grid-cols-2 gap-3">
             {/* Compra Única */}
             <button
@@ -213,11 +227,6 @@ export function CalculatorSubscriptionOffer({
                 }
               `}
             >
-              {/* Badge Popular */}
-              <div className="absolute -right-8 top-2 rotate-45 bg-amber-400 text-white text-[10px] font-bold px-8 py-0.5">
-                POPULAR
-              </div>
-
               <div className="flex items-center gap-2 mb-2">
                 <div className={`
                   w-5 h-5 rounded-full border-2 flex items-center justify-center
@@ -230,7 +239,7 @@ export function CalculatorSubscriptionOffer({
                 <span className="font-medium text-emerald-900">Assinar</span>
                 <Sparkles className="w-4 h-4 text-amber-500" />
               </div>
-              
+
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-bold text-emerald-700">
                   {formatPrice(calculations.totalSubscriptionPrice)}
@@ -256,45 +265,10 @@ export function CalculatorSubscriptionOffer({
               <p className="text-sm font-medium text-neutral-700">
                 Frequência de entrega
               </p>
-              
-              <div className="grid grid-cols-4 gap-2">
-                {FREQUENCY_OPTIONS_EXTENDED.map((option) => {
-                  const isSelected = frequency === option.days;
-                  const discount = getDiscountPercent(option.days);
-                  
-                  return (
-                    <button
-                      key={option.days}
-                      onClick={() => setFrequency(option.days)}
-                      className={`
-                        relative flex flex-col items-center p-3 rounded-xl border-2 transition-all
-                        ${isSelected
-                          ? 'border-emerald-600 bg-emerald-50'
-                          : 'border-neutral-200 hover:border-emerald-200'
-                        }
-                      `}
-                    >
-                      {option.tag && (
-                        <div className={`
-                          absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full text-[9px] font-bold whitespace-nowrap
-                          ${option.recommended ? 'bg-emerald-600 text-white' : 'bg-amber-100 text-amber-700'}
-                        `}>
-                          {option.tag}
-                        </div>
-                      )}
-                      
-                      <span className="text-lg font-bold">{option.days}</span>
-                      <span className="text-[10px] text-neutral-500">dias</span>
-                      <span className={`
-                        mt-1 text-xs font-bold px-2 py-0.5 rounded-full
-                        ${isSelected ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700'}
-                      `}>
-                        -{discount}%
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <p className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
+                <strong>A cada {frequency} dias</strong>, o intervalo de aplicação do rótulo.
+                Cada entrega traz a quantidade de uma aplicação na sua área.
+              </p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -312,14 +286,14 @@ export function CalculatorSubscriptionOffer({
                 <TrendingUp className="h-5 w-5" />
                 <span className="text-sm font-medium text-emerald-100">Sua economia anual</span>
               </div>
-              
+
               <div className="flex items-baseline gap-2 mb-3">
                 <span className="text-3xl font-bold">
                   {formatPrice(calculations.annualSavings)}
                 </span>
                 <span className="text-emerald-200">/ano</span>
               </div>
-              
+
               <p className="text-sm text-emerald-100">
                 💡 Com esse valor você poderia ter {calculations.savingsAnalogy}
               </p>
@@ -419,7 +393,7 @@ export function CalculatorSubscriptionOffer({
 
         {/* ===== NOTA DE SEGURANÇA ===== */}
         <p className="text-center text-xs text-neutral-500">
-          {purchaseMode === 'subscription' 
+          {purchaseMode === 'subscription'
             ? 'Primeira entrega em até 7 dias • Cancele quando quiser'
             : 'Compra segura via Shopify'
           }

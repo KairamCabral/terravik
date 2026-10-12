@@ -441,7 +441,12 @@ export function conteudoDaLp(handle: string): ConteudoDaLp | null {
   return LP_POR_HANDLE[handle] ?? null
 }
 
-/** Quantos sacos e dosadores uma área precisa. Sempre arredonda para cima. */
+/**
+ * Quantos sacos e dosadores uma área precisa.
+ * Sacos: para cima, para a área ficar coberta. Dosadores: em passos de meio
+ * dosador e para BAIXO, a mesma regra da calculadora, porque arredondar para
+ * cima passaria da dose do rótulo.
+ */
 export function calcularParaArea(
   areaM2: number,
   rendimento: ConteudoDaLp['rendimento']
@@ -449,6 +454,6 @@ export function calcularParaArea(
   if (!Number.isFinite(areaM2) || areaM2 <= 0) return null
   return {
     sacos: Math.ceil(areaM2 / rendimento.m2PorSaco),
-    dosadores: Math.ceil(areaM2 / rendimento.m2PorDosador),
+    dosadores: Math.floor((areaM2 / rendimento.m2PorDosador) * 2 + 1e-9) / 2,
   }
 }

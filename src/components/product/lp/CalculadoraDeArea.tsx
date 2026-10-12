@@ -19,8 +19,9 @@ const AREA_MAXIMA = 5000
 
 /**
  * "Quanto eu preciso?": a pessoa informa a área e vê quantos sacos e quantos
- * dosadores usar. A conta usa só o rendimento impresso no rótulo, sempre
- * arredondando para cima, e o botão já adiciona a quantidade certa.
+ * dosadores usar. A conta usa só o rendimento impresso no rótulo: sacos para
+ * cima, dosadores em passos de meio e para baixo, para não passar da dose. O
+ * botão já adiciona a quantidade certa de sacos.
  */
 export function CalculadoraDeArea({
   nomeDoProduto,
@@ -80,11 +81,12 @@ export function CalculadoraDeArea({
               </div>
               <div className="rounded-xl bg-bg-surface-2 p-4">
                 <dt className="text-xs text-txt-secondary">
-                  {resultado.dosadores === 1 ? 'Dosador raso' : 'Dosadores rasos'}
+                  {resultado.dosadores <= 1 ? 'Dosador raso' : 'Dosadores rasos'}, cerca de
                 </dt>
                 <dd className="font-heading text-3xl font-bold text-forest">
-                  {rendimento.dosadorEstimado ? 'cerca de ' : ''}
-                  {resultado.dosadores}
+                  {resultado.dosadores < 0.5
+                    ? 'menos de meio'
+                    : resultado.dosadores.toLocaleString('pt-BR')}
                 </dd>
               </div>
             </dl>

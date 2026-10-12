@@ -247,7 +247,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
               </Link>
             </Button>
             <p className="text-center text-xs text-txt-secondary">
-              Gratuito · Resultado em 30 segundos
+              Gratuito · Resultado em menos de 1 minuto
             </p>
           </div>
         </div>

@@ -40,11 +40,11 @@ const values = [
 const differentiators = [
   {
     title: 'Cada produto resolve 1 problema',
-    description: 'Implantação, crescimento ou resistência. Você não precisa adivinhar qual usar.',
+    description: 'Firmar a raiz, devolver a cor ou manter o gramado forte. Você não precisa adivinhar qual usar.',
   },
   {
-    title: 'Calculadora baseada em ciência',
-    description: 'Dose calculada por clima, irrigação, pisoteio e condição do gramado.',
+    title: 'Calculadora com a dose do rótulo',
+    description: 'Você informa a área e ela diz quantos sacos e quantos dosadores usar.',
   },
   {
     title: 'Tecnologia do campo, simplicidade em casa',

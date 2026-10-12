@@ -3,25 +3,26 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
-import { 
-  SubscriptionBenefits, 
+import {
+  SubscriptionBenefits,
   SubscriptionCompare,
   TrustIndicators,
-  SubscriptionCard 
+  SubscriptionCard
 } from '@/components/subscription';
 import { SUBSCRIPTION_FAQ } from '@/lib/subscription/mock-data';
 import { getCatalogo } from '@/lib/shopify/catalogo';
 import { REVALIDATE } from '@/lib/utils/constants';
+import { intervaloDaAssinatura } from '@/lib/produtos/assinatura';
 import { Sparkles, Check, ChevronRight, Package, Calendar, Heart } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Assinatura Terravik | Gramado Perfeito no Piloto Automático',
-  description: 'Receba seus fertilizantes automaticamente com até 18% de desconto. Cancele quando quiser, sem taxas.',
+  description: 'Receba o Resistência Total a cada 60 dias, o intervalo de aplicação do rótulo, com 15% de desconto. Cancele quando quiser, sem taxas.',
 };
 
 /**
  * Landing Page de Assinaturas
- * 
+ *
  * Estrutura otimizada para conversão:
  * 1. Hero com proposta de valor clara
  * 2. Garantias em uma linha
@@ -40,7 +41,9 @@ export default async function AssinaturaPage() {
   // Nome, peso, foto e preço vêm do catálogo: nada de produto escrito à mão.
   const catalogo = await getCatalogo('assinatura');
   const produtos = catalogo
-    .filter((p) => p.available && p.featuredImage)
+    // Só o produto de uso contínuo do rótulo. Raiz Forte é uso pontual e
+    // Verde Rápido só se repete enquanto o gramado estiver amarelado.
+    .filter((p) => p.available && p.featuredImage && intervaloDaAssinatura(p.handle) !== null)
     .map((p) => {
       const variante = p.variants.find((v) => v.available) ?? p.variants[0];
       // Produto de variante única na Shopify chega como "Default Title".
@@ -74,7 +77,7 @@ export default async function AssinaturaPage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
               <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-semibold">Economize até 18% + Frete Grátis</span>
+              <span className="text-sm font-semibold">15% de desconto + Frete Grátis</span>
             </div>
 
             {/* Headline */}
@@ -84,7 +87,7 @@ export default async function AssinaturaPage() {
 
             {/* Subheadline */}
             <p className="text-xl md:text-2xl text-green-100 mb-8 leading-relaxed">
-              Receba os fertilizantes certos, na hora certa, com até <strong className="text-white">18% de economia</strong>.
+              Receba o Resistência Total a cada 60 dias, o intervalo de aplicação do rótulo, com <strong className="text-white">15% de desconto</strong>.
               Cancele quando quiser, sem taxas.
             </p>
 
@@ -144,20 +147,20 @@ export default async function AssinaturaPage() {
               {
                 step: '1',
                 icon: Package,
-                title: 'Escolha seus produtos',
-                description: 'Selecione os fertilizantes ideais para seu gramado. Nossa calculadora ajuda!'
+                title: 'Calcule a quantidade',
+                description: 'A calculadora diz quantos sacos de Resistência Total a sua área pede em cada aplicação.'
               },
               {
                 step: '2',
                 icon: Calendar,
-                title: 'Defina a frequência',
-                description: 'Escolha receber a cada 30, 45, 60 ou 90 dias. Quanto maior o intervalo, maior o desconto!'
+                title: 'Entrega a cada 60 dias',
+                description: 'É o intervalo de aplicação do rótulo: cada entrega chega na hora de aplicar de novo.'
               },
               {
                 step: '3',
                 icon: Check,
                 title: 'Receba em casa, sempre',
-                description: 'Entregas automáticas, frete grátis, lembretes de aplicação. Gramado perfeito, zero preocupação!'
+                description: 'Entregas automáticas e frete grátis. Pause ou cancele quando quiser.'
               }
             ].map((item, index) => (
               <div key={index} className="relative">
@@ -199,9 +202,9 @@ export default async function AssinaturaPage() {
       {precoDoComparativo !== undefined && (
       <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <SubscriptionCompare 
-            basePrice={precoDoComparativo} 
-            frequency={45} 
+          <SubscriptionCompare
+            basePrice={precoDoComparativo}
+            frequency={60}
             quantity={1}
           />
         </div>
@@ -213,17 +216,17 @@ export default async function AssinaturaPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="font-heading text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
-              Produtos disponíveis para assinatura
+              Produto disponível para assinatura
             </h2>
             <p className="text-lg text-neutral-600">
-              Todos com desconto e frete grátis
+              O produto de uso contínuo da linha, com desconto e frete grátis
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
             {produtos.map(product => (
-              <SubscriptionCard 
-                key={product.id} 
+              <SubscriptionCard
+                key={product.id}
                 product={product}
                 variant="default"
               />
@@ -255,7 +258,7 @@ export default async function AssinaturaPage() {
 
           <div className="space-y-3">
             {SUBSCRIPTION_FAQ.map((item, index) => (
-              <details 
+              <details
                 key={index}
                 className={`
                   group bg-white rounded-xl border-2 overflow-hidden transition-all
@@ -291,7 +294,7 @@ export default async function AssinaturaPage() {
             Comece agora e economize no primeiro pedido
           </h2>
           <p className="text-xl text-green-100 mb-8">
-            Frete grátis no primeiro mês + Desconto especial para novos assinantes
+            Resistência Total a cada 60 dias, com 15% de desconto e frete grátis
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

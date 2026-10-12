@@ -118,7 +118,7 @@ export default function TermosPage() {
                   regem o acesso e uso do site <strong>terravik.com.br</strong>, da
                   loja online, da Calculadora de Dose, dos Cursos Terravik e de
                   todos os serviços oferecidos pela{' '}
-                  <strong>Terravik Fertilizantes Premium LTDA</strong>.
+                  <strong>Terravik Brasil Ltda</strong>.
                 </p>
                 <Highlight>
                   Ao acessar ou usar nossos serviços, você concorda
@@ -449,10 +449,10 @@ export default function TermosPage() {
                 <div className="space-y-4 text-sm">
                   <div>
                     <p className="font-display font-semibold text-terravik-brown">
-                      Terravik Fertilizantes Premium LTDA
+                      Terravik Brasil Ltda
                     </p>
                     <p className="text-terravik-brown/70">
-                      CNPJ: XX.XXX.XXX/XXXX-XX
+                      CNPJ: 66.961.655/0001-34
                     </p>
                   </div>
                   <div className="space-y-2">

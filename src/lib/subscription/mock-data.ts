@@ -1,8 +1,8 @@
 // src/lib/subscription/mock-data.ts
 
-import { 
-  CustomerSubscription, 
-  FrequencyOption, 
+import {
+  CustomerSubscription,
+  FrequencyOption,
   CancellationReason,
   LoyaltyTier,
   DeliveryRecord,
@@ -261,8 +261,8 @@ export const SUBSCRIPTION_FAQ = [
     category: 'entrega'
   },
   {
-    question: 'Posso mudar os produtos ou frequência?',
-    answer: 'Claro! Você pode adicionar, remover ou trocar produtos, e alterar a frequência de entrega quando quiser, direto pelo seu painel de assinante. As mudanças valem a partir da próxima entrega.',
+    question: 'Posso mudar a quantidade ou a frequência?',
+    answer: 'A assinatura é do Resistência Total, com entrega a cada 60 dias, o intervalo de aplicação do rótulo. Você pode mudar a quantidade de sacos pelo seu painel de assinante. A mudança vale a partir da próxima entrega.',
     category: 'modificacao'
   },
   {
@@ -271,8 +271,8 @@ export const SUBSCRIPTION_FAQ = [
     category: 'pausa'
   },
   {
-    question: 'O desconto é aplicado em todos os produtos?',
-    answer: 'Sim! O desconto de assinante (de 10% a 18% dependendo da frequência escolhida) vale para todos os produtos do seu plano. Quanto maior o intervalo entre entregas, maior o desconto!',
+    question: 'Qual é o desconto da assinatura?',
+    answer: '15% em cada entrega do Resistência Total. Raiz Forte e Verde Rápido não entram na assinatura: o primeiro é de uso pontual e o segundo só se repete enquanto o gramado estiver amarelado.',
     category: 'desconto'
   },
   {
@@ -297,7 +297,7 @@ export const SUBSCRIPTION_FAQ = [
   },
   {
     question: 'E se o produto não der certo?',
-    answer: 'Trabalhamos com garantia de satisfação. Se não ficar satisfeito, entre em contato em até 30 dias e faremos a troca ou devolveremos seu dinheiro. Nossa meta é seu gramado perfeito!',
+    answer: 'Você pode devolver em até 7 dias depois de receber, como em qualquer compra da loja. As regras estão na página de trocas e devoluções.',
     category: 'garantia'
   }
 ];
@@ -308,8 +308,8 @@ export const SUBSCRIPTION_FAQ = [
 export const SUBSCRIPTION_BENEFITS = [
   {
     icon: '💰',
-    title: 'Economia garantida de até 18%',
-    description: 'Quanto maior o intervalo entre entregas, maior seu desconto',
+    title: '15% de desconto em cada entrega',
+    description: 'No Resistência Total, entregue a cada 60 dias',
     highlight: true
   },
   {

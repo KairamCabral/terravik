@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     'gramado bonito',
     'gramado residencial',
     'Terravik',
-    'gramado novo',
+    'raiz forte',
     'verde rápido',
     'resistência total',
     'dose certa fertilizante',

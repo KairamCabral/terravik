@@ -20,10 +20,9 @@ import { TrustIndicators } from '@/components/subscription';
 import { Button, Badge } from '@/components/ui';
 import { ProductPlanCard } from './ProductPlanCard';
 import { CalendarBlock } from './CalendarBlock';
+import { PackRecommendation } from './PackRecommendation';
 import { CalculatorSubscriptionOffer } from './CalculatorSubscriptionOffer';
-import {
-  CheckCircle2,
-} from 'lucide-react';
+import { AlertTriangle, CheckCircle2, RotateCcw } from 'lucide-react';
 import { OBJECTIVE_LABELS, CLIMATE_LABELS } from '@/lib/calculator/constants';
 import { produtoDaCalculadora } from '@/lib/calculator/produtos';
 import { useCatalogo } from '@/contexts/CatalogoContext';
@@ -72,7 +71,7 @@ export function CalculatorResultSubscription({
           Seu plano personalizado está pronto! 🎉
         </h1>
         <p className="text-lg text-gray-600 md:text-xl">
-          Calculamos a dose exata para seu gramado de <strong>{result.area_m2}m²</strong>
+          A dose do rótulo, na quantidade certa para o seu gramado de <strong>{result.area_m2} m²</strong>
         </p>
       </motion.div>
       
@@ -102,6 +101,23 @@ export function CalculatorResultSubscription({
       </motion.div>
       
       {/* ====================================================================
+          AVISOS DO PLANO
+          ==================================================================== */}
+      {result.alerts.length > 0 && (
+        <div className="space-y-3">
+          {result.alerts.map((alerta) => (
+            <div
+              key={alerta}
+              className="flex items-start gap-3 rounded-xl border border-yellow-300 bg-yellow-50 p-4 md:p-5"
+            >
+              <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-700" aria-hidden="true" />
+              <p className="text-sm text-yellow-900 md:text-base">{alerta}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ====================================================================
           PRODUTOS RECOMENDADOS (Cards tradicionais)
           ==================================================================== */}
       <div className="space-y-6">
@@ -118,23 +134,23 @@ export function CalculatorResultSubscription({
       {/* ====================================================================
           OFERTA DE ASSINATURA NOVA (CRÍTICA PARA CONVERSÃO)
           ==================================================================== */}
+      <PackRecommendation plan={result.plan} />
+
       {result.plan.length > 0 && (() => {
-        // Pegar o primeiro produto do plano como principal
-        const mainProduct = result.plan[0];
+        // Entrega recorrente só para o produto de uso contínuo do rótulo
+        // (Resistência Total, a cada 60 dias). Raiz Forte é uso pontual e
+        // Verde Rápido só se repete enquanto o gramado estiver amarelado:
+        // nenhum dos dois sustenta assinatura.
+        const continuo = result.plan.find((p) => p.frequency_kind === 'continuo');
+        const mainProduct = continuo ?? result.plan[0];
         const mockProduct = produtoDaCalculadora(catalogo, mainProduct.product_id);
-        
+
         if (!mockProduct || mockProduct.variants.length === 0) {
           return null;
         }
-        
+
         const variant = mockProduct.variants.find(v => v.available) || mockProduct.variants[0];
-        
-        // Determinar condição do gramado baseado no objetivo
-        let lawnCondition: 'poor' | 'fair' | 'good' | 'excellent' = 'fair';
-        if (result.context.objetivo === 'plano_completo') lawnCondition = 'excellent';
-        if (result.context.objetivo === 'verde_vigor' || result.context.objetivo === 'resistencia') lawnCondition = 'good';
-        if (result.context.objetivo === 'implantacao') lawnCondition = 'poor';
-        
+
         return (
           <CalculatorSubscriptionOffer
             calculatedArea={result.area_m2}
@@ -142,18 +158,14 @@ export function CalculatorResultSubscription({
               id: mockProduct.id,
               name: mockProduct.title,
               handle: mockProduct.handle,
-              price: mockProduct.price,
+              price: variant.price,
               variantId: variant.id,
               image: mockProduct.featuredImage?.url,
             }}
             recommendedQuantity={Math.max(1, mainProduct.packs_qty)}
-            // Entrega recorrente só para o produto que o rótulo manda repetir.
-            allowSubscription={mainProduct.frequency_days > 0}
+            allowSubscription={Boolean(continuo)}
+            frequencyDays={continuo ? continuo.frequency_days : undefined}
             usageNote={mainProduct.frequency_display}
-            lawnCondition={lawnCondition}
-            onAddToCart={() => {
-              console.log('Produto adicionado ao carrinho via calculadora');
-            }}
           />
         );
       })()}
@@ -169,6 +181,13 @@ export function CalculatorResultSubscription({
           CALENDÁRIO DE APLICAÇÃO
           ==================================================================== */}
       <CalendarBlock plan={result.plan} />
+
+      <div className="text-center">
+        <Button variant="ghost" onClick={reset}>
+          <RotateCcw className="h-4 w-4" />
+          Refazer o cálculo
+        </Button>
+      </div>
       
       {/* ====================================================================
           TRUST INDICATORS

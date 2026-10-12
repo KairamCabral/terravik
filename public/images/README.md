@@ -14,9 +14,9 @@ As imagens dos produtos devem ser cadastradas **diretamente no Shopify Admin**, 
 - Resolução: 72 DPI mínimo
 
 **Produtos que precisam de fotos:**
-1. **Gramado Novo (P1)** - Embalagens 400g e 900g
-2. **Verde Rápido (P2)** - Embalagem 2,7kg
-3. **Resistência Total (P3)** - Embalagens 400g e 900g
+1. **Raiz Forte (P1)** - Saco de 1,6 kg
+2. **Verde Rápido (P2)** - Saco de 1,6 kg
+3. **Resistência Total (P3)** - Saco de 1,6 kg
 
 ---
 

@@ -29,7 +29,8 @@ export function QuickPurchaseSheet() {
     image: string
     price: number
     area_m2: number
-    need_display: string
+    packs_display: string
+    packs_qty: number
   } | null>(null)
   const [isAdding, setIsAdding] = useState(false)
 
@@ -92,7 +93,8 @@ export function QuickPurchaseSheet() {
               image: product.image,
               price: variant.price,
               area_m2: result.area_m2,
-              need_display: plan.need_display,
+              packs_display: plan.packs_display,
+              packs_qty: Math.max(1, plan.packs_qty ?? 1),
             })
           }
         }
@@ -215,13 +217,13 @@ export function QuickPurchaseSheet() {
               {calculatorProduct && (
                 <div className="mb-6">
                   <p className="text-xs font-semibold text-forest uppercase tracking-wider mb-3">
-                    Para seu gramado ({calculatorProduct.area_m2} m²)
+                    Para seu gramado ({calculatorProduct.area_m2} m²): {calculatorProduct.packs_display}
                   </p>
                   <QuickPurchaseProductRow
                     title={calculatorProduct.title}
                     image={calculatorProduct.image}
-                    variants={[{ variantId: calculatorProduct.variantId, title: calculatorProduct.need_display, price: calculatorProduct.price }]}
-                    selectedVariant={{ variantId: calculatorProduct.variantId, title: calculatorProduct.need_display, price: calculatorProduct.price }}
+                    variants={[{ variantId: calculatorProduct.variantId, title: 'Saco de 1,6 kg', price: calculatorProduct.price }]}
+                    selectedVariant={{ variantId: calculatorProduct.variantId, title: 'Saco de 1,6 kg', price: calculatorProduct.price }}
                     onVariantChange={() => {}}
                     quantity={getQuantity(`calc-${calculatorProduct.productId}`)}
                     onQuantityChange={(q) =>
@@ -232,10 +234,10 @@ export function QuickPurchaseSheet() {
                 </div>
               )}
 
-              {/* Mais vendidos */}
+              {/* Produtos */}
               <div>
                 <p className="text-xs font-semibold text-txt-muted uppercase tracking-wider mb-3">
-                  Mais vendidos
+                  Produtos
                 </p>
                 <div className="space-y-2">
                   {produtos.map((product) => (

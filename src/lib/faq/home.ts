@@ -37,7 +37,7 @@ export const FAQ_HOME: PerguntaFrequente[] = [
     id: 'calculadora',
     pergunta: 'A calculadora realmente funciona para qualquer gramado?',
     resposta:
-      'Sim. Nossa calculadora considera 8 variáveis (área, clima, tipo de grama, irrigação, pisoteio, objetivo, etc.) e gera um plano personalizado com margem de segurança.',
+      'Sim. Os produtos servem para todo tipo de grama. A calculadora usa a área, o objetivo e o estado do gramado para escolher os produtos, e a dose é sempre a do rótulo: ela diz quantos sacos e quantos dosadores a sua área pede.',
   },
   {
     id: 'produtos',
@@ -49,7 +49,7 @@ export const FAQ_HOME: PerguntaFrequente[] = [
     id: 'frequencia',
     pergunta: 'Vou precisar aplicar todo mês?',
     resposta:
-      'Depende do produto. Raiz Forte é de uso pontual: no plantio, na reforma ou quando o gramado estiver muito falhado, e não precisa repetir todo mês. Verde Rápido é de recuperação: use quando o gramado estiver amarelado e, se precisar, repita a cada 30 a 45 dias até o verde voltar.',
+      'Depende do produto. Raiz Forte é de uso pontual: no plantio, na reforma ou quando o gramado estiver muito falhado, e não precisa repetir todo mês. Verde Rápido é de recuperação: use quando o gramado estiver amarelado e, se precisar, repita a cada 30 a 45 dias até o verde voltar. Resistência Total é de uso contínuo: aplique a cada 60 dias.',
     acao: { texto: 'Ver frequência recomendada', href: '/calculadora' },
   },
   {

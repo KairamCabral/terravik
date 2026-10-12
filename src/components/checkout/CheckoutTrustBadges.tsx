@@ -11,8 +11,8 @@ const BADGES = [
   },
   {
     icon: RefreshCw,
-    title: 'Garantia 30 dias',
-    subtitle: 'Satisfação ou reembolso',
+    title: 'Devolução em 7 dias',
+    subtitle: 'Depois de receber',
   },
   {
     icon: Truck,

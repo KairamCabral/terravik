@@ -109,7 +109,7 @@ export default function PrivacidadePage() {
               <SectionHeader icon={FileText} title="Introdução" />
               <div className="prose prose-lg prose-terravik max-w-none">
                 <p>
-                  A <strong>Terravik Fertilizantes Premium LTDA</strong> (&ldquo;Terravik&rdquo;,
+                  A <strong>Terravik Brasil Ltda</strong> (&ldquo;Terravik&rdquo;,
                   &ldquo;nós&rdquo;) leva a proteção dos seus dados pessoais a sério. Esta
                   Política de Privacidade explica como coletamos, usamos,
                   armazenamos e protegemos suas informações quando você acessa
@@ -433,7 +433,7 @@ export default function PrivacidadePage() {
                 <div className="space-y-4 text-sm">
                   <div>
                     <p className="font-display font-semibold text-terravik-brown">
-                      Terravik Fertilizantes Premium LTDA
+                      Terravik Brasil Ltda
                     </p>
                     <p className="text-terravik-brown/70">
                       Encarregado de Proteção de Dados (DPO)
