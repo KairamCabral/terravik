@@ -12,7 +12,7 @@
 
 import type { Product } from '@/types/product'
 import { conteudoDaLp } from '@/lib/produtos/lp'
-import { calcularPromocoes } from './regras'
+import { calcularPromocoes, FAIXAS_DE_QUANTIDADE } from './regras'
 
 interface KitDeVitrine {
   id: string
@@ -162,4 +162,56 @@ export function kitsDoProduto(kits: KitMontado[], handle: string): KitMontado[] 
   const comEle = kits.filter((k) => k.itens.some((i) => i.handle === handle))
   // Primeiro os menores (o passo seguinte natural), por último o completo.
   return comEle.sort((a, b) => a.precoComDesconto - b.precoComDesconto)
+}
+
+export interface ComboDeProduto {
+  handle: string
+  nome: string
+  papel: string
+  variantId: string
+  precoUnitario: number
+  m2PorSaco: number
+  imagem: { url: string; width: number; height: number } | null
+  /** Uma opção por faixa de quantidade, da menor para a maior. */
+  opcoes: { quantidade: number; percentual: number; precoCheio: number; precoComDesconto: number }[]
+}
+
+/**
+ * Combos: o mesmo produto em 2 ou 3 sacos. As quantidades e os percentuais
+ * vêm das faixas de quantidade, as mesmas que o carrinho aplica.
+ */
+export function montarCombos(produtos: Product[]): ComboDeProduto[] {
+  const combos: ComboDeProduto[] = []
+  for (const produto of produtos) {
+    const variante = produto.variants.find((v) => v.available && v.price > 0)
+    const conteudo = conteudoDaLp(produto.handle)
+    if (!variante || !conteudo) continue
+    combos.push({
+      handle: produto.handle,
+      nome: produto.title,
+      papel: conteudo.papel,
+      variantId: variante.id,
+      precoUnitario: variante.price,
+      m2PorSaco: conteudo.rendimento.m2PorSaco,
+      imagem: produto.featuredImage
+        ? { url: produto.featuredImage.url, width: produto.featuredImage.width, height: produto.featuredImage.height }
+        : null,
+      opcoes: [...FAIXAS_DE_QUANTIDADE]
+        .sort((a, b) => a.minimo - b.minimo)
+        .map((faixa) => {
+          const precoCheio = Math.round(variante.price * faixa.minimo * 100) / 100
+          const { desconto } = calcularPromocoes([
+            { handle: produto.handle, nome: produto.title, precoUnitario: variante.price, quantidade: faixa.minimo },
+          ])
+          return {
+            quantidade: faixa.minimo,
+            percentual: faixa.percentual,
+            precoCheio,
+            precoComDesconto: Math.round((precoCheio - desconto) * 100) / 100,
+          }
+        }),
+    })
+  }
+  // Na ordem da linha do tempo da embalagem.
+  return combos.sort((a, b) => (conteudoDaLp(a.handle)?.etapa ?? 9) - (conteudoDaLp(b.handle)?.etapa ?? 9))
 }

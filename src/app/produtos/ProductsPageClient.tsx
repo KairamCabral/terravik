@@ -46,9 +46,11 @@ const TRUST_ITEMS = [
 
 interface ProductsPageClientProps {
   initialProducts: Product[]
+  /** Atalho para os kits, montado no servidor. Vai logo abaixo da faixa de confiança. */
+  atalhoDeKits?: React.ReactNode
 }
 
-export function ProductsPageClient({ initialProducts }: ProductsPageClientProps) {
+export function ProductsPageClient({ initialProducts, atalhoDeKits }: ProductsPageClientProps) {
   const [sortBy, setSortBy] = useState<SortOption>('relevance')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState('')
@@ -175,6 +177,8 @@ export function ProductsPageClient({ initialProducts }: ProductsPageClientProps)
           </div>
         </div>
       </section>
+
+      {atalhoDeKits}
 
       {/* ═══ MAIN CONTENT ═══ */}
       <section className="container-main py-10 md:py-14 lg:py-16">
