@@ -54,7 +54,7 @@ export const MOCK_PRODUCTS: Product[] = [
       '<p>Gramado forte começa embaixo da terra. Raiz Forte é a base do plantio: prepara o solo e firma a raiz para o gramado crescer forte.</p>' +
       '<p>Entrega fósforo e cálcio, os nutrientes que constroem raiz e estrutura desde o plantio. Uso pontual: no plantio, na reforma ou quando o gramado estiver muito falhado.</p>',
     available: true,
-    tags: ['implantacao'],
+    tags: ['implantacao', 'enraizamento'],
     seo: {
       title: 'Raiz Forte: fertilizante para plantio e reforma de gramado',
       description:
