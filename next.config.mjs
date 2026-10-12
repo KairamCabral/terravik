@@ -18,6 +18,8 @@ const shopifyOrigin = shopifyDomain ? `https://${shopifyDomain}` : 'https://*.my
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Não anuncia a tecnologia do servidor.
+  poweredByHeader: false,
   images: {
     remotePatterns: [
       {
@@ -32,16 +34,14 @@ const nextConfig = {
       })),
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'i.ytimg.com',
         pathname: '/**',
       },
     ],
-    formats: ['image/avif', 'image/webp'],
+    // Só WebP. AVIF saiu em 13/10/2026: há um aviso crítico aberto no
+    // otimizador de imagens do Next ligado a arquivos AVIF, sem correção na
+    // linha 14. Volta quando o Next for atualizado para uma versão corrigida.
+    formats: ['image/webp'],
     // 31 dias. O default do Next 14 é 60 s: a imagem otimizada era refeita a
     // cada minuto. Trocar uma imagem exige trocar a URL (nome do arquivo).
     minimumCacheTTL: 2678400,
@@ -49,7 +49,12 @@ const nextConfig = {
   async headers() {
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com",
+      // 'unsafe-eval' só em desenvolvimento (o recarregamento a quente do Next
+      // precisa). Em produção nada no site usa eval, e sem ele um script
+      // injetado não consegue montar código a partir de texto.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'"} https://www.googletagmanager.com https://www.google-analytics.com`,
+      // Plugins (Flash, PDF embutido) nunca são usados.
+      "object-src 'none'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https: http:",
       "font-src 'self' https://fonts.gstatic.com",
@@ -73,6 +78,8 @@ const nextConfig = {
         headers: [
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Janela aberta por outro site não ganha referência a esta.
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
           { key: 'Referrer-Policy', value: 'origin-when-cross-origin' },
           { key: 'X-DNS-Prefetch-Control', value: 'on' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self), payment=(self)' },
