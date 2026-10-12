@@ -12,6 +12,7 @@ export interface TagDeProduto {
 
 export const TAGS_DE_PRODUTO: Record<string, TagDeProduto> = {
   implantacao: { rotulo: 'Implantação', cor: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  enraizamento: { rotulo: 'Enraizamento', cor: 'bg-lime-50 text-lime-800 border-lime-200' },
   crescimento: { rotulo: 'Crescimento', cor: 'bg-sky-50 text-sky-700 border-sky-200' },
   resistencia: { rotulo: 'Resistência', cor: 'bg-amber-50 text-amber-700 border-amber-200' },
   protecao: { rotulo: 'Proteção', cor: 'bg-orange-50 text-orange-700 border-orange-200' },
