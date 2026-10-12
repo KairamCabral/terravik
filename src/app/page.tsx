@@ -16,6 +16,8 @@ import { StoreLocationsSection } from '@/components/home/StoreLocationsSection'
 import { FAQSection } from '@/components/home/FAQSection'
 import { getCatalogo } from '@/lib/shopify/catalogo'
 import { REVALIDATE } from '@/lib/utils/constants'
+import { analiseConfigurada } from '@/lib/calculator/foto/analisar'
+import { cotaConfigurada } from '@/lib/calculator/foto/cota'
 
 export const metadata: Metadata = createMetadata({
   title: 'Terravik: Fertilizantes Premium para Gramados',
@@ -28,6 +30,8 @@ export const revalidate = REVALIDATE.products
 
 export default async function HomePage() {
   const produtos = await getCatalogo('home')
+  // A chamada da calculadora só fala em foto quando a análise está ligada.
+  const fotoDisponivel = analiseConfigurada() && cotaConfigurada()
 
   return (
     <>
@@ -49,7 +53,7 @@ export default async function HomePage() {
       <ProductsShowcase produtos={produtos} />
       <KitSection produtos={produtos} />
       <ComparativoSection />
-      <CalculatorCTA />
+      <CalculatorCTA fotoDisponivel={fotoDisponivel} />
       <InfluencersSection />
       <BenefitsSection />
       <AcademiaCTA />
