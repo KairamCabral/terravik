@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Camera, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Camera, ShoppingCart, X } from 'lucide-react'
 import Link from 'next/link'
 import { useCalculatorContext } from '@/contexts/CalculatorContext'
 import { cn } from '@/lib/utils/cn'
@@ -16,7 +16,9 @@ import { StepSunlight } from './steps/StepSunlight'
 import { StepIrrigation } from './steps/StepIrrigation'
 import { StepTraffic } from './steps/StepTraffic'
 import { StepCondition } from './steps/StepCondition'
-import { CalculatorResultSubscription } from './CalculatorResultSubscription'
+import { ResultadoDoPlano } from './resultado/ResultadoDoPlano'
+import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
+import { useCart } from '@/components/cart'
 import { FluxoDaFoto } from './foto/FluxoDaFoto'
 
 /**
@@ -35,6 +37,8 @@ export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardPro
   const calculator = useCalculatorContext()
   // Caminho da foto: aberto a partir da tela de entrada, no lugar do quiz.
   const [naFoto, setNaFoto] = useState(false)
+  const { cart, openCart } = useCart()
+  const itensNoCarrinho = cart?.totalQuantity ?? 0
   const {
     currentStep,
     currentStepIndex,
@@ -92,7 +96,7 @@ export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardPro
       case 'irrigation': return <StepIrrigation />
       case 'traffic': return <StepTraffic />
       case 'condition': return <StepCondition />
-      case 'result': return <CalculatorResultSubscription calculator={calculator} />
+      case 'result': return <ResultadoDoPlano calculator={calculator} />
       default: return null
     }
   }
@@ -102,6 +106,8 @@ export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardPro
   const isWelcome = currentStep === 'welcome'
   // A tela da foto rola como a de resultado: em celular pequeno ela passa da altura.
   const isResult = currentStep === 'result' || mostrarFoto
+  // O plano pronto: aqui a pessoa compra, então o menu e o carrinho voltam.
+  const noPlano = currentStep === 'result'
 
   // Steps para dots (excluindo welcome e result)
   const stepNames = ['area', 'implanting', 'objective', 'climate', 'sunlight', 'irrigation', 'traffic', 'condition']
@@ -113,12 +119,14 @@ export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardPro
 
   return (
     <div className={cn(
-      'flex flex-col bg-white',
-      isResult ? 'min-h-screen' : 'h-dvh h-screen overflow-hidden'
+      'flex flex-col',
+      noPlano ? 'bg-bg-primary' : 'bg-white',
+      // overflow-x-clip segura a animação de entrada sem quebrar o sticky.
+      isResult ? 'min-h-screen overflow-x-clip' : 'h-dvh h-screen overflow-hidden'
     )}>
 
       {/* Top Bar */}
-      <div className="flex-shrink-0 flex items-center justify-between px-6 lg:px-12 py-3 border-b border-neutral-100">
+      <div className="flex-shrink-0 flex items-center justify-between bg-white px-4 sm:px-6 lg:px-12 py-3 border-b border-neutral-100">
         {/* Left: Back or empty */}
         {mostrarFoto ? (
           <button
@@ -137,15 +145,31 @@ export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardPro
             Voltar
           </button>
         ) : (
-          <div className="min-w-[5rem]" />
+          <div className="min-w-[2.75rem] sm:min-w-[5rem]" />
         )}
 
         {/* Center: Logo text */}
-        <span className="text-sm font-semibold text-neutral-400 tracking-wider uppercase">
+        <span className="whitespace-nowrap text-xs font-semibold text-neutral-400 tracking-wider uppercase sm:text-sm">
           Calculadora Terravik
         </span>
 
-        {/* Right: Close button */}
+        {/* Right: carrinho (só com o plano pronto) e sair */}
+        <div className="flex min-w-[2.75rem] items-center justify-end gap-2 sm:min-w-[5rem]">
+        {noPlano && (
+          <button
+            type="button"
+            onClick={openCart}
+            aria-label={`Carrinho (${itensNoCarrinho} ${itensNoCarrinho === 1 ? 'item' : 'itens'})`}
+            className="relative hidden h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 text-neutral-700 transition-colors hover:bg-neutral-100 lg:flex"
+          >
+            <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+            {itensNoCarrinho > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-error px-1 text-[10px] font-bold text-white">
+                {itensNoCarrinho > 99 ? '99+' : itensNoCarrinho}
+              </span>
+            )}
+          </button>
+        )}
         <Link
           href="/"
           className="flex items-center gap-1.5 text-sm font-medium text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 transition-all rounded-lg px-3 py-2 border border-neutral-200 hover:border-neutral-300"
@@ -154,11 +178,12 @@ export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardPro
           <X className="h-4 w-4" />
           <span className="hidden sm:inline">Sair</span>
         </Link>
+        </div>
       </div>
 
       {/* Content Area */}
       <div className={cn(
-        'flex-1 flex items-center justify-center overflow-hidden',
+        noPlano ? 'flex-1' : 'flex-1 flex items-center justify-center overflow-hidden',
         isResult ? (mostrarFoto ? 'px-5' : '') : 'px-6 lg:px-12'
       )}>
         <div className={cn(
@@ -260,6 +285,9 @@ export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardPro
           </div>
         </div>
       )}
+      {/* Menu inferior do site, só com o plano pronto: durante as perguntas
+          o rodapé é o botão de continuar. */}
+      {noPlano && <MobileBottomNav />}
     </div>
   )
 }

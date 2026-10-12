@@ -76,6 +76,14 @@ export const functionalInk = {
   warning: '#685215',
 } as const
 
+// ── Canais externos ─────────────────────────────────────
+// Verde do WhatsApp escurecido para texto branco: o verde oficial (#25D366)
+// dá 1,98:1 com branco; este dá 5,8:1.
+export const canais = {
+  whatsapp: '#0E7265',
+  whatsappInk: '#0A5A50',
+} as const
+
 // ── Full palette for Tailwind ───────────────────────────
 export const palette = {
   forest: {

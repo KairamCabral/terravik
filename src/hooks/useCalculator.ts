@@ -9,27 +9,9 @@ import type {
 } from '@/types/calculator'
 import { WIZARD_STEPS } from '@/lib/calculator/constants'
 import { generatePlan } from '@/lib/calculator/engine'
+import { decodificarRespostas } from '@/lib/calculator/compartilhar'
 
 const STORAGE_KEY = 'terravik-calculator'
-
-// Helper para gerar URL compartilhável
-function encodeAnswers(answers: Partial<CalculatorInput>): string {
-  try {
-    const json = JSON.stringify(answers)
-    return btoa(json)
-  } catch {
-    return ''
-  }
-}
-
-function decodeAnswers(encoded: string): Partial<CalculatorInput> | null {
-  try {
-    const json = atob(encoded)
-    return JSON.parse(json)
-  } catch {
-    return null
-  }
-}
 
 export function useCalculator() {
   const [state, setState] = useState<WizardState>({
@@ -64,9 +46,15 @@ export function useCalculator() {
     const params = new URLSearchParams(window.location.search)
     const encoded = params.get('plan')
     if (encoded) {
-      const decoded = decodeAnswers(encoded)
-      if (decoded) {
-        setState((prev) => ({ ...prev, answers: decoded }))
+      // O link é dado de fora: só vira plano se todos os campos forem válidos.
+      const respostas = decodificarRespostas(encoded)
+      if (respostas) {
+        setState({
+          currentStep: 'result',
+          answers: respostas,
+          result: generatePlan(respostas),
+          isComplete: true,
+        })
       }
     }
   }, [])
@@ -195,13 +183,6 @@ export function useCalculator() {
     window.history.replaceState({}, '', window.location.pathname)
   }, [])
 
-  const getShareableUrl = useCallback(() => {
-    const encoded = encodeAnswers(state.answers)
-    const url = new URL(window.location.href)
-    url.searchParams.set('plan', encoded)
-    return url.toString()
-  }, [state.answers])
-
   // Calcular canGoNext diretamente
   const canGoNext = (() => {
     const { currentStep, answers } = state
@@ -256,7 +237,6 @@ export function useCalculator() {
     // Helpers
     canGoNext,
     canGoPrev,
-    getShareableUrl,
   }
 }
 
