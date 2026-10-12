@@ -4,6 +4,8 @@ import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { reportarFalhaShopify } from '@/lib/shopify/fallback'
 import { MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 import { ProductsPageClient } from './ProductsPageClient'
+import { AtalhoDeKits } from '@/components/kits/AtalhoDeKits'
+import { montarKits } from '@/lib/promocoes/kits'
 import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
@@ -43,7 +45,10 @@ export default async function ProdutosPage() {
         }}
       />
 
-      <ProductsPageClient initialProducts={products} />
+      <ProductsPageClient
+        initialProducts={products}
+        atalhoDeKits={<AtalhoDeKits kits={montarKits(products)} />}
+      />
     </>
   )
 }

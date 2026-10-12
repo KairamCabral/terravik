@@ -3,22 +3,25 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { createMetadata, breadcrumbSchema, jsonLd } from '@/lib/seo/metadata'
 import { getCatalogo } from '@/lib/shopify/catalogo'
-import { montarKits } from '@/lib/promocoes/kits'
+import { montarCombos, montarKits } from '@/lib/promocoes/kits'
 import { FAIXAS_DE_QUANTIDADE } from '@/lib/promocoes/regras'
 import { KitsExplorer } from '@/components/kits/KitsExplorer'
+import { CombosSection } from '@/components/kits/CombosSection'
 import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
   title: 'Kits de Fertilizantes para Gramado',
   description:
-    'Kits Terravik com desconto: plantio, recuperação do gramado amarelado, manutenção por seis meses e o kit completo com os três produtos.',
+    'Kits e combos Terravik com desconto: plantio, recuperação do gramado amarelado, manutenção por seis meses, kit completo e combos de 2 ou 3 sacos.',
   path: '/kits',
 })
 
 export const revalidate = REVALIDATE.products
 
 export default async function KitsPage() {
-  const kits = montarKits(await getCatalogo('kits'))
+  const catalogo = await getCatalogo('kits')
+  const kits = montarKits(catalogo)
+  const combos = montarCombos(catalogo)
   const [faixaMaior, faixaMenor] = FAIXAS_DE_QUANTIDADE
 
   return (
@@ -43,6 +46,8 @@ export default async function KitsPage() {
           <p className="mt-3 text-txt-secondary">Os kits estão indisponíveis no momento.</p>
         </section>
       )}
+
+      <CombosSection combos={combos} />
 
       <section aria-labelledby="titulo-como-funciona" className="bg-bg-primary">
         <div className="container-main py-14 md:py-20">
