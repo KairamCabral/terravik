@@ -90,19 +90,14 @@ export const CATALOG: Record<'P1' | 'P2' | 'P3', CatalogProduct> = {
   P3: {
     id: 'P3',
     name: 'Resistência Total',
-    fullName: 'Resistência Total (NPK granulado 10-04-16)',
-    base: 'NPK granulado 10-04-16, fertilizante mineral complexo',
+    fullName: 'Resistência Total (NPK granulado 19-04-19)',
+    base: 'NPK granulado 19-04-19, fertilizante mineral complexo',
     packGrams: PACK_GRAMS,
     yieldM2: 64, // rótulo: 1,6 kg rende até 64 m²
     doseLabel: 25, // 1600 g / 64 m²
     doseApprox: false,
-    // PENDENTE: o verso da embalagem diz "o dosador raso cobre cerca de 2 m²",
-    // mas isso daria 32 dosadores por saco (50 g cada), o dobro da dose que o
-    // rendimento de 64 m² implica. Nos outros produtos o saco equivale a 16
-    // dosadores de 100 ml. Mantido o valor coerente com o rendimento (4 m²)
-    // até o dono confirmar; usar 2 m² dobraria a dose aplicada.
-    scoopM2: 4,
-    scoopDeduced: true,
+    scoopM2: 4, // rótulo: 1 dosador raso cobre cerca de 4 m²
+    scoopDeduced: false,
     // Rótulo: "Uso contínuo: resistência se constrói com rotina. Aplique a
     // cada 60 dias e mantenha o gramado forte o ano todo."
     frequencyKind: 'continuo',

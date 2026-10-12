@@ -259,10 +259,8 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       classificacao: 'Fertilizante mineral simples, aplicação via solo',
       natureza: 'Superfosfato simples granulado',
       garantias: [
-        // Só as linhas iguais nas duas artes do verso. A segunda linha diverge
-        // ("fósforo solúvel em água 17%" numa, "cálcio solúvel em água 16%" na
-        // outra) e fica de fora até o dono confirmar com o registro no MAPA.
         { nutriente: 'Fósforo (P₂O₅) solúvel em CNA + água', minimo: '21,0%' },
+        { nutriente: 'Fósforo (P₂O₅) solúvel em água', minimo: '17,0%' },
         { nutriente: 'Cálcio (Ca) total', minimo: '16,0%' },
         { nutriente: 'Enxofre (S) total', minimo: '10,0%' },
       ],
@@ -382,7 +380,7 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
         'Resistência Total traz o potássio na medida certa, junto com nitrogênio e fósforo. Nutrição completa que fortalece o gramado de dentro para fora. Não é só verde: é um gramado que aguenta.',
       ],
       diferencial:
-        'Fertilizante complexo de verdade: cada grânulo contém os três nutrientes (N, P e K) fundidos na mesma partícula, não uma mistura de grânulos diferentes que se separam no solo.',
+        'Fertilizante complexo de verdade: cada grânulo contém os três nutrientes (N, P e K) fundidos na mesma partícula, não uma mistura de grãos diferentes que se separa no saco. Onde cai um grânulo, chega a nutrição completa.',
     },
     beneficios: [
       {
@@ -399,26 +397,22 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       },
     ],
     trabalho:
-      'NPK 10-04-16, com potássio em destaque: o nutriente que a grama usa para aguentar sol, pisoteio e seca.',
+      'NPK 19-04-19, rico em nitrogênio e potássio: o nutriente que a grama usa para aguentar sol, pisoteio e seca.',
     compararDose: true,
-    // PENDENTE: o verso diz "o dosador raso cobre cerca de 2 m²", mas isso
-    // daria 32 dosadores por saco, o dobro da dose que o rendimento de 64 m²
-    // implica (nos outros produtos o saco equivale a 16 dosadores de 100 ml).
-    // Mantido o valor coerente com o rendimento até o dono confirmar.
-    rendimento: { m2PorSaco: 64, m2PorDosador: 4, dosadorEstimado: true },
+    rendimento: { m2PorSaco: 64, m2PorDosador: 4 },
     quandoUsar: {
       titulo: 'Uso contínuo',
       texto: 'Resistência se constrói com rotina. Aplique a cada 60 dias e mantenha o gramado forte o ano todo.',
     },
     ficha: {
       classificacao: 'Fertilizante mineral complexo, aplicação via solo',
-      natureza: 'NPK granulado 10-04-16',
+      natureza: 'NPK granulado 19-04-19',
       garantias: [
-        { nutriente: 'Nitrogênio (N) total', minimo: '10,0%' },
+        { nutriente: 'Nitrogênio (N) total', minimo: '19,0%' },
         { nutriente: 'Fósforo (P₂O₅) total', minimo: '4,0%' },
         { nutriente: 'Fósforo (P₂O₅) solúvel em CNA + água', minimo: '4,0%' },
-        { nutriente: 'Fósforo (P₂O₅) solúvel em água', minimo: '3,0%' },
-        { nutriente: 'Potássio (K₂O) solúvel em água', minimo: '16,0%' },
+        { nutriente: 'Fósforo (P₂O₅) solúvel em água', minimo: '2,0%' },
+        { nutriente: 'Potássio (K₂O) solúvel em água', minimo: '19,0%' },
       ],
     },
     perguntas: [
@@ -434,7 +428,8 @@ export const LP_POR_HANDLE: Record<string, ConteudoDaLp> = {
       },
       {
         pergunta: 'Quanto rende um saco?',
-        resposta: 'O saco de 1,6 kg rende até 64 m². O dosador vem dentro da embalagem.',
+        resposta:
+          'O saco de 1,6 kg rende até 64 m². Um dosador raso cobre cerca de 4 m². O dosador vem dentro da embalagem.',
       },
       OBJECAO_DE_PRECO,
       ...PERGUNTAS_COMUNS,

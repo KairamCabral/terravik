@@ -7,11 +7,11 @@
  * PREÇOS: informados pelo dono em 11/10/2026 para o saco de 1,6 kg. Não há
  * preço "de": preço riscado sem histórico de venda é oferta enganosa.
  *
- * FOTOS: frente, lateral, verso e grânulo. O verso foi trocado pelo dono em
- * 11/10/2026.
+ * FOTOS: frente, lateral, verso e grânulo. O verso é a arte final do rótulo
+ * (PDF enviado pelo dono em 11/10/2026), não a foto do saco: as fotos do verso
+ * traziam números diferentes da arte final.
  *
- * SKU: nulo de propósito. O código de barras das artes muda de uma imagem para
- * outra e não serve de fonte; preencher com o cadastro real.
+ * SKU: o código de barras impresso na arte final de cada rótulo.
  */
 
 import type { Product, ProductImage } from '@/types/product'
@@ -63,10 +63,10 @@ export const MOCK_PRODUCTS: Product[] = [
     images: [
       RAIZ_FORTE_FRENTE,
       foto('raiz-forte', 'lateral', 'Raiz Forte Terravik, embalagem vista de lado', 923, 1365),
-      foto('raiz-forte', 'verso', 'Raiz Forte Terravik, verso da embalagem com modo de usar e garantias', 878, 1399),
+      foto('raiz-forte', 'verso', 'Rótulo do Raiz Forte Terravik: modo de usar, garantias e cuidados', 1400, 1598),
       foto('raiz-forte', 'granulo', 'Grânulos do fertilizante Raiz Forte', 1200, 788),
     ],
-    variants: [variante('mock-p1-1600g', 169.9, null, RAIZ_FORTE_FRENTE)],
+    variants: [variante('mock-p1-1600g', 169.9, '7898980402005', RAIZ_FORTE_FRENTE)],
     price: 169.9,
     maxPrice: 169.9,
     compareAtPrice: 0,
@@ -92,10 +92,10 @@ export const MOCK_PRODUCTS: Product[] = [
     images: [
       VERDE_RAPIDO_FRENTE,
       foto('verde-rapido', 'lateral', 'Verde Rápido Terravik, embalagem vista de lado', 963, 1191),
-      foto('verde-rapido', 'verso', 'Verde Rápido Terravik, verso da embalagem com modo de usar e garantias', 874, 1393),
+      foto('verde-rapido', 'verso', 'Rótulo do Verde Rápido Terravik: modo de usar, garantias e cuidados', 1400, 1598),
       foto('verde-rapido', 'granulo', 'Grânulos do fertilizante Verde Rápido', 1200, 805),
     ],
-    variants: [variante('mock-p2-1600g', 129.9, null, VERDE_RAPIDO_FRENTE)],
+    variants: [variante('mock-p2-1600g', 129.9, '7898980402012', VERDE_RAPIDO_FRENTE)],
     price: 129.9,
     maxPrice: 129.9,
     compareAtPrice: 0,
@@ -106,7 +106,7 @@ export const MOCK_PRODUCTS: Product[] = [
     handle: 'resistencia-total',
     title: 'Resistência Total',
     description:
-      'Nutrição completa com potássio (NPK 10-04-16) para a grama resistir à seca, ao sol e ao pisoteio o ano inteiro.',
+      'Nutrição completa com potássio (NPK 19-04-19) para a grama resistir à seca, ao sol e ao pisoteio o ano inteiro.',
     descriptionHtml:
       '<p>Seu gramado forte o ano inteiro. Resistência Total é a nutrição completa com potássio que deixa a grama resistente à seca, ao sol e ao pisoteio.</p>' +
       '<p>Para o gramado que precisa de força e beleza em todas as estações.</p>',
@@ -121,10 +121,10 @@ export const MOCK_PRODUCTS: Product[] = [
     images: [
       RESISTENCIA_TOTAL_FRENTE,
       foto('resistencia-total', 'lateral', 'Resistência Total Terravik, embalagem vista de lado', 1025, 1195),
-      foto('resistencia-total', 'verso', 'Resistência Total Terravik, verso da embalagem com modo de usar e garantias', 875, 1391),
+      foto('resistencia-total', 'verso', 'Rótulo do Resistência Total Terravik: modo de usar, garantias e cuidados', 1400, 1598),
       foto('resistencia-total', 'granulo', 'Grânulos do fertilizante Resistência Total', 1200, 804),
     ],
-    variants: [variante('mock-p3-1600g', 149.9, null, RESISTENCIA_TOTAL_FRENTE)],
+    variants: [variante('mock-p3-1600g', 149.9, '7898980402029', RESISTENCIA_TOTAL_FRENTE)],
     price: 149.9,
     maxPrice: 149.9,
     compareAtPrice: 0,
