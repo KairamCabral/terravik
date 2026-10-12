@@ -275,14 +275,14 @@ function OrderConfirmedContent() {
                   >
                     +{xpEarned} XP
                   </motion.span>{' '}
-                  na Academia Terravik!
+                  no seu perfil Terravik!
                 </p>
                 <p className="text-xs text-txt-muted mt-0.5">
-                  Continue comprando e aprendendo para subir de nível
+                  Continue comprando para subir de nível
                 </p>
               </div>
               <Link
-                href="/academia"
+                href="/conta"
                 className="flex items-center gap-1 text-xs text-forest font-medium hover:underline flex-shrink-0"
               >
                 <GraduationCap className="w-4 h-4" />

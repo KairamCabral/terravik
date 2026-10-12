@@ -116,6 +116,14 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
+      // CURSOS FORA DO AR POR ENQUANTO (pedido do dono em 12/10/2026).
+      // As páginas e o código continuam no projeto. Para religar: apague estes
+      // três redirecionamentos e devolva os links (NAV_LINKS em constants.ts,
+      // Footer, menu da conta) e a seção AcademiaCTA da home.
+      // Temporários (307) de propósito: o navegador e o Google não guardam.
+      { source: '/academia', destination: '/', permanent: false },
+      { source: '/academia/:caminho*', destination: '/', permanent: false },
+      { source: '/conta/academia', destination: '/conta', permanent: false },
       // O produto "Gramado Novo" passou a se chamar "Raiz Forte", como na embalagem.
       {
         source: '/produtos/gramado-novo',

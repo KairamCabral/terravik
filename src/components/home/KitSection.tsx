@@ -33,10 +33,10 @@ export function KitSection({ produtos }: KitSectionProps) {
   const [faixaMaior, faixaMenor] = FAIXAS_DE_QUANTIDADE
 
   return (
-    <section aria-labelledby="titulo-kit" className="bg-bg-primary">
-      <div className="container-main py-14 md:py-20">
-        <div className="overflow-hidden rounded-3xl bg-gradient-forest text-white shadow-xl lg:grid lg:grid-cols-2 lg:items-center">
-          <div className="relative flex items-end justify-center gap-1 px-6 pt-10 sm:gap-3 lg:py-12">
+    <section aria-labelledby="titulo-kit" className="bg-gradient-forest text-white">
+      <div className="container-main py-12 md:py-20">
+        <div className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-10">
+          <div className="relative flex items-end justify-center gap-1 sm:gap-3">
             {completos.map(({ produto }, indice) => (
               <div key={produto.handle} className={indice === 1 ? 'relative z-10 w-[38%] max-w-[210px]' : 'w-[31%] max-w-[170px]'}>
                 {produto.featuredImage && (
@@ -53,7 +53,7 @@ export function KitSection({ produtos }: KitSectionProps) {
             ))}
           </div>
 
-          <div className="px-6 pb-10 pt-8 sm:px-10 lg:py-12 lg:pl-4">
+          <div className="pt-8 lg:pt-0">
             <p className="inline-flex rounded-full bg-gold px-3 py-1 text-xs font-bold uppercase tracking-wider text-forest-ink">
               {KIT.percentual}% de desconto
             </p>

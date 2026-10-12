@@ -10,7 +10,6 @@ import { ComparativoSection } from '@/components/home/ComparativoSection'
 import { CalculatorCTA } from '@/components/home/CalculatorCTA'
 import { InfluencersSection } from '@/components/home/InfluencersSection'
 import { BenefitsSection } from '@/components/home/BenefitsSection'
-import { AcademiaCTA } from '@/components/home/AcademiaCTA'
 import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import { StoreLocationsSection } from '@/components/home/StoreLocationsSection'
 import { FAQSection } from '@/components/home/FAQSection'
@@ -56,7 +55,6 @@ export default async function HomePage() {
       <CalculatorCTA fotoDisponivel={fotoDisponivel} />
       <InfluencersSection />
       <BenefitsSection />
-      <AcademiaCTA />
       <TestimonialsSection />
       <StoreLocationsSection />
       <FAQSection />

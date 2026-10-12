@@ -24,7 +24,6 @@ export function Footer({ produtos = [] }: FooterProps) {
     produtos: [...produtos, { label: 'Ver Todos', href: '/produtos' }],
     recursos: [
       { label: 'Calculadora de Dose', href: '/calculadora', highlight: true },
-      { label: 'Cursos Terravik', href: '/academia', highlight: true },
       { label: 'Onde Encontrar', href: '/onde-encontrar' },
     ],
     'empresa & suporte': [

@@ -23,7 +23,7 @@ import { createClient } from '@/lib/supabase/client'
 
 /**
  * Visão Geral da Conta — Dashboard do Cliente
- * 
+ *
  * Apresenta um resumo inteligente e estratégico:
  * - Saudação personalizada por horário
  * - Último pedido com status visual
@@ -424,7 +424,7 @@ export function AccountPageClient() {
             />
           </div>
           <p className="text-xs text-neutral-400 mt-2">
-            Complete lições na Academia e ganhe XP para subir de nível
+            Cada compra rende XP para subir de nível
           </p>
         </div>
       )}
@@ -437,7 +437,6 @@ export function AccountPageClient() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { icon: Calculator, label: 'Calcular Dose', href: '/calculadora', color: 'bg-emerald-50 text-emerald-600' },
-            { icon: GraduationCap, label: 'Academia', href: '/conta/academia', color: 'bg-blue-50 text-blue-600' },
             { icon: Heart, label: 'Favoritos', href: '/favoritos', color: 'bg-red-50 text-red-600' },
             { icon: MapPin, label: 'Onde Encontrar', href: '/onde-encontrar', color: 'bg-amber-50 text-amber-600' },
           ].map((action) => (

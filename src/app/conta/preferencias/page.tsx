@@ -150,12 +150,6 @@ export default function PreferenciasPage() {
             checked={settings.email_promotions}
             onChange={() => toggleSetting('email_promotions')}
           />
-          <ToggleRow
-            title="Cursos Terravik"
-            description="Novos cursos e conteúdos educativos"
-            checked={settings.email_academy}
-            onChange={() => toggleSetting('email_academy')}
-          />
         </div>
       </div>
 
