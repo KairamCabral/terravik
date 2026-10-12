@@ -18,13 +18,14 @@ import { ProductLp } from '@/components/product/lp/ProductLp'
 import { KitsDoProduto } from '@/components/kits/KitsDoProduto'
 import { getCatalogo } from '@/lib/shopify/catalogo'
 import { conteudoDaLp, custoPorM2, PESO_DO_SACO } from '@/lib/produtos/lp'
-import { REVALIDATE } from '@/lib/utils/constants'
 
 interface Props {
-  params: { handle: string }
+  params: Promise<{ handle: string }>
 }
 
-export const revalidate = REVALIDATE.products
+// Literal de propósito: o Next 15 só aceita valor escrito direto aqui.
+// É o mesmo de REVALIDATE.products (src/lib/utils/constants.ts).
+export const revalidate = 60
 
 // Sem isto, notFound() em handle fora do generateStaticParams responde 200
 // (soft 404). Efeito colateral: produto criado na Shopify depois do build
@@ -41,7 +42,8 @@ export async function generateStaticParams() {
   }
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   let product = getMockProductByHandle(params.handle)
 
   try {
@@ -63,7 +65,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return createProductMetadata(product)
 }
 
-export default async function ProductPage({ params }: Props) {
+export default async function ProductPage(props: Props) {
+  const params = await props.params;
   let product = getMockProductByHandle(params.handle)
 
   try {

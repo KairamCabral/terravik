@@ -138,7 +138,7 @@ const STATIC_COURSES = [
 export async function POST() {
   try {
     // Só admin logado: a rota grava com a chave de serviço.
-    const sessao = createServerSupabaseClient();
+    const sessao = await createServerSupabaseClient();
     const { data: { user } } = await sessao.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });

@@ -19,7 +19,7 @@ import { formatDate } from '@/lib/utils/formatters'
 import { Clock, User, ArrowLeft } from 'lucide-react'
 
 interface Props {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 // Sem isto, notFound() em slug fora do generateStaticParams responde 200.
@@ -31,7 +31,8 @@ export async function generateStaticParams() {
   }))
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const article = getArticleBySlug(params.slug)
 
   if (!article) {
@@ -67,7 +68,8 @@ const categoryColors = {
   'dicas': 'bg-terravik-brown/10 text-terravik-brown-700',
 }
 
-export default function BlogArticlePage({ params }: Props) {
+export default async function BlogArticlePage(props: Props) {
+  const params = await props.params;
   const article = getArticleBySlug(params.slug)
 
   if (!article) {

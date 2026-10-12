@@ -35,6 +35,8 @@ export function KitsExplorer({ kits, titulo = 'h2' }: KitsExplorerProps) {
   const abas = useRef<(HTMLButtonElement | null)[]>([])
   const id = useId()
   const Titulo = titulo
+  // O título do kit vem um nível abaixo do título da seção.
+  const TituloDoKit = titulo === 'h1' ? 'h2' : 'h3'
   const kit = kits[ativo]
   if (!kit) return null
 
@@ -175,7 +177,7 @@ export function KitsExplorer({ kits, titulo = 'h2' }: KitsExplorerProps) {
           {/* A oferta */}
           <div className="mt-8 lg:mt-0">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gold-soft">{kit.nome}</p>
-            <h3 className="mt-2 font-heading text-2xl font-bold leading-tight md:text-3xl">{kit.titulo}</h3>
+            <TituloDoKit className="mt-2 font-heading text-2xl font-bold leading-tight md:text-3xl">{kit.titulo}</TituloDoKit>
             <p className="mt-3 text-sm leading-relaxed text-white/80 md:text-base">{kit.texto}</p>
 
             <ul className="mt-5 space-y-2 text-sm">

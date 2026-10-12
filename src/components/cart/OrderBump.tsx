@@ -80,7 +80,7 @@ export function OrderBump({ cartProductIds }: OrderBumpProps) {
             {product.title}
             <span className="text-terravik-brown/40 font-normal"> {product.variantTitle}</span>
           </p>
-          <p className="text-[11px] text-terravik-brown/50 leading-tight mt-0.5 line-clamp-1">
+          <p className="text-[11px] text-terravik-brown/70 leading-tight mt-0.5 line-clamp-1">
             {product.pitch}
           </p>
           <div className="flex items-center gap-2 mt-0.5">

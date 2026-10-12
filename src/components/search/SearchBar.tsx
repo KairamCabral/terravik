@@ -107,13 +107,15 @@ export function SearchBar() {
         type="button"
         onClick={() => { setIsOpen(true); setTimeout(() => inputRef.current?.focus(), 0) }}
         className="flex items-center gap-2 rounded-lg border border-border-subtle bg-bg-surface px-3 py-2 text-sm text-txt-secondary transition-colors hover:border-border-medium hover:text-txt-primary"
-        aria-label="Buscar produtos"
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={isOpen ? dialogoId : undefined}
       >
         <Search className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
-        <span className="hidden sm:inline">Buscar...</span>
+        {/* O nome do botão vem do texto: "Buscar" na tela, "Buscar produtos"
+            para leitor de tela quando só o ícone aparece. */}
+        <span className="sr-only sm:hidden">Buscar produtos</span>
+        <span className="hidden sm:inline">Buscar</span>
         <kbd
           className="hidden rounded border border-border-subtle px-1.5 py-0.5 text-[10px] font-medium text-txt-secondary lg:inline"
           aria-hidden="true"

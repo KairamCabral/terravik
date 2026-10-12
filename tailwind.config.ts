@@ -54,6 +54,11 @@ const config: Config = {
           100: '#F4EFE5',
           200: '#E6DDCC',
           300: '#E6DDCC',
+          // Sem estes dois, text-neutral-400/500 caíam no cinza padrão do
+          // Tailwind (#A3A3A3, 2,5:1 no branco). São os cinzas de texto da marca.
+          400: '#666C66',
+          500: '#5A605A',
+          600: '#4C514C',
           700: '#4C514C',
           900: '#111311',
         },
@@ -96,7 +101,7 @@ const config: Config = {
             DEFAULT: '#111311',
             50: '#F4EFE5',
             100: '#E6DDCC',
-            200: '#7A807A',
+            200: '#666C66',
             300: '#4C514C',
             400: '#111311',
             500: '#07120D',

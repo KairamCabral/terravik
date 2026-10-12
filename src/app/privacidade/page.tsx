@@ -80,7 +80,7 @@ export default function PrivacidadePage() {
           {/* Table of Contents — sticky sidebar */}
           <aside className="mb-10 lg:mb-0">
             <nav className="lg:sticky lg:top-32">
-              <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-terravik-brown/50">
+              <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-terravik-brown/70">
                 Nesta página
               </h2>
               <ul className="space-y-1">
@@ -480,7 +480,7 @@ export default function PrivacidadePage() {
               seus dados e privacidade.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" variant="secondary" asChild>
+              <Button size="lg" variant="secondary" className="border-white bg-white text-forest hover:bg-gold-soft hover:text-forest-ink" asChild>
                 <Link href="/contato">Fale conosco</Link>
               </Button>
               <Button

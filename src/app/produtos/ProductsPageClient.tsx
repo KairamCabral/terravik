@@ -211,6 +211,7 @@ export function ProductsPageClient({ initialProducts, atalhoDeKits }: ProductsPa
               <span className="hidden text-sm text-txt-muted sm:block">Ordenar:</span>
               <div className="relative">
                 <select
+                  aria-label="Ordenar produtos"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as SortOption)}
                   className="appearance-none rounded-lg border border-border-subtle bg-bg-surface py-2 pl-4 pr-10 text-sm text-txt-primary transition-colors focus:border-forest focus:outline-none focus:ring-1 focus:ring-forest/20"

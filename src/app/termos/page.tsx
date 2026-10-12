@@ -85,7 +85,7 @@ export default function TermosPage() {
           {/* Table of Contents — sticky sidebar */}
           <aside className="mb-10 lg:mb-0">
             <nav className="lg:sticky lg:top-32">
-              <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-terravik-brown/50">
+              <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-terravik-brown/70">
                 Nesta página
               </h2>
               <ul className="space-y-1">
@@ -493,7 +493,7 @@ export default function TermosPage() {
       </Container>
 
       {/* CTA Final */}
-      <section className="bg-terravik-gold py-16 text-white md:py-20">
+      <section className="bg-forest py-16 text-white md:py-20">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
             <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10">
@@ -507,7 +507,7 @@ export default function TermosPage() {
               nossos termos e condições.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" variant="secondary" asChild>
+              <Button size="lg" variant="secondary" className="border-white bg-white text-forest hover:bg-gold-soft hover:text-forest-ink" asChild>
                 <Link href="/contato">Fale conosco</Link>
               </Button>
               <Button
@@ -552,7 +552,7 @@ function SectionHeader({
 function Highlight({ children }: { children: React.ReactNode }) {
   return (
     <div className="not-prose my-6 rounded-xl border-l-4 border-terravik-gold bg-terravik-gold/5 px-6 py-4">
-      <p className="text-sm font-medium leading-relaxed text-terravik-gold md:text-base">
+      <p className="text-sm font-medium leading-relaxed text-gold-ink md:text-base">
         {children}
       </p>
     </div>

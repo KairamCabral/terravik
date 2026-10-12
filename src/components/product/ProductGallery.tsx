@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createPortal } from 'react-dom'
 import type { ProductImage } from '@/types/product'
 import { cn } from '@/lib/utils/cn'
-import { Sparkles, Play, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Sparkles, Play, X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react'
 import { GaleriaEmTelaCheia } from './GaleriaEmTelaCheia'
 
 /** A lente só liga em foto com resolução para aguentar a ampliação. */
@@ -101,23 +101,23 @@ export function ProductGallery({ images, badge, videoUrl, videoThumbnailUrl, tit
         <div className="relative min-w-0 flex-1 order-first lg:order-none">
           <div
             ref={imageRef}
-            role="button"
-            tabIndex={0}
-            aria-label="Abrir a foto em tela cheia"
-            className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-2xl bg-bg-surface-2 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-2xl bg-bg-surface-2 shadow-sm"
             onMouseEnter={() => podeAmpliar && setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleMouseMove}
             onClick={() => setLightboxOpen(true)}
-            onKeyDown={(e) => {
-              // Só quando o foco está na própria foto, não nas setas de dentro.
-              if (e.target !== e.currentTarget) return
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                setLightboxOpen(true)
-              }
-            }}
           >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setLightboxOpen(true)
+              }}
+              aria-label="Abrir a foto em tela cheia"
+              className="absolute bottom-3 right-3 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-bg-surface/90 text-txt-primary shadow-md backdrop-blur-sm transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest"
+            >
+              <Maximize2 className="h-4 w-4" aria-hidden="true" />
+            </button>
             <AnimatePresence mode="wait">
               <motion.div
                 key={selectedImage.url}

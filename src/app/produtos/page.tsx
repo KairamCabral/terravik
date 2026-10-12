@@ -6,7 +6,6 @@ import { MOCK_PRODUCTS } from '@/lib/shopify/mock-data'
 import { ProductsPageClient } from './ProductsPageClient'
 import { AtalhoDeKits } from '@/components/kits/AtalhoDeKits'
 import { montarKits } from '@/lib/promocoes/kits'
-import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
   title: 'Produtos para Gramados',
@@ -15,7 +14,9 @@ export const metadata: Metadata = createMetadata({
   path: '/produtos',
 })
 
-export const revalidate = REVALIDATE.products
+// Literal de propósito: o Next 15 só aceita valor escrito direto aqui.
+// É o mesmo de REVALIDATE.products (src/lib/utils/constants.ts).
+export const revalidate = 60
 
 export default async function ProdutosPage() {
   let products = MOCK_PRODUCTS
