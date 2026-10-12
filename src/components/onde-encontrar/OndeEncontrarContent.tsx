@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
@@ -227,13 +228,13 @@ export function OndeEncontrarContent() {
             <p className="text-txt-secondary mb-6">
               Por enquanto, os produtos Terravik são vendidos aqui na loja oficial.
             </p>
-            <a
+            <Link
               href="/produtos"
               className="inline-flex items-center gap-2 px-6 py-3 bg-forest text-bg-primary rounded-xl font-medium hover:bg-forest-ink transition-colors"
             >
               <ShoppingBag className="w-4 h-4" />
               Ver produtos
-            </a>
+            </Link>
           </div>
         ) : (
         <>

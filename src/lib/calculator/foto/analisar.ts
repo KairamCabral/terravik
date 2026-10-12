@@ -69,7 +69,8 @@ export async function analisarFoto(jpegEmBase64: string): Promise<ResultadoDaAna
   let resposta
   try {
     resposta = await obterCliente().beta.messages.create({
-      model: 'claude-opus-5-5',
+      // Sonnet: escolha do dono em 13/10/2026 (custo menor por foto).
+      model: 'claude-sonnet-5-5',
       max_tokens: 2000,
       // Recusa do classificador de segurança é reexecutada em outro modelo.
       betas: ['server-side-fallback-2026-07-01'],
