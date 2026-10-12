@@ -30,7 +30,7 @@ function presente(nome: string): string {
 }
 
 async function exigirAdmin(): Promise<{ id: string; email: string } | NextResponse> {
-  const supabase = createServerSupabaseClient()
+  const supabase = await createServerSupabaseClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

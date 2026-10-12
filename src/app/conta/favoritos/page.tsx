@@ -1,8 +1,9 @@
 import { getCatalogoComEstado } from '@/lib/shopify/catalogo'
-import { REVALIDATE } from '@/lib/utils/constants'
 import { ContaFavoritosClient } from './ContaFavoritosClient'
 
-export const revalidate = REVALIDATE.products
+// Literal de propósito: o Next 15 só aceita valor escrito direto aqui.
+// É o mesmo de REVALIDATE.products (src/lib/utils/constants.ts).
+export const revalidate = 60
 
 export default async function ContaFavoritosPage() {
   const { produtos, degradado } = await getCatalogoComEstado('conta/favoritos')

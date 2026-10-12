@@ -89,7 +89,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     )
 
     if (asChild) {
-      const child = children as ReactElement
+      // React 19: as props de um elemento genérico são `unknown`.
+      const child = children as ReactElement<{ className?: string }>
       return cloneElement(child, {
         ...child.props,
         className: cn(classes, child.props?.className),

@@ -5,8 +5,9 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/types/database'
 
-export function createServerSupabaseClient() {
-  const cookieStore = cookies()
+// Assíncrono desde o Next 15: cookies() devolve uma Promise.
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies()
 
   return createServerClient<Database>(
     // Placeholders para não lançar exceção sem credenciais (ver client.ts).

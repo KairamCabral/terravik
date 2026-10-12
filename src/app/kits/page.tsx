@@ -7,7 +7,6 @@ import { montarCombos, montarKits } from '@/lib/promocoes/kits'
 import { FAIXAS_DE_QUANTIDADE } from '@/lib/promocoes/regras'
 import { KitsExplorer } from '@/components/kits/KitsExplorer'
 import { CombosSection } from '@/components/kits/CombosSection'
-import { REVALIDATE } from '@/lib/utils/constants'
 
 export const metadata: Metadata = createMetadata({
   title: 'Kits de Fertilizantes para Gramado',
@@ -16,7 +15,9 @@ export const metadata: Metadata = createMetadata({
   path: '/kits',
 })
 
-export const revalidate = REVALIDATE.products
+// Literal de propósito: o Next 15 só aceita valor escrito direto aqui.
+// É o mesmo de REVALIDATE.products (src/lib/utils/constants.ts).
+export const revalidate = 60
 
 export default async function KitsPage() {
   const catalogo = await getCatalogo('kits')

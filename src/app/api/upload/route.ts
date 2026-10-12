@@ -85,7 +85,7 @@ async function uploadLocally(file: File, folder: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });

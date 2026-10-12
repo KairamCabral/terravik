@@ -11,7 +11,6 @@ import {
 } from '@/components/subscription';
 import { SUBSCRIPTION_FAQ } from '@/lib/subscription/mock-data';
 import { getCatalogo } from '@/lib/shopify/catalogo';
-import { REVALIDATE } from '@/lib/utils/constants';
 import { intervaloDaAssinatura } from '@/lib/produtos/assinatura';
 import { Sparkles, Check, ChevronRight, Package, Calendar, Heart } from 'lucide-react';
 
@@ -35,7 +34,9 @@ export const metadata: Metadata = {
  * 9. Trust indicators
  * 10. CTA final
  */
-export const revalidate = REVALIDATE.products;
+// Literal de propósito: o Next 15 só aceita valor escrito direto aqui.
+// É o mesmo de REVALIDATE.products (src/lib/utils/constants.ts).
+export const revalidate = 60
 
 export default async function AssinaturaPage() {
   // Nome, peso, foto e preço vêm do catálogo: nada de produto escrito à mão.

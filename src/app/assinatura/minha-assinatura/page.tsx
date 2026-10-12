@@ -2,10 +2,11 @@
 
 import { getCatalogo } from '@/lib/shopify/catalogo';
 import { criarAssinaturaDeExemplo } from '@/lib/subscription/mock-data';
-import { REVALIDATE } from '@/lib/utils/constants';
 import { MinhaAssinaturaClient } from './MinhaAssinaturaClient';
 
-export const revalidate = REVALIDATE.products;
+// Literal de propósito: o Next 15 só aceita valor escrito direto aqui.
+// É o mesmo de REVALIDATE.products (src/lib/utils/constants.ts).
+export const revalidate = 60
 
 /**
  * Painel do assinante.

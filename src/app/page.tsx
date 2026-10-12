@@ -15,7 +15,6 @@ import { TestimonialsSection } from '@/components/home/TestimonialsSection'
 import { StoreLocationsSection } from '@/components/home/StoreLocationsSection'
 import { FAQSection } from '@/components/home/FAQSection'
 import { getCatalogo } from '@/lib/shopify/catalogo'
-import { REVALIDATE } from '@/lib/utils/constants'
 import { analiseConfigurada } from '@/lib/calculator/foto/analisar'
 import { cotaConfigurada } from '@/lib/calculator/foto/cota'
 
@@ -26,7 +25,9 @@ export const metadata: Metadata = createMetadata({
   path: '',
 })
 
-export const revalidate = REVALIDATE.products
+// Literal de propósito: o Next 15 só aceita valor escrito direto aqui.
+// É o mesmo de REVALIDATE.products (src/lib/utils/constants.ts).
+export const revalidate = 60
 
 export default async function HomePage() {
   const produtos = await getCatalogo('home')
