@@ -5,6 +5,8 @@ import { CalculatorProvider } from '@/contexts/CalculatorContext'
 import { CatalogoProvider } from '@/contexts/CatalogoContext'
 import { getCatalogo } from '@/lib/shopify/catalogo'
 import { REVALIDATE } from '@/lib/utils/constants'
+import { analiseConfigurada } from '@/lib/calculator/foto/analisar'
+import { cotaConfigurada } from '@/lib/calculator/foto/cota'
 
 export const metadata: Metadata = createMetadata({
   title: 'Calculadora: Plano Terravik para o seu Gramado',
@@ -19,6 +21,8 @@ export default async function CalculadoraPage() {
   // O catálogo é resolvido aqui: o resultado da calculadora precisa das
   // variantes reais para o carrinho aceitar.
   const produtos = await getCatalogo('calculadora')
+  // O caminho da foto só aparece com a chave da IA e a cota configuradas.
+  const fotoDisponivel = analiseConfigurada() && cotaConfigurada()
 
   return (
     <>
@@ -43,7 +47,7 @@ export default async function CalculadoraPage() {
 
       <CatalogoProvider produtos={produtos}>
         <CalculatorProvider>
-          <CalculatorWizard />
+          <CalculatorWizard fotoDisponivel={fotoDisponivel} />
         </CalculatorProvider>
       </CatalogoProvider>
     </>

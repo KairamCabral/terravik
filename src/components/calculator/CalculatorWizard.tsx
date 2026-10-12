@@ -1,7 +1,8 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Camera, X } from 'lucide-react'
 import Link from 'next/link'
 import { useCalculatorContext } from '@/contexts/CalculatorContext'
 import { cn } from '@/lib/utils/cn'
@@ -16,6 +17,7 @@ import { StepIrrigation } from './steps/StepIrrigation'
 import { StepTraffic } from './steps/StepTraffic'
 import { StepCondition } from './steps/StepCondition'
 import { CalculatorResultSubscription } from './CalculatorResultSubscription'
+import { FluxoDaFoto } from './foto/FluxoDaFoto'
 
 /**
  * CalculatorWizard — Premium Redesign
@@ -24,8 +26,15 @@ import { CalculatorResultSubscription } from './CalculatorResultSubscription'
  * transições suaves, layout compacto e sofisticado
  */
 
-export function CalculatorWizard() {
+interface CalculatorWizardProps {
+  /** Análise por foto configurada no servidor (chave da IA e cota). */
+  fotoDisponivel?: boolean
+}
+
+export function CalculatorWizard({ fotoDisponivel = false }: CalculatorWizardProps) {
   const calculator = useCalculatorContext()
+  // Caminho da foto: aberto a partir da tela de entrada, no lugar do quiz.
+  const [naFoto, setNaFoto] = useState(false)
   const {
     currentStep,
     currentStepIndex,
@@ -39,6 +48,13 @@ export function CalculatorWizard() {
   } = calculator
 
   const direction = currentStepIndex > prevStepIndex ? 1 : -1
+
+  // Chegou ao resultado (pela foto) ou recomeçou: a tela da foto sai de cena.
+  useEffect(() => {
+    if (currentStep !== 'welcome') setNaFoto(false)
+  }, [currentStep])
+
+  const mostrarFoto = naFoto && currentStep === 'welcome'
 
   const variants = {
     enter: (dir: number) => ({
@@ -56,8 +72,18 @@ export function CalculatorWizard() {
   }
 
   const renderStep = () => {
+    if (mostrarFoto) {
+      return (
+        <FluxoDaFoto
+          onResponderPerguntas={() => {
+            setNaFoto(false)
+            nextStep()
+          }}
+        />
+      )
+    }
     switch (currentStep) {
-      case 'welcome': return <StepWelcome />
+      case 'welcome': return <StepWelcome fotoDisponivel={fotoDisponivel} />
       case 'area': return <StepArea />
       case 'implanting': return <StepImplanting />
       case 'objective': return <StepObjective />
@@ -72,9 +98,10 @@ export function CalculatorWizard() {
   }
 
   const showProgress = currentStep !== 'welcome' && currentStep !== 'result'
-  const showFooter = currentStep !== 'result'
+  const showFooter = currentStep !== 'result' && !mostrarFoto
   const isWelcome = currentStep === 'welcome'
-  const isResult = currentStep === 'result'
+  // A tela da foto rola como a de resultado: em celular pequeno ela passa da altura.
+  const isResult = currentStep === 'result' || mostrarFoto
 
   // Steps para dots (excluindo welcome e result)
   const stepNames = ['area', 'implanting', 'objective', 'climate', 'sunlight', 'irrigation', 'traffic', 'condition']
@@ -93,7 +120,15 @@ export function CalculatorWizard() {
       {/* Top Bar */}
       <div className="flex-shrink-0 flex items-center justify-between px-6 lg:px-12 py-3 border-b border-neutral-100">
         {/* Left: Back or empty */}
-        {showProgress && canGoPrev ? (
+        {mostrarFoto ? (
+          <button
+            onClick={() => setNaFoto(false)}
+            className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-forest hover:bg-forest/5 transition-all rounded-lg px-3 py-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar
+          </button>
+        ) : showProgress && canGoPrev ? (
           <button
             onClick={prevStep}
             className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-forest hover:bg-forest/5 transition-all rounded-lg px-3 py-2"
@@ -124,7 +159,7 @@ export function CalculatorWizard() {
       {/* Content Area */}
       <div className={cn(
         'flex-1 flex items-center justify-center overflow-hidden',
-        isResult ? '' : 'px-6 lg:px-12'
+        isResult ? (mostrarFoto ? 'px-5' : '') : 'px-6 lg:px-12'
       )}>
         <div className={cn(
           'w-full',
@@ -132,7 +167,7 @@ export function CalculatorWizard() {
         )}>
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
-              key={currentStep}
+              key={mostrarFoto ? 'foto' : currentStep}
               custom={direction}
               variants={variants}
               initial="enter"
@@ -179,7 +214,24 @@ export function CalculatorWizard() {
 
           {/* Button */}
           <div className="flex items-center justify-center px-6 lg:px-12 py-4">
-            {isWelcome ? (
+            {isWelcome && fotoDisponivel ? (
+              <div className="flex w-full max-w-md flex-col gap-3">
+                <button
+                  onClick={() => setNaFoto(true)}
+                  className="flex min-h-[56px] items-center justify-center gap-3 rounded-2xl bg-forest px-6 text-lg font-semibold text-white shadow-lg shadow-forest/20 transition-all hover:bg-forest/90"
+                >
+                  <Camera className="h-5 w-5" />
+                  Tirar foto do gramado
+                </button>
+                <button
+                  onClick={nextStep}
+                  className="group flex min-h-[48px] items-center justify-center gap-2 rounded-2xl border-2 border-neutral-200 bg-white px-6 text-base font-semibold text-neutral-800 transition-all hover:border-forest/40"
+                >
+                  Responder as perguntas
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            ) : isWelcome ? (
               <button
                 onClick={nextStep}
                 className="group flex items-center gap-3 px-10 py-4 rounded-2xl bg-forest text-white font-semibold text-lg hover:bg-forest/90 transition-all shadow-lg shadow-forest/20 hover:shadow-xl hover:shadow-forest/30"

@@ -17,6 +17,8 @@ function getKey(ip: string, path: string): string {
 function getLimit(path: string): number {
   if (path.startsWith('/api/upload')) return 20;
   if (path.startsWith('/api/contact')) return 5;
+  // Análise de foto: cada chamada custa dinheiro. A cota diária fica no banco.
+  if (path.startsWith('/api/calculadora/foto')) return 6;
   return 60;
 }
 

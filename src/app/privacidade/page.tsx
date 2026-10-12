@@ -153,6 +153,7 @@ export default function PrivacidadePage() {
                   items={[
                     'Páginas visitadas e tempo de navegação',
                     'Cálculos feitos na Calculadora de Dose',
+                    'Foto do gramado, se você usar a análise por foto da calculadora: a Terravik não guarda a foto; ela é enviada à Anthropic, nossa fornecedora de análise de imagem, só para identificar o estado do gramado',
                     'Progresso nos Cursos Terravik',
                     'Produtos visualizados e favoritos',
                   ]}

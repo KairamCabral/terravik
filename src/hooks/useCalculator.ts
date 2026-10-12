@@ -38,7 +38,7 @@ export function useCalculator() {
     result: null,
     isComplete: false,
   })
-  
+
   // Track para animação
   const [prevStepIndex, setPrevStepIndex] = useState(0)
 
@@ -50,8 +50,8 @@ export function useCalculator() {
         const parsed = JSON.parse(stored) as Partial<CalculatorInput>
         // NÃO restaurar o currentStep - sempre começar do welcome
         // Mas manter as respostas salvas para facilitar o preenchimento
-        setState((prev) => ({ 
-          ...prev, 
+        setState((prev) => ({
+          ...prev,
           answers: parsed
           // currentStep permanece 'welcome'
         }))
@@ -110,17 +110,17 @@ export function useCalculator() {
       if (nextIndex >= WIZARD_STEPS.length) return prev
 
       const nextStep = WIZARD_STEPS[nextIndex]
-      
+
       // Atualiza prevStepIndex para animações
       setPrevStepIndex(currentIndex)
 
       // Se chegou no result, gerar o plano
       if (nextStep === 'result' && isInputComplete(prev.answers)) {
         const input = prev.answers as CalculatorInput
-        
+
         try {
           const result = generatePlan(input)
-          
+
           return {
             ...prev,
             currentStep: nextStep,
@@ -137,6 +137,25 @@ export function useCalculator() {
       return { ...prev, currentStep: nextStep }
     })
   }, [])
+
+  /**
+   * Vai direto ao resultado com respostas já prontas (caminho da foto).
+   * Os avisos extras aparecem antes dos avisos do plano.
+   */
+  const concluirComRespostas = useCallback(
+    (respostas: CalculatorInput, avisosExtras: string[] = []) => {
+      if (!isInputComplete(respostas)) return
+      const result = generatePlan(respostas)
+      setPrevStepIndex(0)
+      setState({
+        currentStep: 'result',
+        answers: respostas,
+        result: { ...result, alerts: [...avisosExtras, ...result.alerts] },
+        isComplete: true,
+      })
+    },
+    []
+  )
 
   const prevStep = useCallback(() => {
     setState((prev) => {
@@ -232,6 +251,7 @@ export function useCalculator() {
     prevStep,
     goToStep,
     reset,
+    concluirComRespostas,
 
     // Helpers
     canGoNext,
