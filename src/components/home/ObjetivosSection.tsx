@@ -13,21 +13,21 @@ const OBJETIVOS = [
     texto: 'Plantio, reforma ou falhas no gramado',
     produto: 'Raiz Forte',
     href: '/produtos/raiz-forte',
-    imagem: '/images/grass/quiz/plantar-grama-nova.png',
+    imagem: '/images/grass/quiz/objetivo-plantio.webp',
   },
   {
     titulo: 'Meu gramado está amarelado',
     texto: 'Sem cor, fraco ou sem vida',
     produto: 'Verde Rápido',
     href: '/produtos/verde-rapido',
-    imagem: '/images/grass/quiz/fraco-ou-amarelado.png',
+    imagem: '/images/grass/quiz/objetivo-amarelado.webp',
   },
   {
     titulo: 'Quero manter forte',
     texto: 'Resistência à seca, ao sol e ao pisoteio',
     produto: 'Resistência Total',
     href: '/produtos/resistencia-total',
-    imagem: '/images/grass/quiz/fortalecer.png',
+    imagem: '/images/grass/quiz/objetivo-forte.webp',
   },
 ] as const
 
