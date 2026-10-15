@@ -27,7 +27,7 @@ export function StepObjective() {
         <ImageRadioCard
           label="Plantar grama nova"
           description="Começando do zero"
-          image="/images/grass/quiz/plantar-grama-nova.png"
+          image="/images/grass/quiz/objetivo-plantio.webp"
           checked={answers.objetivo === 'implantacao'}
           onChange={() => setAnswer('objetivo', 'implantacao')}
           name="objective"
@@ -47,7 +47,7 @@ export function StepObjective() {
         <ImageRadioCard
           label="Fortalecer"
           description="Calor, pisoteio ou seca"
-          image="/images/grass/quiz/fortalecer.png"
+          image="/images/grass/quiz/objetivo-forte.webp"
           checked={answers.objetivo === 'resistencia'}
           onChange={() => setAnswer('objetivo', 'resistencia')}
           name="objective"

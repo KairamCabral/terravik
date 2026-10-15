@@ -37,7 +37,7 @@ export function StepCondition() {
         <ImageRadioCard
           label="Fraco ou amarelado"
           description="Cor pálida, crescimento lento"
-          image="/images/grass/quiz/fraco-ou-amarelado.png"
+          image="/images/grass/quiz/objetivo-amarelado.webp"
           checked={answers.nivel === 'fraco_amarelado'}
           onChange={() => setAnswer('nivel', 'fraco_amarelado')}
           name="condition"
